@@ -9,7 +9,7 @@ namespace dae
     class FPSComponent final : public Component
     {
     public:
-        FPSComponent(std::shared_ptr<GameObject> owner);
+        explicit FPSComponent(GameObject* owner); 
 
         void Update() override;
 
@@ -17,5 +17,7 @@ namespace dae
         int m_frameCount;
         int m_fps;
         std::chrono::time_point<std::chrono::high_resolution_clock> m_lastTime;
+        TextComponent* m_textComponent;
     };
 }
+

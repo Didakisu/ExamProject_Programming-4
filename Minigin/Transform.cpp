@@ -1,10 +1,9 @@
-
 #include "Transform.h"
 
 namespace dae
 {
-    Transform::Transform(std::shared_ptr<GameObject> owner)
-        : Component(owner) 
+    Transform::Transform(GameObject* owner)
+        : Component(owner)
     {
     }
 
@@ -13,6 +12,7 @@ namespace dae
         m_position = { x, y, z };
     }
 }
+
 
 
 

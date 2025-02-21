@@ -1,4 +1,4 @@
-#include <stdexcept>
+﻿#include <stdexcept>
 #define WIN32_LEAN_AND_MEAN 
 #include <windows.h>
 #include <SDL.h>
@@ -10,6 +10,8 @@
 #include "Renderer.h"
 #include "ResourceManager.h"
 #include <chrono>
+#include <thread>
+
 
 SDL_Window* g_window{};
 
@@ -78,7 +80,6 @@ dae::Minigin::~Minigin()
 
 void dae::Minigin::Run(const std::function<void()>& load)
 {
-
 	load();
 
 	auto& renderer = Renderer::GetInstance();
@@ -89,6 +90,8 @@ void dae::Minigin::Run(const std::function<void()>& load)
 	const float fixedTimeStep = 0.016f;  
 	float accumulator = 0.0f;
 
+	const float targetFrameTime = 1.0f / 60.0f;  
+
 	auto previousTime = clock::now();
 	bool doContinue = true;
 
@@ -98,22 +101,28 @@ void dae::Minigin::Run(const std::function<void()>& load)
 		std::chrono::duration<float> frameTime = currentTime - previousTime;
 		previousTime = currentTime;
 
-		float deltaTime = frameTime.count();  
-		accumulator += deltaTime;              
+		float deltaTime = frameTime.count();
+		accumulator += deltaTime;
 
-		doContinue = input.ProcessInput();     
-
-		sceneManager.Update(deltaTime);       
+		sceneManager.Update(deltaTime);
 
 		while (accumulator >= fixedTimeStep)
 		{
-			sceneManager.FixedUpdate(fixedTimeStep);  
-			accumulator -= fixedTimeStep;           
+			sceneManager.FixedUpdate(fixedTimeStep);
+			accumulator -= fixedTimeStep;
 		}
 
-		// float interpolation = accumulator / fixedTimeStep;  
-		//sceneManager.Update(deltaTime);
-		renderer.Render();
-	}
+		doContinue = input.ProcessInput();
 
+		renderer.Render();
+
+		auto frameEndTime = clock::now();
+		std::chrono::duration<float> elapsedTime = frameEndTime - currentTime;
+		float sleepTime = targetFrameTime - elapsedTime.count();
+
+		if (sleepTime > 0)
+		{
+			std::this_thread::sleep_for(std::chrono::duration<float>(sleepTime));
+		}
+	}
 }

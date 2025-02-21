@@ -11,7 +11,7 @@ namespace dae
     class TextComponent final : public Component
     {
     public:
-        TextComponent(std::shared_ptr<GameObject> owner, const std::string& text, std::shared_ptr<Font> font);
+        TextComponent(GameObject* owner, const std::string& text, std::shared_ptr<Font> font);
         void Update() override;
         void Render() const override;
 
@@ -23,10 +23,11 @@ namespace dae
         std::string m_text;
         std::shared_ptr<Font> m_font;
         std::shared_ptr<Texture2D> m_textTexture;
-        std::shared_ptr<GameObject> m_owner;
+        GameObject* m_owner;  // raw pointer
 
-        std::shared_ptr<Transform> m_transform;
+        Transform* m_transform; // raw pointer
     };
 }
+
 
 

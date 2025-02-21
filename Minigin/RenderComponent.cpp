@@ -6,8 +6,8 @@
 
 namespace dae
 {
-    RenderComponent::RenderComponent(std::shared_ptr<GameObject> owner, const std::string& textureFile)
-        : Component(owner)
+    RenderComponent::RenderComponent(GameObject* owner, const std::string& textureFile)
+        : Component(owner)  
     {
         SetTexture(textureFile);
     }
@@ -21,7 +21,7 @@ namespace dae
     {
         if (m_texture)
         {
-            auto* transform = m_pOwner->GetComponent<Transform>();
+            auto* transform = m_pOwner->GetComponent<Transform>(); 
             if (transform)
             {
                 const auto& pos = transform->GetPosition();
@@ -35,4 +35,5 @@ namespace dae
         m_texture = ResourceManager::GetInstance().LoadTexture(filename);
     }
 }
+
 

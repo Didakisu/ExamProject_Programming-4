@@ -4,28 +4,30 @@
 
 namespace dae
 {
-    FPSComponent::FPSComponent(std::shared_ptr<GameObject> owner)
+    FPSComponent::FPSComponent(GameObject* owner)
         : Component(owner), m_frameCount(0), m_fps(0), m_lastTime(std::chrono::high_resolution_clock::now())
-    {}
+    {
+        m_textComponent = owner->GetComponent<TextComponent>();
+    }
 
     void FPSComponent::Update()
     {
-        m_frameCount++;  
+        m_frameCount++;
 
         auto now = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> elapsed = now - m_lastTime;
 
-        if (elapsed.count() >= 0.5f)
+        if (elapsed.count() >= 1.f)
         {
-            m_fps = m_frameCount;  
-            m_frameCount = 0;  
-            m_lastTime = now;  
+            m_fps = m_frameCount;
+            m_frameCount = 0;
+            m_lastTime = now;
 
-            auto* textComponent = m_pOwner->GetComponent<TextComponent>();
-            if (textComponent)
+            if (m_textComponent)
             {
-                textComponent->SetText("FPS: " + std::to_string(m_fps));
+                m_textComponent->SetText("FPS: " + std::to_string(m_fps));
             }
         }
     }
 }
+
