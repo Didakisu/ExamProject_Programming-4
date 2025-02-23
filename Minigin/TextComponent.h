@@ -23,9 +23,9 @@ namespace dae
         std::string m_text;
         std::shared_ptr<Font> m_font;
         std::shared_ptr<Texture2D> m_textTexture;
-        GameObject* m_owner;  // raw pointer
+        GameObject* m_owner;  
 
-        Transform* m_transform; // raw pointer
+        Transform* m_transform; 
     };
 }
 

@@ -21,31 +21,11 @@ namespace dae
         void Render() const;
 
         Transform* GetTransform();
-        glm::vec3 GetPosition() const;
-        void SetPosition(float x, float y);
-
-        void SetTexture(const std::string& filename);
-        /*void SetParent(GameObject* parent, bool keepWorldPosition);
-        void AddChild(GameObject* child);
-        void RemoveChild(GameObject* child);
-
-        const glm::vec3& SetLocalPosition(const glm::vec3& pos);
-        const void GetWorldPosition();
-        void UpdateWorldPosition();*/
 
         void SetParent(GameObject* parent, bool keepWorldPosition);
         void RemoveChild(GameObject* child);
         bool IsChild(GameObject* parent) const;
-
-
-
-        const glm::vec3& GetWorldPosition();
-        void UpdateWorldPosition();
-        void SetLocalPosition(const glm::vec3& pos);
-        void SetPositionDirty();
-
-
-
+        GameObject* GetParent() const;
 
         template <typename T, typename... Args>
         T* AddComponent(Args&&... args)
@@ -97,13 +77,9 @@ namespace dae
 
     private:
         std::vector<Component*> m_components;
-
         std::vector<GameObject*> m_children;
-        GameObject* m_parent;
 
-        glm::vec3 m_worldPos;
-        glm::vec3 m_localPos;
-        bool m_isPosDirty;
+        GameObject* m_parent;
     };
 
 }

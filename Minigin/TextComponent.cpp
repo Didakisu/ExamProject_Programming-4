@@ -20,7 +20,6 @@ namespace dae
     {
         if (m_needsUpdate)
         {
-            //std::cout << "text component is being upgraded" << std::endl;
 
             const SDL_Color color = { 255, 255, 255, 255 };
             auto surf = TTF_RenderText_Blended(m_font->GetFont(), m_text.c_str(), color);
@@ -42,14 +41,14 @@ namespace dae
             return;
         }
 
-        if (!m_owner) return; // Ensure owner exists
+        if (!m_owner) return; 
         auto* transform = m_owner->GetComponent<Transform>();
         if (!transform)
         {
             return;
         }
 
-        const auto& pos = transform->GetPosition();
+        const auto& pos = transform->GetWorldPosition();
 
         Renderer::GetInstance().RenderTexture(*m_textTexture, pos.x, pos.y);
     }
@@ -62,7 +61,7 @@ namespace dae
 
     void TextComponent::SetPosition(float x, float y)
     {
-        if (!m_owner) return; // Ensure owner exists
+        if (!m_owner) return; 
         auto* transform = m_owner->GetComponent<Transform>();
         if (transform)
         {

@@ -3,6 +3,7 @@
 #include "Renderer.h"
 #include "ResourceManager.h"
 #include "Transform.h"
+#include <iostream>
 
 namespace dae
 {
@@ -21,10 +22,10 @@ namespace dae
     {
         if (m_texture)
         {
-            auto* transform = m_pOwner->GetComponent<Transform>(); 
+            auto* transform = m_pOwner->GetComponent<Transform>();
             if (transform)
             {
-                const auto& pos = transform->GetPosition();
+                const auto& pos = transform->GetWorldPosition();
                 Renderer::GetInstance().RenderTexture(*m_texture, pos.x, pos.y);
             }
         }
