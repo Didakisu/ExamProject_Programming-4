@@ -2,7 +2,6 @@
 #include <iostream>
 #include "GameObject.h"
 
-
 namespace dae
 {
     Transform::Transform(GameObject* owner)

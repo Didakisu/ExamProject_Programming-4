@@ -6,8 +6,6 @@
 #include "Transform.h"
 #include <glm.hpp>
 
-
-
 namespace dae
 {
     class GameObject final

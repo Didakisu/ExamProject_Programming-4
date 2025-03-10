@@ -108,46 +108,6 @@ void dae::GameObject::SetParent(GameObject* parent, bool keepWorldPosition)
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //void dae::GameObject::SetLocalPosition(const glm::vec3& pos)
 //{
 //    m_localPosition = pos;

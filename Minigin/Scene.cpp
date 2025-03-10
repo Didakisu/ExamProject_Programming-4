@@ -32,7 +32,6 @@ void Scene::Update()
 	{
 		object->Update();
 	}
-	//и тук да имам for loop за всеки един object???
 }
 
 void dae::Scene::FixedUpdate()

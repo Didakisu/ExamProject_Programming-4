@@ -56,8 +56,8 @@ dae::Minigin::Minigin(const std::string &dataPath)
 		"Programming 4 assignment",
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
-		640,
-		480,
+		640, 
+		480, 
 		SDL_WINDOW_OPENGL
 	);
 	if (g_window == nullptr) 
@@ -112,7 +112,7 @@ void dae::Minigin::Run(const std::function<void()>& load)
 			accumulator -= fixedTimeStep;
 		}
 
-		doContinue = input.ProcessInput();
+		doContinue = input.ProcessInput(deltaTime);
 
 		renderer.Render();
 

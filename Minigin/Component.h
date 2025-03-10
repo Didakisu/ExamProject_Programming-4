@@ -12,7 +12,7 @@ namespace dae
             : m_pOwner(owner) {} 
 
         virtual ~Component() = default;
-        virtual void Update() {}
+        virtual void Update() {};
         virtual void FixedUpdate() {};
         virtual void Render() const {}
 

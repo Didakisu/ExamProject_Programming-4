@@ -13,6 +13,8 @@ namespace dae
 		SDL_Renderer* m_renderer{};
 		SDL_Window* m_window{};
 		SDL_Color m_clearColor{};	
+		//
+		SDL_GLContext m_glContext{};
 	public:
 		void Init(SDL_Window* window);
 		void Render() const;
