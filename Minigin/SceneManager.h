@@ -18,7 +18,7 @@ namespace dae
 		void Render();
 
 		float GetDeltaTime() const;
-		float GetFixedTimeStep() const;
+		//float GetFixedTimeStep() const;
 	private:
 		friend class Singleton<SceneManager>;
 		SceneManager() = default;

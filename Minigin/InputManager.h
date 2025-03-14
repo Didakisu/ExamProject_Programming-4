@@ -7,7 +7,6 @@
 #include <unordered_map>
 #include <unordered_set>
 
-
 namespace dae
 {
     enum class InputState {
@@ -20,6 +19,9 @@ namespace dae
         Gamepad::GamePadButton button; 
         InputState state;               
         std::unique_ptr<Command> command;
+        //
+        unsigned int controllerIndex;
+        //
     };
 
     struct KeyboardBinding {
@@ -35,13 +37,16 @@ namespace dae
 
         void BindGamepadCommand(Gamepad::GamePadButton button, InputState state, std::unique_ptr<Command> command);
         void BindKeyboardCommand(SDL_Scancode key, InputState state, std::unique_ptr<Command> command);
+        void UnbindGamepadCommand(Gamepad::GamePadButton button);
+
+        void UnbindKeyboardCommand(SDL_Scancode key);
+        void AddGamepad(unsigned int index);
     private:
         std::vector<KeyboardBinding> m_KeyboardBindings;
         std::unordered_map<SDL_Scancode, bool> m_PreviousKeyboardState;
 
         std::vector<GamepadBinding> m_GamepadBindings;
-        Gamepad m_Gamepad{0};
+        std::vector<std::unique_ptr<Gamepad>> m_Gamepads;
 	};
-
 }
 

@@ -2,44 +2,14 @@
 #include "GameObject.h"
 #include <iostream>
 
-using namespace dae;
-
-void MoveUpCommand::Execute(float deltaTime)
+void dae::MoveCommand::Execute(float deltaTime)
 {
-    if (m_pGameObject && m_pGameObject->GetTransform())
-    {
-        auto currentPos = m_pGameObject->GetTransform()->GetLocalPosition();
-        currentPos.y -= m_Speed * deltaTime;
-        m_pGameObject->GetTransform()->SetLocalPosition(currentPos.x , currentPos.y , currentPos.z);
-    }
-}
+	if (!m_pGameObject || !m_pGameObject->GetTransform()) return;
 
-void MoveDownCommand::Execute(float deltaTime)
-{
-    if (m_pGameObject && m_pGameObject->GetTransform())
-    {
-        auto currentPos = m_pGameObject->GetTransform()->GetLocalPosition();
-        currentPos.y += m_Speed * deltaTime;
-        m_pGameObject->GetTransform()->SetLocalPosition(currentPos.x, currentPos.y, currentPos.z);
-    }
-}
+	auto currentPos = m_pGameObject->GetTransform()->GetLocalPosition();
 
-void MoveLeftCommand::Execute(float deltaTime)
-{
-    if (m_pGameObject && m_pGameObject->GetTransform())
-    {
-        auto currentPos = m_pGameObject->GetTransform()->GetLocalPosition();
-        currentPos.x -= m_Speed * deltaTime;
-        m_pGameObject->GetTransform()->SetLocalPosition(currentPos.x, currentPos.y, currentPos.z);
-    }
-}
+	currentPos.x += m_Direction.x * m_Speed * deltaTime;
+	currentPos.y += m_Direction.y * m_Speed * deltaTime;
 
-void MoveRightCommand::Execute(float deltaTime)
-{
-    if (m_pGameObject && m_pGameObject->GetTransform())
-    {
-        auto currentPos = m_pGameObject->GetTransform()->GetLocalPosition();
-        currentPos.x += m_Speed * deltaTime;
-        m_pGameObject->GetTransform()->SetLocalPosition(currentPos.x, currentPos.y, currentPos.z);
-    }
+	m_pGameObject->GetTransform()->SetLocalPosition(currentPos.x, currentPos.y, currentPos.z);
 }

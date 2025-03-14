@@ -1,6 +1,5 @@
 #include <SDL.h>
 #include "InputManager.h"
-#include <backends/imgui_impl_sdl2.h>
 #include <iostream>
 #include "Gamepad.h"
 
@@ -37,21 +36,21 @@ namespace dae {
 
             m_PreviousKeyboardState[binding.key] = currentState;
         }
-             //ImGui_ImplSDL2_ProcessEvent(&e); 
 
-        if (m_Gamepad.Update()) {
-            for (const auto& binding : m_GamepadBindings) {
-                if (binding.state == InputState::Down && m_Gamepad.IsButtonDown(static_cast<Gamepad::GamePadButton>(binding.button))) 
-                {
-                    if (binding.command) binding.command->Execute(deltaTime);
-                }
-                else if (binding.state == InputState::Released && m_Gamepad.IsButtonUp(static_cast<Gamepad::GamePadButton>(binding.button))) 
-                {
-                    if (binding.command) binding.command->Execute(deltaTime);
-                }
-                else if (binding.state == InputState::Pressed && m_Gamepad.IsButtonPressed(static_cast<Gamepad::GamePadButton>(binding.button))) 
-                {
-                    if (binding.command) binding.command->Execute(deltaTime);
+        for (const auto& gamepad : m_Gamepads) {
+            if (gamepad->Update()) {
+                for (const auto& binding : m_GamepadBindings) {
+                    if (binding.controllerIndex == gamepad->GetIndex()) {
+                        if (binding.state == InputState::Down && gamepad->IsButtonDown(binding.button)) {
+                            if (binding.command) binding.command->Execute(deltaTime);
+                        }
+                        else if (binding.state == InputState::Released && gamepad->IsButtonUp(binding.button)) {
+                            if (binding.command) binding.command->Execute(deltaTime);
+                        }
+                        else if (binding.state == InputState::Pressed && gamepad->IsButtonPressed(binding.button)) {
+                            if (binding.command) binding.command->Execute(deltaTime);
+                        }
+                    }
                 }
             }
         }
@@ -66,4 +65,29 @@ namespace dae {
     void InputManager::BindKeyboardCommand(SDL_Scancode key, InputState state, std::unique_ptr<Command> command) {
         m_KeyboardBindings.push_back({ key, state, std::move(command) });
     }
+
+    void InputManager::UnbindGamepadCommand(Gamepad::GamePadButton button) {
+        m_GamepadBindings.erase(
+            std::remove_if(m_GamepadBindings.begin(), m_GamepadBindings.end(),
+                [button](const GamepadBinding& binding) {
+                    return binding.button == button;
+                }),
+            m_GamepadBindings.end()
+        );
+    }
+
+    void InputManager::UnbindKeyboardCommand(SDL_Scancode key) {
+        m_KeyboardBindings.erase(
+            std::remove_if(m_KeyboardBindings.begin(), m_KeyboardBindings.end(),
+                [key](const KeyboardBinding& binding) {
+                    return binding.key == key;
+                }),
+            m_KeyboardBindings.end()
+        );
+    }
+
+    void InputManager::AddGamepad(unsigned int index) {
+        m_Gamepads.push_back(std::make_unique<Gamepad>(index));
+    }
+
 }

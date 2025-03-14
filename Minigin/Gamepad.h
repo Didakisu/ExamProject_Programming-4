@@ -1,6 +1,5 @@
 #pragma once
-//#include "windows.h"
-//#include <XInput.h>
+#include <memory>
 
 namespace dae {
 
@@ -33,9 +32,13 @@ namespace dae {
         bool IsButtonDown(Gamepad::GamePadButton button) const;
         bool IsButtonUp(Gamepad::GamePadButton button) const;
 
+        //
+        unsigned int GetIndex() const;
+        //
+
     private:
         class GamepadImpl; 
-        GamepadImpl* pImpl; 
+        std::unique_ptr<GamepadImpl> pImpl;
 
         unsigned int m_Index;
     };
