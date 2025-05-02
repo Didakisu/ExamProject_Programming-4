@@ -7,7 +7,7 @@ void dae::SceneManager::Update(float deltaTime)
 
 	for (auto& scene : m_scenes)
 	{
-		scene->Update();
+		scene->Update(deltaTime);
 	}
 }
 
@@ -42,4 +42,10 @@ float dae::SceneManager::GetDeltaTime() const
 {
 	return m_DeltaTime;
 }
+
+void dae::SceneManager::GetCurrentScene()
+{
+
+}
+
 

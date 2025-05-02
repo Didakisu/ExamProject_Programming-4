@@ -14,11 +14,10 @@ namespace dae
 
 		void Update(float deltaTime);
 		void FixedUpdate(float fixedTimeStep);
-
 		void Render();
-
 		float GetDeltaTime() const;
-		//float GetFixedTimeStep() const;
+		void GetCurrentScene();
+
 	private:
 		friend class Singleton<SceneManager>;
 		SceneManager() = default;

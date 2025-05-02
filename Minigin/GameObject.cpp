@@ -16,13 +16,27 @@ dae::GameObject::~GameObject()
     m_components.clear();
 }
 
-void dae::GameObject::Update()
+//void dae::GameObject::Update()
+//{
+//    for (auto& component : m_components)
+//    {
+//        component->Update();
+//    }
+//}
+
+void dae::GameObject::Update(float deltaTime)
 {
-    for (auto& component : m_components)
+    for (auto* component : m_components)
     {
-        component->Update();
+        component->Update(deltaTime);
+    }
+
+    for (auto* child : m_children)
+    {
+        child->Update(deltaTime);
     }
 }
+
 
 void dae::GameObject::FixedUpdate()
 {
@@ -107,27 +121,14 @@ void dae::GameObject::SetParent(GameObject* parent, bool keepWorldPosition)
         GetTransform()->SetPositionDirty();
     }
 }
-
-//void dae::GameObject::SetLocalPosition(const glm::vec3& pos)
+//
+//void dae::GameObject::LoseLife()
 //{
-//    m_localPosition = pos;
-//    SetPositionDirty();
+//    if (m_Lives > 0)
+//    {
+//        --m_Lives;
+//        std::cout << "Player lost a life! Lives left: " << m_Lives << std::endl;
+//    }
 //}
 //
-//const glm::vec3& dae::GameObject::GetWorldPosition()
-//{
-//    if (m_positionIsDirty)
-//        UpdateWorldPosition();
-//    return m_worldPosition;
-//}
-//void dae::GameObject::UpdateWorldPosition()
-//{
-//    if (m_positionIsDirty)
-//    {
-//        if (m_parent == nullptr)
-//            m_worldPosition = m_localPosition;
-//        else
-//            m_worldPosition = m_parent->GetWorldPosition() + m_localPosition;
-//    }
-//    m_positionIsDirty = false;
-//}
+

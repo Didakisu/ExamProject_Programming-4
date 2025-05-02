@@ -14,7 +14,7 @@ namespace dae
         GameObject() = default;
         ~GameObject();
         
-        void Update();
+        void Update(float deltaTime);
         void FixedUpdate();
         void Render() const;
 
@@ -73,11 +73,22 @@ namespace dae
                 });
         }
 
+        //
+        //int GetLives() const { return m_Lives; }
+        //void LoseLife();
+        ////
+        bool IsMarkedForDestruction() const { return m_MarkedForDestruction; }
+        void MarkForDestruction() { m_MarkedForDestruction = true; }
+
     private:
         std::vector<Component*> m_components;
         std::vector<GameObject*> m_children;
 
         GameObject* m_parent;
+
+        bool m_MarkedForDestruction = false;
+        //
+      /*  int m_Lives{3};*/
     };
 
 }

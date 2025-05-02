@@ -20,7 +20,7 @@ namespace dae
         const void SetPositionDirty() { m_isPositionDirty = true; }
         bool IsPositionDirty() { return m_isPositionDirty; }
 
-        void Update() override {};
+        void Update(float /*deltaTime*/) override {};
 
     private:
         glm::vec3 m_worldPosition{};

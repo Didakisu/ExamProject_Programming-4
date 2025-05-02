@@ -9,8 +9,12 @@
 #include "SceneManager.h"
 #include "Renderer.h"
 #include "ResourceManager.h"
+#include "EventManager.h"
 #include <chrono>
 #include <thread>
+#include "SDLMixerSoundSystem.h"
+#include "ServiceLocator.h"
+#include "LoggingSoundSystem.h"
 
 
 SDL_Window* g_window{};
@@ -52,12 +56,14 @@ dae::Minigin::Minigin(const std::string &dataPath)
 		throw std::runtime_error(std::string("SDL_Init Error: ") + SDL_GetError());
 	}
 
+	//SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+
 	g_window = SDL_CreateWindow(
 		"Programming 4 assignment",
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
-		640, 
-		480, 
+		940, 
+		580, 
 		SDL_WINDOW_OPENGL
 	);
 	if (g_window == nullptr) 
@@ -66,6 +72,7 @@ dae::Minigin::Minigin(const std::string &dataPath)
 	}
 
 	Renderer::GetInstance().Init(g_window);
+	ServiceLocator::ProvideSoundSystem(std::make_unique<LoggingSoundSystem>(std::make_unique<SDLMixerSoundSystem>(dataPath)));
 
 	ResourceManager::GetInstance().Init(dataPath);
 }
@@ -85,6 +92,7 @@ void dae::Minigin::Run(const std::function<void()>& load)
 	auto& renderer = Renderer::GetInstance();
 	auto& sceneManager = SceneManager::GetInstance();
 	auto& input = InputManager::GetInstance();
+	auto& eventManager = EventManager::GetInstance();
 
 	using clock = std::chrono::high_resolution_clock;
 	const float fixedTimeStep = 0.016f;  
@@ -113,6 +121,7 @@ void dae::Minigin::Run(const std::function<void()>& load)
 		}
 
 		doContinue = input.ProcessInput(deltaTime);
+		eventManager.ProcessEvents();
 
 		renderer.Render();
 

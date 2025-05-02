@@ -9,7 +9,7 @@ namespace dae
     public:
         RotatorComponent(GameObject* owner, float radius, float speed);
 
-        void Update() override;
+        void Update(float deltaTime) override;
 
     private:
         GameObject* m_Owner;         

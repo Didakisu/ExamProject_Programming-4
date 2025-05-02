@@ -11,7 +11,7 @@ namespace dae
     public:
         explicit FPSComponent(GameObject* owner); 
 
-        void Update() override;
+        void Update(float deltaTime) override;
 
     private:
         int m_frameCount;

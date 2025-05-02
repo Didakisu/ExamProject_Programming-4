@@ -10,7 +10,7 @@ namespace dae
         m_textComponent = owner->GetComponent<TextComponent>();
     }
 
-    void FPSComponent::Update()
+    void FPSComponent::Update(float /*deltaTime*/)
     {
         m_frameCount++;
 

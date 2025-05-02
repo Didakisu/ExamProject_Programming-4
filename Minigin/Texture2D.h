@@ -18,6 +18,12 @@ namespace dae
 
 		glm::ivec2 GetSize() const;
 
+		/*int GetWidth() const; 
+		int GetHeight() const;*/
+
+		//
+		void Resize(int newWidth, int newHeight);
+		//
 		Texture2D(const Texture2D &) = delete;
 		Texture2D(Texture2D &&) = delete;
 		Texture2D & operator= (const Texture2D &) = delete;

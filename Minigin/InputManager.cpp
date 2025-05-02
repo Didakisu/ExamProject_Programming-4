@@ -5,7 +5,7 @@
 
 namespace dae {
 
-    bool InputManager::ProcessInput(float deltaTime) 
+    bool InputManager::ProcessInput(float deltaTime)
     {
         SDL_Event e;
         while (SDL_PollEvent(&e))
@@ -14,42 +14,50 @@ namespace dae {
             {
                 return false;
             }
-
         }
+
         const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 
-        for (const auto& binding : m_KeyboardBindings) 
+        bool keyBeingProcessed = false;
+
+        for (const auto& binding : m_KeyboardBindings)
         {
-            bool currentState = keyboardState[binding.key] != 0; 
+            bool currentState = keyboardState[binding.key] != 0;
 
-            if (binding.state == InputState::Down && currentState && !m_PreviousKeyboardState[binding.key]) {
-                if (binding.command) binding.command->Execute(deltaTime); 
-            }
-
-            else if (binding.state == InputState::Pressed && currentState) {
-                if (binding.command) binding.command->Execute(deltaTime);
-            }
-
-            else if (binding.state == InputState::Released && !currentState && m_PreviousKeyboardState[binding.key]) {
-                if (binding.command) binding.command->Execute(deltaTime); 
+            if (currentState) {
+                if (!keyBeingProcessed) {
+                    keyBeingProcessed = true; 
+                    if (binding.state == InputState::Down && !m_PreviousKeyboardState[binding.key]) {
+                        if (binding.command) binding.command->Execute(deltaTime);
+                    }
+                    else if (binding.state == InputState::Pressed && currentState) {
+                        if (binding.command) binding.command->Execute(deltaTime);
+                    }
+                    else if (binding.state == InputState::Released && !currentState && m_PreviousKeyboardState[binding.key]) {
+                        if (binding.command) binding.command->Execute(deltaTime);
+                    }
+                }
             }
 
             m_PreviousKeyboardState[binding.key] = currentState;
         }
 
-        for (const auto& gamepad : m_Gamepads) {
-            if (gamepad->Update()) {
-                for (const auto& binding : m_GamepadBindings) {
-                    if (binding.controllerIndex == gamepad->GetIndex()) {
-                        if (binding.state == InputState::Down && gamepad->IsButtonDown(binding.button)) {
-                            if (binding.command) binding.command->Execute(deltaTime);
-                        }
-                        else if (binding.state == InputState::Released && gamepad->IsButtonUp(binding.button)) {
-                            if (binding.command) binding.command->Execute(deltaTime);
-                        }
-                        else if (binding.state == InputState::Pressed && gamepad->IsButtonPressed(binding.button)) {
-                            if (binding.command) binding.command->Execute(deltaTime);
-                        }
+        if (m_Gamepad.Update()) {
+            bool gamepadButtonBeingProcessed = false;
+
+            for (const auto& binding : m_GamepadBindings) {
+                bool currentButtonState = m_Gamepad.IsButtonDown(static_cast<Gamepad::GamePadButton>(binding.button));
+
+                if (currentButtonState && !gamepadButtonBeingProcessed) {
+                    gamepadButtonBeingProcessed = true; 
+                    if (binding.state == InputState::Down && currentButtonState) {
+                        if (binding.command) binding.command->Execute(deltaTime);
+                    }
+                    else if (binding.state == InputState::Released && !currentButtonState) {
+                        if (binding.command) binding.command->Execute(deltaTime);
+                    }
+                    else if (binding.state == InputState::Pressed && currentButtonState) {
+                        if (binding.command) binding.command->Execute(deltaTime);
                     }
                 }
             }
@@ -66,7 +74,7 @@ namespace dae {
         m_KeyboardBindings.push_back({ key, state, std::move(command) });
     }
 
-    void InputManager::UnbindGamepadCommand(Gamepad::GamePadButton button) {
+        void InputManager::UnbindGamepadCommand(Gamepad::GamePadButton button) {
         m_GamepadBindings.erase(
             std::remove_if(m_GamepadBindings.begin(), m_GamepadBindings.end(),
                 [button](const GamepadBinding& binding) {
@@ -76,18 +84,13 @@ namespace dae {
         );
     }
 
-    void InputManager::UnbindKeyboardCommand(SDL_Scancode key) {
-        m_KeyboardBindings.erase(
-            std::remove_if(m_KeyboardBindings.begin(), m_KeyboardBindings.end(),
-                [key](const KeyboardBinding& binding) {
-                    return binding.key == key;
-                }),
-            m_KeyboardBindings.end()
-        );
-    }
-
-    void InputManager::AddGamepad(unsigned int index) {
-        m_Gamepads.push_back(std::make_unique<Gamepad>(index));
-    }
-
+        void InputManager::UnbindKeyboardCommand(SDL_Scancode key) {
+            m_KeyboardBindings.erase(
+                std::remove_if(m_KeyboardBindings.begin(), m_KeyboardBindings.end(),
+                    [key](const KeyboardBinding& binding) {
+                        return binding.key == key;
+                    }),
+                m_KeyboardBindings.end()
+            );
+        }
 }

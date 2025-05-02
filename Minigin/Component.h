@@ -8,11 +8,11 @@ namespace dae
     class Component
     {
     public:
-        explicit Component(GameObject* owner)
+        explicit Component(GameObject* owner )
             : m_pOwner(owner) {} 
 
         virtual ~Component() = default;
-        virtual void Update() {};
+        virtual void Update(float /*deltaTime*/) {};
         virtual void FixedUpdate() {};
         virtual void Render() const {}
 

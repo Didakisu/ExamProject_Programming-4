@@ -14,10 +14,10 @@ namespace dae
     {
     }
 
-    void RotatorComponent::Update()
+    void RotatorComponent::Update(float deltaTime)
     {
         //delta time could be added
-        m_Angle += m_Speed;
+        m_Angle += m_Speed * deltaTime;
 
         float x = m_Radius * cosf(m_Angle);
         float y = m_Radius * sinf(m_Angle);
