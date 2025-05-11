@@ -24,6 +24,7 @@ namespace dae
         void RemoveChild(GameObject* child);
         bool IsChild(GameObject* parent) const;
         GameObject* GetParent() const;
+        const std::vector<GameObject*>& GetChildren() const { return m_children; } 
 
         template <typename T, typename... Args>
         T* AddComponent(Args&&... args)

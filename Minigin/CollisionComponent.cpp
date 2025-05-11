@@ -53,13 +53,13 @@ namespace dae
             aPos.y < bPos.y + bSize.y &&
             aPos.y + aSize.y > bPos.y);
 
-        std::cout << "Checking AABB overlap:\n";
+       /* std::cout << "Checking AABB overlap:\n";
         std::cout << "A Pos: (" << aPos.x << ", " << aPos.y << "), Size: (" << aSize.x << ", " << aSize.y << ")\n";
         std::cout << "B Pos: (" << bPos.x << ", " << bPos.y << "), Size: (" << bSize.x << ", " << bSize.y << ")\n";
         std::cout << "Overlapping: " << (overlapping ? "Yes" : "No") << "\n";
 
         std::cout << "Player Pos: (" << aPos.x << ", " << aPos.y << ") -> Size: (" << aSize.x << ", " << aSize.y << ")\n";
-        std::cout << "Collectible Pos: (" << bPos.x << ", " << bPos.y << ") -> Size: (" << bSize.x << ", " << bSize.y << ")\n";
+        std::cout << "Collectible Pos: (" << bPos.x << ", " << bPos.y << ") -> Size: (" << bSize.x << ", " << bSize.y << ")\n";*/
 
         return overlapping;
     }

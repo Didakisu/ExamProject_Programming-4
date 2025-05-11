@@ -1,8 +1,17 @@
 #pragma once
 #include "Component.h"
+#include <unordered_map>
 
 namespace dae
 {
+    struct Animation
+    {
+        int startFrame;
+        int numFrames;
+        float frameTime;
+    };
+
+
     class AnimationComponent final : public Component
     {
     public:
@@ -11,6 +20,8 @@ namespace dae
         void Update(float deltaTime) override;
         void Render() const override;
 
+
+
     private:
         int m_frameWidth;
         int m_frameHeight;
@@ -18,5 +29,8 @@ namespace dae
         float m_frameTime;
         float m_elapsedTime;
         int m_currentFrame;
+
+
+
     };
 }

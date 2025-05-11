@@ -61,11 +61,26 @@ void dae::Scene::FixedUpdate()
 	}
 }
 
+//void Scene::Render() const
+//{
+//	for (const auto& object : m_objects)
+//	{
+//		object->Render();
+//	}
+//}
+
 void Scene::Render() const
 {
-	for (const auto& object : m_objects)
+	auto sortedObjects = m_objects;
+
+	std::sort(sortedObjects.begin(), sortedObjects.end(),
+		[](const std::shared_ptr<GameObject>& a, const std::shared_ptr<GameObject>& b)
+		{
+			return a->GetTransform()->GetWorldPosition().z < b->GetTransform()->GetWorldPosition().z;
+		});
+
+	for (const auto& object : sortedObjects)
 	{
 		object->Render();
 	}
 }
-

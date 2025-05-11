@@ -39,6 +39,7 @@ namespace dae
         SDL_RendererFlip flip = SDL_FLIP_NONE;
         double angle = 0.0;
 
+        //?
         auto dirComp = m_pOwner->GetComponent<DirectionComponent>();
         if (dirComp)
         {
@@ -67,6 +68,8 @@ namespace dae
             nullptr,
             flip
         );
+
+
     }
 
 

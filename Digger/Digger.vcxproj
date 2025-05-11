@@ -157,18 +157,28 @@
     <ClCompile Include="CollectibleManager.cpp" />
     <ClCompile Include="Digger.cpp" />
     <ClCompile Include="GameCommands.cpp" />
+    <ClCompile Include="GoldBagComponent.cpp" />
+    <ClCompile Include="GoldBagStates.cpp" />
     <ClCompile Include="HealthComponent.cpp" />
     <ClCompile Include="HUDObserver.cpp" />
+    <ClCompile Include="LevelLoader.cpp" />
     <ClCompile Include="ScoreComponent.cpp" />
+    <ClCompile Include="TileMap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CollectibleComponent.h" />
     <ClInclude Include="CollectibleManager.h" />
     <ClInclude Include="Data.h" />
     <ClInclude Include="GameCommands.h" />
+    <ClInclude Include="GoldBagComponent.h" />
+    <ClInclude Include="GoldBagState.h" />
+    <ClInclude Include="GoldBagStates.h" />
     <ClInclude Include="HealthComponent.h" />
     <ClInclude Include="HUDObserver.h" />
+    <ClInclude Include="LevelLoader.h" />
     <ClInclude Include="ScoreComponent.h" />
+    <ClInclude Include="TileMap.h" />
+    <ClInclude Include="TileType.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

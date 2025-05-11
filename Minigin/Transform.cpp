@@ -22,6 +22,14 @@ namespace dae
 
         SetLocalPosition(newLocalPosition.x , newLocalPosition.y , newLocalPosition.z);
     }
+    const void Transform::SetPositionDirty()
+    { 
+        m_isPositionDirty = true; 
+        for (auto child : GetOwner()->GetChildren())
+        {
+            child->GetTransform()->SetPositionDirty();
+        }
+    }
 
     void Transform::SetLocalPosition(float x, float y, float z)
     {
@@ -55,10 +63,3 @@ namespace dae
         }
     }
 }
-
-
-
-
-
-
-

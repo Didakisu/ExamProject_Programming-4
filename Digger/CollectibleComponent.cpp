@@ -26,12 +26,7 @@ namespace dae
 
     void CollectibleComponent::Update(float /*deltaTime*/)
     {
-        //std::cout << "CollectibleComponent Update called.\n"; 
-        /*auto player = GetOwner(); 
-        if (player)
-        {
-            TryCollect(player);
-        }*/
+
     }
 
     void CollectibleComponent::OnNotify(const GameObject& gameObject, Event event)
@@ -44,7 +39,7 @@ namespace dae
 
     void CollectibleComponent::TryCollect(const GameObject* player)
     {
-        std::cout << "CollectibleComponent TryCollect called.\n";
+        //std::cout << "CollectibleComponent TryCollect called.\n";
         if (m_IsCollected) return;
 
         auto myCollision = GetOwner()->GetComponent<CollisionComponent>();
@@ -52,20 +47,20 @@ namespace dae
 
         if (myCollision && playerCollision)
         {
-            std::cout << "Checking collision between collectible and player...\n"; // Debugging output
+            //std::cout << "Checking collision between collectible and player...\n"; // Debugging output
             if (myCollision->IsOverlapping(*playerCollision))
             {
-                std::cout << "Collision detected! Collectible will be collected.\n";
+                //std::cout << "Collision detected! Collectible will be collected.\n";
                 OnCollected();
             }
             else
             {
-                std::cout << "No collision detected.\n";
+                //std::cout << "No collision detected.\n";
             }
         }
         else
         {
-            std::cout << "Collision component missing on either collectible or player.\n";
+            //std::cout << "Collision component missing on either collectible or player.\n";
         }
     }
 

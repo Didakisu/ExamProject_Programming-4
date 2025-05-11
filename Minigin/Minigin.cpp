@@ -16,7 +16,6 @@
 #include "ServiceLocator.h"
 #include "LoggingSoundSystem.h"
 
-
 SDL_Window* g_window{};
 
 void PrintSDLVersion()

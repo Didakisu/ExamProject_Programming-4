@@ -1,5 +1,6 @@
 #pragma once
 #include "Component.h"
+#include <glm.hpp>
 
 namespace dae
 {
@@ -18,6 +19,7 @@ namespace dae
 
         void SetDirection(Direction dir);
         Direction GetDirection() const;
+        glm::vec2 GetDirectionVector();
 
     private:
         Direction m_Direction{ Direction::Right }; // Default direction

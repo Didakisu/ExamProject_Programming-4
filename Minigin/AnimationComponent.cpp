@@ -3,6 +3,9 @@
 #include "Renderer.h"
 #include "GameObject.h"
 #include "Transform.h"
+#include <string>
+#include <unordered_map>
+
 
 namespace dae
 {
@@ -43,24 +46,9 @@ namespace dae
 
     void AnimationComponent::Render() const
     {
-       /* auto* pRenderComp = m_pOwner->GetComponent<RenderComponent>();
-        if (!pRenderComp)
-            return;
-
-        auto* transform = m_pOwner->GetComponent<Transform>();
-        if (!transform)
-            return;
-
-        const auto& pos = transform->GetWorldPosition();
-        const int srcX = m_currentFrame * m_frameWidth;
-        const int srcY = 0;
-
-        Renderer::GetInstance().RenderTexture(
-            *pRenderComp->GetTexture(),
-            pos.x, pos.y,
-            srcX, srcY,
-            m_frameWidth,
-            m_frameHeight
-        );*/
+       
     }
+
+   
+
 }
