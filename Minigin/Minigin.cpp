@@ -61,8 +61,8 @@ dae::Minigin::Minigin(const std::string &dataPath)
 		"Programming 4 assignment",
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
-		940, 
-		580, 
+		640, 
+		416, //512
 		SDL_WINDOW_OPENGL
 	);
 	if (g_window == nullptr) 

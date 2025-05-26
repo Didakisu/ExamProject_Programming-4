@@ -32,12 +32,12 @@
 #include "CollectibleComponent.h"
 #include <DirectionComponent.h>
 #include <CollisionComponent.h>
-#include "CollectibleManager.h"
 #include "TileType.h"
 #include "TileMap.h"
 #include "LevelLoader.h"
 #include "GoldBagComponent.h"
 #include "GoldBagStates.h"
+#include "PlayerComponent.h"
 
 
 
@@ -51,37 +51,71 @@ void load()
 	loader.LoadLevel("D:/3_Third Year/2nd Semester/Programming 4/2DAE10_Programming4_01_Radeva_Dimana/Data/level.txt", scene, *s_TileMap);
 
 	//character
-	auto pCharacter_2 = std::make_shared<dae::GameObject>();
-	pCharacter_2->AddComponent<dae::DirectionComponent>();
-	auto pRenderComp = pCharacter_2->AddComponent<dae::RenderComponent>("player_sprites.png", 128, 32);
-	pCharacter_2->AddComponent<dae::Transform>()->SetLocalPosition(s_TileMap->TILE_WIDTH * 10.f, s_TileMap->TILE_HEIGHT * 2.f, 3.f);
-	pCharacter_2->AddComponent<dae::AnimationComponent>(pRenderComp->GetWidth() / 4,pRenderComp->GetHeight(),4,0.15f);
-	pCharacter_2->AddComponent<dae::CollisionComponent>(32.f, 32.f , &scene);
+	//auto pCharacter_2 = std::make_shared<dae::GameObject>();
+	//pCharacter_2->AddComponent<dae::DirectionComponent>(); pCharacter_2->AddComponent<dae::RenderComponent>("MainCharacter.png", 32, 32);
+	//pCharacter_2->AddComponent<dae::Transform>()->SetLocalPosition(s_TileMap->TILE_WIDTH * 10.f, s_TileMap->TILE_HEIGHT * 2.f, 3.f);
 
-	auto pHoleBehindCharacter = std::make_shared<dae::GameObject>();
-	pHoleBehindCharacter->AddComponent<dae::RenderComponent>("tile.png", 35, 28);
-	pHoleBehindCharacter->AddComponent<dae::Transform>();
-	pHoleBehindCharacter->GetTransform()->SetLocalPosition(0.f, 0.f, -2.f);
-	pHoleBehindCharacter->SetParent(pCharacter_2.get() , false);
+	//auto pAnimComp = pCharacter_2->AddComponent<dae::AnimationComponent>();
+	//pAnimComp->AddAnimation("Run", "MainCharacter.png", 32 , 32 , 4, 0.15f);
+	//pAnimComp->PlayAnimation("Run");
+	////
+	//pCharacter_2->AddComponent<dae::CollisionComponent>(32.f, 32.f , &scene);
 
-	scene.Add(pHoleBehindCharacter);
-	scene.Add(pCharacter_2);
-	
-	dae::InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_W, dae::InputState::Pressed, std::make_unique<MoveCommand>(pCharacter_2.get(), 100.0f, glm::vec2{ 0 , -1 } , s_TileMap , scene));
-	dae::InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_S, dae::InputState::Pressed, std::make_unique<MoveCommand>(pCharacter_2.get(), 100.0f, glm::vec2{ 0 , 1 }, s_TileMap, scene));
-	dae::InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_A, dae::InputState::Pressed, std::make_unique<MoveCommand>(pCharacter_2.get(), 100.0f, glm::vec2{ -1 , 0 }, s_TileMap, scene));
-	dae::InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_D, dae::InputState::Pressed, std::make_unique<MoveCommand>(pCharacter_2.get(), 100.0f, glm::vec2{ 1 , 0 }, s_TileMap, scene));
+	//auto pHoleBehindCharacter = std::make_shared<dae::GameObject>();
+	//pHoleBehindCharacter->AddComponent<dae::RenderComponent>("tile.png", 35, 28);
+	//pHoleBehindCharacter->AddComponent<dae::Transform>();
+	//pHoleBehindCharacter->GetTransform()->SetLocalPosition(0.f, 0.f, -2.f);
+	//pHoleBehindCharacter->SetParent(pCharacter_2.get() , false);
 
-	dae::InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_X, dae::InputState::Down, std::make_unique<KillPlayerCommand>(pCharacter_2.get()));
-	
-	auto pScoreComponent_2 = pCharacter_2->AddComponent<dae::ScoreComponent>(0);
+	//scene.Add(pHoleBehindCharacter);
+	//scene.Add(pCharacter_2);
+	//
+	//dae::InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_W, dae::InputState::Pressed, std::make_unique<MoveCommand>(pCharacter_2.get(), 100.0f, glm::vec2{ 0 , -1 } , s_TileMap , scene));
+	//dae::InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_S, dae::InputState::Pressed, std::make_unique<MoveCommand>(pCharacter_2.get(), 100.0f, glm::vec2{ 0 , 1 }, s_TileMap, scene));
+	//dae::InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_A, dae::InputState::Pressed, std::make_unique<MoveCommand>(pCharacter_2.get(), 100.0f, glm::vec2{ -1 , 0 }, s_TileMap, scene));
+	//dae::InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_D, dae::InputState::Pressed, std::make_unique<MoveCommand>(pCharacter_2.get(), 100.0f, glm::vec2{ 1 , 0 }, s_TileMap, scene));
 
-	dae::EventManager::GetInstance().AddObserver(pScoreComponent_2, { EVENT_PLAYER_COLLECT_ITEM });
+	//dae::InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_X, dae::InputState::Down, std::make_unique<KillPlayerCommand>(pCharacter_2.get()));
+	//
+	//auto pScoreComponent_2 = pCharacter_2->AddComponent<dae::ScoreComponent>(0);
 
-	auto sound = dae::ServiceLocator::GetSoundSystem();
-	sound->LoadSound(DEATH_SOUND_ID, "Data_death.wav");
+	//dae::EventManager::GetInstance().AddObserver(pScoreComponent_2, { EVENT_PLAYER_COLLECT_ITEM });
 
-	std::vector<dae::GameObject*> collectibles;
+	//auto sound = dae::ServiceLocator::GetSoundSystem();
+	//sound->LoadSound(DEATH_SOUND_ID, "Data_death.wav");
+
+	auto pCharacter = std::make_shared<dae::GameObject>();
+
+	auto playerComp = pCharacter->AddComponent<dae::PlayerComponent>(scene, s_TileMap);
+	playerComp->Initialize({ s_TileMap->TILE_WIDTH * 10.f, s_TileMap->TILE_HEIGHT * 2.f, 3.f });
+	playerComp->BindInput();
+
+	scene.Add(pCharacter);
+
+	// Setup hole behind player if needed similarly, attach as child etc.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	//gem
+	/*std::vector<dae::GameObject*> collectibles;
 	auto pEmeraldCollectible = std::make_shared<dae::GameObject>();
 	pEmeraldCollectible->AddComponent<dae::RenderComponent>("Emerald.png", 30, 32);
 	pEmeraldCollectible->AddComponent<dae::Transform>()->SetLocalPosition(300.f, 300.f, 0.f);
@@ -91,20 +125,7 @@ void load()
 	auto collision = pEmeraldCollectible->AddComponent<dae::CollisionComponent>(30.f, 32.f, &scene);
 
 	collision->AddObserver(collectible);
-	scene.Add(pEmeraldCollectible);
-
-	//gold bag
-	auto pGoldBag = std::make_shared<dae::GameObject>();
-
-	pGoldBag->AddComponent<dae::RenderComponent>("CoinBagSingle.png", 32, 32);
-	pGoldBag->AddComponent<dae::Transform>()->SetLocalPosition(s_TileMap->TILE_WIDTH * 4.f, s_TileMap->TILE_HEIGHT * 10.f, 3.f);
-	pGoldBag->AddComponent<dae::CollisionComponent>(30.f, 32.f, &scene);
-
-	auto goldBagLogic = pGoldBag->AddComponent<dae::GoldBagComponent>();
-	goldBagLogic->SetTileMap(s_TileMap.get());
-	goldBagLogic->SetState(std::make_unique<dae::GoldBagRestingState>());
-
-	scene.Add(pGoldBag);
+	scene.Add(pEmeraldCollectible);*/
 
 	/*auto pTextInstructions_1 = std::make_shared<dae::GameObject>();
 	auto fontInstructions = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 15);
@@ -143,8 +164,6 @@ void load()
 
 	//scene.Add(pHealthTextGO_1);
 	//scene.Add(pScoreTextGO_1);
-
-
 }
 
 int main(int, char* []) {

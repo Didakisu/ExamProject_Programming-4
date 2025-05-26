@@ -33,9 +33,6 @@
     <ClCompile Include="CollectibleComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CollectibleManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="TileMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -46,6 +43,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GoldBagStates.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -68,9 +71,6 @@
     <ClInclude Include="CollectibleComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CollectibleManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TileType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -83,10 +83,13 @@
     <ClInclude Include="GoldBagComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GoldBagState.h">
+    <ClInclude Include="GoldBagStates.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GoldBagStates.h">
+    <ClInclude Include="PlayerComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

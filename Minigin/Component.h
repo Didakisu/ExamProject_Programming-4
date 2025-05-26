@@ -22,8 +22,3 @@ namespace dae
         GameObject* m_pOwner = nullptr;
     };
 }
-
-
-
-
-

@@ -4,6 +4,7 @@
 #include <RenderComponent.h>
 #include "CollisionComponent.h"
 #include <iostream>
+#include "PlayerComponent.h"
 
 namespace dae
 {
@@ -41,6 +42,9 @@ namespace dae
     {
         //std::cout << "CollectibleComponent TryCollect called.\n";
         if (m_IsCollected) return;
+
+        if (!player->HasComponent<PlayerComponent>())
+            return;
 
         auto myCollision = GetOwner()->GetComponent<CollisionComponent>();
         auto playerCollision = player->GetComponent<CollisionComponent>();

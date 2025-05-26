@@ -105,6 +105,15 @@
     <ClInclude Include="CollisionComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Physics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="State.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StateMachine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ResourceManager.cpp">
@@ -180,6 +189,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CollisionComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StateMachine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

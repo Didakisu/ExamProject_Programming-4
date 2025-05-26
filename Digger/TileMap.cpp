@@ -8,7 +8,10 @@ void TileMap::LoadFromText(const std::vector<std::string>& lines) {
         for (char c : line) {
             switch (c) {
             case 'D': row.push_back(TileType::Dirt); break;
-            case '.': row.push_back(TileType::Empty); break;
+            case 'E': row.push_back(TileType::Empty); break;
+            case 'G': row.push_back(TileType::Gem); break;
+            case 'B': row.push_back(TileType::GoldBag); break;
+            case '.': row.push_back(TileType::Boundary); break;
             default: throw std::runtime_error("Invalid tile in level file");
             }
         }

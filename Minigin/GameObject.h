@@ -74,10 +74,6 @@ namespace dae
                 });
         }
 
-        //
-        //int GetLives() const { return m_Lives; }
-        //void LoseLife();
-        ////
         bool IsMarkedForDestruction() const { return m_MarkedForDestruction; }
         void MarkForDestruction() { m_MarkedForDestruction = true; }
 
@@ -88,8 +84,6 @@ namespace dae
         GameObject* m_parent;
 
         bool m_MarkedForDestruction = false;
-        //
-      /*  int m_Lives{3};*/
     };
 
 }

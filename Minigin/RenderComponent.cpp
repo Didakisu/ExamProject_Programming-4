@@ -33,8 +33,8 @@ namespace dae
         SDL_Rect dstRect{};
         dstRect.x = static_cast<int>(pos.x);
         dstRect.y = static_cast<int>(pos.y);
-        dstRect.w = m_useSrcRect ? m_srcRect.w : m_width;
-        dstRect.h = m_useSrcRect ? m_srcRect.h : m_height;
+        dstRect.w = /*m_useSrcRect ? m_srcRect.w :*/ m_width;
+        dstRect.h = /*m_useSrcRect ? m_srcRect.h : */m_height;
 
         SDL_RendererFlip flip = SDL_FLIP_NONE;
         double angle = 0.0;
@@ -81,7 +81,7 @@ namespace dae
 
         if (m_texture)
         {
-            m_texture->Resize(static_cast<int>(m_width), static_cast<int>(m_height));
+            //m_texture->Resize(static_cast<int>(m_width), static_cast<int>(m_height));
         }
     }
 

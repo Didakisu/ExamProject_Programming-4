@@ -1,54 +1,113 @@
 ﻿#include "AnimationComponent.h"
 #include "RenderComponent.h"
-#include "Renderer.h"
 #include "GameObject.h"
 #include "Transform.h"
 #include <string>
 #include <unordered_map>
-
+#include <SDL.h>
+#include <ostream>
+#include <iostream>
 
 namespace dae
 {
-    AnimationComponent::AnimationComponent(GameObject* owner, int frameWidth, int frameHeight, int numFrames, float frameTime)
+
+    AnimationComponent::AnimationComponent(GameObject* owner)
         : Component(owner),
-        m_frameWidth(frameWidth),
-        m_frameHeight(frameHeight),
-        m_numFrames(numFrames),
-        m_frameTime(frameTime),
         m_elapsedTime(0.f),
-        m_currentFrame(0)
+        m_currentFrame(0),
+        m_currentAnimation("") 
     {
+    }
+
+    void AnimationComponent::AddAnimation(const std::string& name, const std::string& spriteSheet, int frameWidth, int frameHeight, int numFrames, float frameTime)
+    {
+        dae::Animation anim = { spriteSheet, frameWidth, frameHeight, numFrames, frameTime };
+        m_animations[name] = anim;
+    }
+
+    void AnimationComponent::PlayAnimation(const std::string& name)
+    {
+        if (m_currentAnimation != name && m_animations.find(name)!= m_animations.end())
+        {
+            auto* pRenderComp = m_pOwner->GetComponent<RenderComponent>();
+            if (pRenderComp && m_animations[name].spriteSheet != "")
+            {
+                pRenderComp->SetTexture(m_animations[name].spriteSheet);
+            }
+            m_currentAnimation = name;
+            m_currentFrame = 0;  
+            m_elapsedTime = 0.f; 
+        }
     }
 
     void AnimationComponent::Update(float deltaTime)
     {
-        m_elapsedTime += deltaTime;
-        if (m_elapsedTime >= m_frameTime)
+        if (m_currentAnimation.empty()) return;
+
+        if (m_animations.find(m_currentAnimation) == m_animations.end())
         {
-            m_elapsedTime -= m_frameTime;
-            m_currentFrame = (m_currentFrame + 1) % m_numFrames;
+            return; 
         }
 
-        // Tell RenderComponent which frame to use
+        const dae::Animation& currentAnim = m_animations[m_currentAnimation];
+
+        m_elapsedTime += deltaTime;
+        if (m_elapsedTime >= currentAnim.frameTime)
+        {
+            m_elapsedTime -= currentAnim.frameTime;
+            m_currentFrame = (m_currentFrame + 1) % currentAnim.numFrames;
+        }
+
         auto* pRenderComp = m_pOwner->GetComponent<RenderComponent>();
         if (pRenderComp)
         {
             SDL_Rect frameRect{};
-            frameRect.x = m_currentFrame * m_frameWidth;
-            frameRect.y = 0;
-            frameRect.w = m_frameWidth;
-            frameRect.h = m_frameHeight;
+            frameRect.x = m_currentFrame * currentAnim.frameWidth;
+            frameRect.y = 0;  
+            frameRect.w = currentAnim.frameWidth;
+            frameRect.h = currentAnim.frameHeight;
 
             pRenderComp->SetSourceRect(frameRect);
         }
     }
 
-
     void AnimationComponent::Render() const
     {
-       
+
     }
 
-   
+    void AnimationComponent::StopAnimation()
+    {
+        m_currentAnimation = "";
+        m_currentFrame = 0;
+        m_elapsedTime = 0.f;
 
-}
+        auto* pRenderComp = m_pOwner->GetComponent<RenderComponent>();
+        if (pRenderComp)
+        {
+            SDL_Rect frameRect{};
+
+            if (!m_animations.empty())
+            {
+                const auto& firstAnim = m_animations.begin()->second;
+                frameRect.x = 0;
+                frameRect.y = 0;
+                frameRect.w = firstAnim.frameWidth;
+                frameRect.h = firstAnim.frameHeight;
+            }
+            else
+            {
+                frameRect.w = 0;
+                frameRect.h = 0;
+            }
+
+            pRenderComp->SetSourceRect(frameRect);
+        }
+    }
+
+    const std::string& AnimationComponent::GetCurrentAnimationName() const
+    {
+        return m_currentAnimation; 
+    }
+
+} 

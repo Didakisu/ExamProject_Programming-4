@@ -1,4 +1,7 @@
 #pragma once
+//
+#include <SDL.h> 
+//
 #include "Singleton.h"
 #include "Command.h"
 #include <vector>

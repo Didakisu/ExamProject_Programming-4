@@ -16,14 +16,6 @@ dae::GameObject::~GameObject()
     m_components.clear();
 }
 
-//void dae::GameObject::Update()
-//{
-//    for (auto& component : m_components)
-//    {
-//        component->Update();
-//    }
-//}
-
 void dae::GameObject::Update(float deltaTime)
 {
     for (auto* component : m_components)
@@ -36,7 +28,6 @@ void dae::GameObject::Update(float deltaTime)
         child->Update(deltaTime);
     }
 }
-
 
 void dae::GameObject::FixedUpdate()
 {
@@ -60,7 +51,6 @@ dae::Transform* dae::GameObject::GetTransform()
 }
 
 
-// week 02
 bool dae::GameObject::IsChild(GameObject* parent) const
 {
     for (GameObject* child : m_children)
@@ -121,14 +111,3 @@ void dae::GameObject::SetParent(GameObject* parent, bool keepWorldPosition)
         GetTransform()->SetPositionDirty();
     }
 }
-//
-//void dae::GameObject::LoseLife()
-//{
-//    if (m_Lives > 0)
-//    {
-//        --m_Lives;
-//        std::cout << "Player lost a life! Lives left: " << m_Lives << std::endl;
-//    }
-//}
-//
-

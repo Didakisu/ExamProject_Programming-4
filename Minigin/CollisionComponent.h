@@ -20,10 +20,14 @@ namespace dae
         glm::vec2 GetPosition() const;
         glm::vec2 GetSize() const;
 
+        void SetIsTrigger(bool isTrigger) { m_IsTrigger = isTrigger; }
+        bool IsTrigger() const { return m_IsTrigger; }
     private:
         float m_Width;
         float m_Height;
         Scene* m_Scene;
+
+        bool m_IsTrigger = true;
     };
 }
 

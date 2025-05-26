@@ -204,6 +204,7 @@
     <ClInclude Include="Minigin.h" />
     <ClInclude Include="NullSoundSystem.h" />
     <ClInclude Include="Observer.h" />
+    <ClInclude Include="Physics.h" />
     <ClInclude Include="RenderComponent.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="ResourceManager.h" />
@@ -214,6 +215,8 @@
     <ClInclude Include="ServiceLocator.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="SoundSystem.h" />
+    <ClInclude Include="State.h" />
+    <ClInclude Include="StateMachine.h" />
     <ClInclude Include="Subject.h" />
     <ClInclude Include="TextComponent.h" />
     <ClInclude Include="TextObject.h" />
@@ -234,6 +237,7 @@
     <ClCompile Include="LoggingSoundSystem.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Minigin.cpp" />
+    <ClCompile Include="Physics.cpp" />
     <ClCompile Include="RenderComponent.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
@@ -242,6 +246,7 @@
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="SDLMixerSoundSystem.cpp" />
     <ClCompile Include="ServiceLocator.cpp" />
+    <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="TextComponent.cpp" />
     <ClCompile Include="TextObject.cpp" />
     <ClCompile Include="Texture2D.cpp" />

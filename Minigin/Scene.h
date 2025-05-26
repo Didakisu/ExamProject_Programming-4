@@ -30,7 +30,6 @@ namespace dae
 
 		std::string m_name;
 		std::vector < std::shared_ptr<GameObject>> m_objects{};
-		//предполагам тук тр€бва да слагам и другите си герои(главен герой , енемита и тн.);
 
 		static unsigned int m_idCounter; 
 	};

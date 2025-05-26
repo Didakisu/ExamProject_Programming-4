@@ -11,6 +11,8 @@
 #include <AnimationComponent.h>
 #include "ScoreComponent.h"
 #include "HealthComponent.h"
+#include "GoldBagComponent.h"
+#include "GoldBagStates.h"
 
 void dae::LevelLoader::LoadLevel(const std::string& filename, Scene& scene, TileMap& outMap)
 {
@@ -29,6 +31,8 @@ void dae::LevelLoader::LoadLevel(const std::string& filename, Scene& scene, Tile
 
     const float zEmpty = -1.f;
     const float zDirt = 0.f;
+    const float zGem = 1.f;
+    const float zGoldBag = 2.f;
 
     for (size_t y = 0; y < lines.size(); ++y)
     {
@@ -51,14 +55,23 @@ void dae::LevelLoader::LoadLevel(const std::string& filename, Scene& scene, Tile
             case TileType::Dirt:
                 SpawnDirt(scene, fxDirt, fyDirt, zDirt);
                 break;
-
+            case TileType::Gem:
+                SpawnDirt(scene, fxDirt, fyDirt, zDirt);
+                SpawnGem(scene, fxDirt, fyDirt, zGem);
+                break;
+            case TileType::GoldBag:
+                SpawnDirt(scene, fxDirt, fyDirt, zDirt);
+                SpawnGoldBag(scene, fxDirt, fyDirt, zGoldBag, &outMap);
+                break;
+            case TileType::Boundary:
+                //SpawnBoundary(scene, fxDirt, fyDirt);
+                break;
             default:
                 break;
             }
         }
     }
 }
-
 
 void dae::LevelLoader::SpawnEmpty(Scene& scene, float x, float y, float z, std::optional<Direction> dirOpt)
 {
@@ -86,3 +99,42 @@ void dae::LevelLoader::SpawnCornerHole(Scene& scene, float x, float y, float z)
     scene.Add(go);
 }
 
+void dae::LevelLoader::SpawnGem(Scene& scene, float x, float y, float z)
+{
+    auto pEmeraldCollectible = std::make_shared<GameObject>();
+    pEmeraldCollectible->AddComponent<RenderComponent>("Emerald.png", 25, 25 );
+    pEmeraldCollectible->AddComponent<Transform>()->SetLocalPosition(x, y, z);
+
+    std::shared_ptr<dae::Observer>collectible = std::make_shared<dae::CollectibleComponent>(pEmeraldCollectible.get());
+    auto collision = pEmeraldCollectible->AddComponent<dae::CollisionComponent>(30.f, 32.f, &scene);
+    collision->AddObserver(collectible);
+
+    scene.Add(pEmeraldCollectible);
+}
+
+void dae::LevelLoader::SpawnGoldBag(Scene& scene, float x, float y, float z, TileMap* pTileMap)
+{
+    auto pGoldBag = std::make_shared<dae::GameObject>();
+
+    pGoldBag->AddComponent<dae::RenderComponent>("CoinBagSingle.png", 32, 32);
+    pGoldBag->AddComponent<Transform>()->SetLocalPosition(x, y, z);
+    auto collision = pGoldBag->AddComponent<dae::CollisionComponent>(30.f, 32.f, &scene);
+    pGoldBag->AddComponent<dae::AnimationComponent>();
+
+    auto goldBagLogic = pGoldBag->AddComponent<dae::GoldBagComponent>();
+    goldBagLogic->SetTileMap(pTileMap); 
+    goldBagLogic->SetScene(&scene);//set scene here, i need it in goldbag collectible state
+
+    collision->AddObserver(std::make_shared<GoldBagObserver>(goldBagLogic));
+
+    scene.Add(pGoldBag);
+}
+
+void dae::LevelLoader::SpawnBoundary(Scene& scene, float x, float y)
+{
+    auto wall = std::make_shared<GameObject>();
+    wall->AddComponent<RenderComponent>("Backgrounds_1.png", TileMap::TILE_WIDTH, TileMap::TILE_HEIGHT);
+    wall->AddComponent<Transform>()->SetLocalPosition(x, y, 0.f);
+    wall->AddComponent<CollisionComponent>(static_cast<float>(TileMap::TILE_WIDTH), static_cast<float>(TileMap::TILE_HEIGHT), &scene)->SetIsTrigger(false); 
+    scene.Add(wall);
+}

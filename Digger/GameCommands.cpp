@@ -10,12 +10,14 @@
 #include "TileMap.h"
 #include "LevelLoader.h"
 #include <unordered_set>
+#include <Physics.h>
 
 
 constexpr int DISTANCE_EPSILON = 10;
 
 void MoveCommand::Execute(float deltaTime)
 {
+
     if (!m_pGameObject || !m_pGameObject->GetTransform() || !m_pTileMap) return;
 
     glm::vec2 dir = m_Direction;
@@ -27,8 +29,9 @@ void MoveCommand::Execute(float deltaTime)
     auto transform = m_pGameObject->GetTransform();
     glm::vec3 pos = transform->GetLocalPosition();
 
-    int tx = static_cast<int>(pos.x) / TileMap::TILE_WIDTH;
-    int ty = static_cast<int>(pos.y) / TileMap::TILE_HEIGHT;
+
+    int tx = static_cast<int>(round(pos.x / TileMap::TILE_WIDTH));
+    int ty = static_cast<int>(round(pos.y / TileMap::TILE_HEIGHT));
 
     auto oldDir = m_pGameObject->GetComponent<dae::DirectionComponent>()->GetDirectionVector();
     auto oldDirEnum = m_pGameObject->GetComponent<dae::DirectionComponent>()->GetDirection();
@@ -86,7 +89,7 @@ void MoveCommand::Execute(float deltaTime)
         }
     }
 
-    //ceck for crossing paths , horizontal and vertical
+    //check for crossing paths , horizontal and vertical
     bool up = m_pTileMap->GetTile(tx, ty - 1) == TileType::Empty;
     bool down = m_pTileMap->GetTile(tx, ty + 1) == TileType::Empty;
     bool left = m_pTileMap->GetTile(tx - 1, ty) == TileType::Empty;
@@ -103,10 +106,28 @@ void MoveCommand::Execute(float deltaTime)
         dae::LevelLoader::SpawnCornerHole(m_Scene, fxCorner, fyCorner, z);
     }
 
-    //apply movement
-    pos.x += dir.x * m_Speed * deltaTime;
-    pos.y += dir.y * m_Speed * deltaTime;
-    transform->SetLocalPosition(pos.x, pos.y, pos.z);
+    glm::vec2 nextPos = {
+        pos.x + dir.x * m_Speed * deltaTime,
+        pos.y + dir.y * m_Speed * deltaTime
+    };
+
+    const float playerWidth = static_cast<float>(TileMap::TILE_WIDTH);
+    const float playerHeight = static_cast<float>(TileMap::TILE_HEIGHT);
+
+    const float mapWidthPixels = static_cast<float>(m_pTileMap->GetWidth() * TileMap::TILE_WIDTH);
+    const float mapHeightPixels = static_cast<float>((m_pTileMap->GetHeight() * TileMap::TILE_HEIGHT) - TileMap::TILE_HEIGHT); //-32, becasue of the bottom
+
+    if (nextPos.x < 0.f || nextPos.y < 0.f ||
+        (nextPos.x + playerWidth) > mapWidthPixels ||
+        (nextPos.y + playerHeight) > mapHeightPixels)
+    {
+        return;
+    }
+
+    if (dae::Physics::CanMoveTo(m_pGameObject, nextPos, &m_Scene))
+    {
+        transform->SetLocalPosition(nextPos.x, nextPos.y, pos.z);
+    }
 
     //update facing direction
     if (auto dc = m_pGameObject->GetComponent<dae::DirectionComponent>())
@@ -117,24 +138,30 @@ void MoveCommand::Execute(float deltaTime)
         else if (dir.y > 0) dc->SetDirection(dae::Direction::Down);
     }
 
-    if (tile == TileType::Dirt)
+    int desiredXPos = tx * TileMap::TILE_WIDTH;
+    int desiredYPos = ty * TileMap::TILE_HEIGHT;
+
+    int distanceX = abs(desiredXPos - static_cast<int>(pos.x));
+    int distanceY = abs(desiredYPos - static_cast<int>(pos.y));
+
+    if (distanceX < TileMap::TILE_WIDTH * 0.15 && distanceY < TileMap::TILE_HEIGHT * 0.15)
     {
-        m_pTileMap->SetTile(tx, ty, TileType::Empty);
+        if (tile == TileType::Dirt || tile == TileType::Gem || tile == TileType::GoldBag)
+        {
+            m_pTileMap->SetTile(tx, ty, TileType::Empty);
 
-        float fxEmpty = static_cast<float>(tx * TileMap::TILE_WIDTH_EMPTY);
-        float fyEmpty = static_cast<float>(ty * TileMap::TILE_HEIGHT_EMPTY);
-        const float zEmpty = 1.f;
+            float fxEmpty = static_cast<float>(tx * TileMap::TILE_WIDTH_EMPTY);
+            float fyEmpty = static_cast<float>(ty * TileMap::TILE_HEIGHT_EMPTY);
+            const float zEmpty = 1.f;
 
-        dae::Direction currentDir = m_pGameObject->GetComponent<dae::DirectionComponent>()->GetDirection();
-        dae::LevelLoader::SpawnEmpty(m_Scene, fxEmpty, fyEmpty, zEmpty, currentDir);
+            dae::Direction currentDir = m_pGameObject->GetComponent<dae::DirectionComponent>()->GetDirection();
+            dae::LevelLoader::SpawnEmpty(m_Scene, fxEmpty, fyEmpty, zEmpty, currentDir);
+        }
     }
 }
 
-
-
-void KillPlayerCommand::Execute(float deltaTime)
+void KillPlayerCommand::Execute(float /*deltaTime*/)
 {
-    (void)deltaTime;
     if (m_GameObject)
     {
         auto healthComp = m_GameObject->GetComponent<dae::HealthComponent>();
@@ -146,7 +173,6 @@ void KillPlayerCommand::Execute(float deltaTime)
 
 void CollectCommand::Execute(float /*deltaTime*/)
 {
-    //(void)deltaTime;
 
     //if (m_GameObject)
     //{
