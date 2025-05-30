@@ -59,5 +59,4 @@ namespace dae {
             return it->second.get();
         return nullptr;
     }
-
 }

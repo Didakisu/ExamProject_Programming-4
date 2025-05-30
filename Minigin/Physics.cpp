@@ -24,7 +24,7 @@ bool dae::Physics::CanMoveTo(GameObject* movingObj, glm::vec2 newPos, Scene* sce
             {
                 otherCol->NotifyObservers(*movingObj, EVENT_COLLISION);
                 collision->NotifyObservers(*movingObj, EVENT_COLLISION);
-                blocked = true;
+              blocked = true;
                 break;
             }
         }

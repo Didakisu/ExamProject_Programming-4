@@ -72,17 +72,14 @@ namespace dae
 
     }
 
-
-
-
     void RenderComponent::SetTexture(const std::string& filename)
     {
         m_texture = ResourceManager::GetInstance().LoadTexture(filename);
 
-        if (m_texture)
-        {
-            //m_texture->Resize(static_cast<int>(m_width), static_cast<int>(m_height));
-        }
+        //if (m_texture)
+        //{
+        //    //m_texture->Resize(static_cast<int>(m_width), static_cast<int>(m_height));
+        //}
     }
 
     void RenderComponent::SetSourceRect(const SDL_Rect& rect)

@@ -5,9 +5,6 @@
 
 class TileMap {
 public:
-    static constexpr int TILE_WIDTH_EMPTY = 32;
-    static constexpr int TILE_HEIGHT_EMPTY = 32;
-
     static constexpr int TILE_WIDTH = 32;
     static constexpr int TILE_HEIGHT = 32;
 

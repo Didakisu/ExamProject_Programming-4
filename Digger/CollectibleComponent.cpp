@@ -5,6 +5,7 @@
 #include "CollisionComponent.h"
 #include <iostream>
 #include "PlayerComponent.h"
+#include "EnemyComponent.h"
 
 namespace dae
 {
@@ -40,10 +41,9 @@ namespace dae
 
     void CollectibleComponent::TryCollect(const GameObject* player)
     {
-        //std::cout << "CollectibleComponent TryCollect called.\n";
         if (m_IsCollected) return;
 
-        if (!player->HasComponent<PlayerComponent>())
+        if (!player->HasComponent<PlayerComponent>() && !player->HasComponent<EnemyComponent>())
             return;
 
         auto myCollision = GetOwner()->GetComponent<CollisionComponent>();
@@ -51,20 +51,14 @@ namespace dae
 
         if (myCollision && playerCollision)
         {
-            //std::cout << "Checking collision between collectible and player...\n"; // Debugging output
             if (myCollision->IsOverlapping(*playerCollision))
             {
-                //std::cout << "Collision detected! Collectible will be collected.\n";
                 OnCollected();
             }
             else
             {
-                //std::cout << "No collision detected.\n";
+                std::cout << "no collision detected." << std::endl;
             }
-        }
-        else
-        {
-            //std::cout << "Collision component missing on either collectible or player.\n";
         }
     }
 

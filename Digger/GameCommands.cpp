@@ -29,7 +29,6 @@ void MoveCommand::Execute(float deltaTime)
     auto transform = m_pGameObject->GetTransform();
     glm::vec3 pos = transform->GetLocalPosition();
 
-
     int tx = static_cast<int>(round(pos.x / TileMap::TILE_WIDTH));
     int ty = static_cast<int>(round(pos.y / TileMap::TILE_HEIGHT));
 
@@ -46,35 +45,39 @@ void MoveCommand::Execute(float deltaTime)
         int distanceX = abs(desiredXPos - static_cast<int>(pos.x));
         int distanceY = abs(desiredYPos - static_cast<int>(pos.y));
 
+       
+
+
         bool snapped = false;
 
-        switch (oldDirEnum)
-        {
-        case dae::Direction::Left:
-        case dae::Direction::Right:
-            if (distanceX > DISTANCE_EPSILON)
+
+            switch (oldDirEnum)
             {
-                dir = oldDir;
+            case dae::Direction::Left:
+            case dae::Direction::Right:
+                if (distanceX > DISTANCE_EPSILON)
+                {
+                    dir = oldDir;
+                }
+                else
+                {
+                    pos.x = static_cast<float>(desiredXPos);
+                    snapped = true;
+                }
+                break;
+            case dae::Direction::Down:
+            case dae::Direction::Up:
+                if (distanceY > DISTANCE_EPSILON)
+                {
+                    dir = oldDir;
+                }
+                else
+                {
+                    pos.y = static_cast<float>(desiredYPos);
+                    snapped = true;
+                }
+                break;
             }
-            else
-            {
-                pos.x = static_cast<float>(desiredXPos);
-                snapped = true;
-            }
-            break;
-        case dae::Direction::Down:
-        case dae::Direction::Up:
-            if (distanceY > DISTANCE_EPSILON)
-            {
-                dir = oldDir;
-            }
-            else
-            {
-                pos.y = static_cast<float>(desiredYPos);
-                snapped = true;
-            }
-            break;
-        }
 
         if (snapped)
         {
@@ -82,9 +85,9 @@ void MoveCommand::Execute(float deltaTime)
             {
                 std::cout << "tile is empty" << std::endl;
             }
-            float fxCorner = static_cast<float>(tx * TileMap::TILE_WIDTH_EMPTY);
-            float fyCorner = static_cast<float>(ty * TileMap::TILE_HEIGHT_EMPTY);
-            const float z = 1.f;
+            float fxCorner = static_cast<float>(tx * TileMap::TILE_WIDTH);
+            float fyCorner = static_cast<float>(ty * TileMap::TILE_HEIGHT);
+            const float z = 2.f;
             dae::LevelLoader::SpawnCornerHole(m_Scene, fxCorner, fyCorner, z);
         }
     }
@@ -100,9 +103,9 @@ void MoveCommand::Execute(float deltaTime)
 
     if (isCrossing)
     {
-        float fxCorner = static_cast<float>(tx * TileMap::TILE_WIDTH_EMPTY);
-        float fyCorner = static_cast<float>(ty * TileMap::TILE_HEIGHT_EMPTY);
-        const float z = 1.f;
+        float fxCorner = static_cast<float>(tx * TileMap::TILE_WIDTH);
+        float fyCorner = static_cast<float>(ty * TileMap::TILE_HEIGHT);
+        const float z = 2.f;
         dae::LevelLoader::SpawnCornerHole(m_Scene, fxCorner, fyCorner, z);
     }
 
@@ -115,19 +118,20 @@ void MoveCommand::Execute(float deltaTime)
     const float playerHeight = static_cast<float>(TileMap::TILE_HEIGHT);
 
     const float mapWidthPixels = static_cast<float>(m_pTileMap->GetWidth() * TileMap::TILE_WIDTH);
-    const float mapHeightPixels = static_cast<float>((m_pTileMap->GetHeight() * TileMap::TILE_HEIGHT) - TileMap::TILE_HEIGHT); //-32, becasue of the bottom
+    const float mapHeightPixels = static_cast<float>((m_pTileMap->GetHeight() * TileMap::TILE_HEIGHT) - TileMap::TILE_HEIGHT ); //-32, becasue of the bottom
 
-    if (nextPos.x < 0.f || nextPos.y < 0.f ||
+    if (nextPos.x < 0.f || nextPos.y < TileMap::TILE_HEIGHT||
         (nextPos.x + playerWidth) > mapWidthPixels ||
         (nextPos.y + playerHeight) > mapHeightPixels)
     {
         return;
     }
 
-    if (dae::Physics::CanMoveTo(m_pGameObject, nextPos, &m_Scene))
+    if (!dae::Physics::CanMoveTo(m_pGameObject, nextPos, &m_Scene))
     {
-        transform->SetLocalPosition(nextPos.x, nextPos.y, pos.z);
+        return;
     }
+    transform->SetLocalPosition(nextPos.x, nextPos.y, pos.z);
 
     //update facing direction
     if (auto dc = m_pGameObject->GetComponent<dae::DirectionComponent>())
@@ -146,18 +150,24 @@ void MoveCommand::Execute(float deltaTime)
 
     if (distanceX < TileMap::TILE_WIDTH * 0.15 && distanceY < TileMap::TILE_HEIGHT * 0.15)
     {
-        if (tile == TileType::Dirt || tile == TileType::Gem || tile == TileType::GoldBag)
+        if ((tile == TileType::Dirt || tile == TileType::Gem || tile == TileType::GoldBag) && tile != TileType::UI)
         {
             m_pTileMap->SetTile(tx, ty, TileType::Empty);
 
-            float fxEmpty = static_cast<float>(tx * TileMap::TILE_WIDTH_EMPTY);
-            float fyEmpty = static_cast<float>(ty * TileMap::TILE_HEIGHT_EMPTY);
+            float fxEmpty = static_cast<float>(tx * TileMap::TILE_WIDTH);
+            float fyEmpty = static_cast<float>(ty * TileMap::TILE_HEIGHT);
             const float zEmpty = 1.f;
 
             dae::Direction currentDir = m_pGameObject->GetComponent<dae::DirectionComponent>()->GetDirection();
+
             dae::LevelLoader::SpawnEmpty(m_Scene, fxEmpty, fyEmpty, zEmpty, currentDir);
         }
     }
+}
+
+bool MoveCommand::IsDiggable(TileType tile)
+{
+    return tile == TileType::Dirt || tile == TileType::Gem || tile == TileType::GoldBag;
 }
 
 void KillPlayerCommand::Execute(float /*deltaTime*/)

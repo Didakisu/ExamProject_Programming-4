@@ -17,7 +17,7 @@ namespace dae {
         static void SpawnCornerHole(Scene& scene, float x, float y, float z);
         static void SpawnGem(Scene& scene, float x, float y, float z);
         static void SpawnGoldBag(Scene& scene, float x, float y, float z, TileMap* pTileMap);
-        static void SpawnBoundary(Scene& scene, float x, float y);
+        static void SpawnUI(Scene& scene, float x, float y, float z);
     };
 
 }

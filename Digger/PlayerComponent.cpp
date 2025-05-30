@@ -1,7 +1,8 @@
 #include "PlayerComponent.h"
 #include "Data.h"
 
-namespace dae {
+namespace dae 
+{
 
     PlayerComponent::PlayerComponent(GameObject* owner, Scene& scene, std::shared_ptr<TileMap> tileMap)
         : Component(owner), m_Scene(scene), m_pTileMap(tileMap)
@@ -25,6 +26,15 @@ namespace dae {
         m_pScoreComponent = GetOwner()->AddComponent<ScoreComponent>(0);
 
         EventManager::GetInstance().AddObserver(m_pScoreComponent, { EVENT_PLAYER_COLLECT_ITEM });
+
+        //hole behind character
+        auto pHoleBehindCharacter = std::make_shared<dae::GameObject>();
+        pHoleBehindCharacter->AddComponent<dae::RenderComponent>("tile.png", 35, 28);
+        pHoleBehindCharacter->AddComponent<dae::Transform>();
+        pHoleBehindCharacter->GetTransform()->SetLocalPosition(0.f, 0.f, -2.f);//fix z
+        pHoleBehindCharacter->SetParent(GetOwner() , false);
+
+        m_Scene.Add(pHoleBehindCharacter); 
     }
 
     void PlayerComponent::BindInput()

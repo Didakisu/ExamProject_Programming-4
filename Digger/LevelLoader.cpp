@@ -29,10 +29,9 @@ void dae::LevelLoader::LoadLevel(const std::string& filename, Scene& scene, Tile
 
     outMap.LoadFromText(lines);
 
-    const float zEmpty = -1.f;
     const float zDirt = 0.f;
     const float zGem = 1.f;
-    const float zGoldBag = 2.f;
+    const float zGoldBag = 3.f;
 
     for (size_t y = 0; y < lines.size(); ++y)
     {
@@ -41,17 +40,13 @@ void dae::LevelLoader::LoadLevel(const std::string& filename, Scene& scene, Tile
             float fxDirt = static_cast<float>(x * TileMap::TILE_WIDTH);
             float fyDirt = static_cast<float>(y * TileMap::TILE_HEIGHT);
 
-            float fxEmpty = static_cast<float>(x * TileMap::TILE_WIDTH_EMPTY);
-            float fyEmpty = static_cast<float>(y * TileMap::TILE_HEIGHT_EMPTY);
-
             TileType type = outMap.GetTile(static_cast<int>(x), static_cast<int>(y));
 
             switch (type)
             {
             case TileType::Empty:
-                SpawnEmpty(scene, fxEmpty, fyEmpty, zEmpty, std::nullopt);
+                SpawnEmpty(scene, fxDirt, fyDirt, zGem, std::nullopt);
                 break;
-
             case TileType::Dirt:
                 SpawnDirt(scene, fxDirt, fyDirt, zDirt);
                 break;
@@ -63,8 +58,8 @@ void dae::LevelLoader::LoadLevel(const std::string& filename, Scene& scene, Tile
                 SpawnDirt(scene, fxDirt, fyDirt, zDirt);
                 SpawnGoldBag(scene, fxDirt, fyDirt, zGoldBag, &outMap);
                 break;
-            case TileType::Boundary:
-                //SpawnBoundary(scene, fxDirt, fyDirt);
+            case TileType::Hole:
+                SpawnCornerHole(scene, fxDirt, fyDirt, zGem);
                 break;
             default:
                 break;
@@ -76,7 +71,8 @@ void dae::LevelLoader::LoadLevel(const std::string& filename, Scene& scene, Tile
 void dae::LevelLoader::SpawnEmpty(Scene& scene, float x, float y, float z, std::optional<Direction> dirOpt)
 {
     auto go = std::make_shared<GameObject>();
-    go->AddComponent<RenderComponent>("holeCracks_01.png", TileMap::TILE_WIDTH_EMPTY, TileMap::TILE_HEIGHT_EMPTY);
+    
+    go->AddComponent<RenderComponent>("reworkedHole.png", TileMap::TILE_WIDTH, TileMap::TILE_HEIGHT);
     go->AddComponent<Transform>()->SetLocalPosition(x, y, z);
     if (dirOpt.has_value())
         go->AddComponent<DirectionComponent>()->SetDirection(dirOpt.value());
@@ -91,10 +87,18 @@ void dae::LevelLoader::SpawnDirt(Scene& scene, float x, float y, float z)
     scene.Add(go);
 }
 
+void dae::LevelLoader::SpawnUI(Scene& scene, float x, float y, float z)
+{
+    auto go = std::make_shared<GameObject>();
+    go->AddComponent<RenderComponent>("Rectangle.png", TileMap::TILE_WIDTH, TileMap::TILE_HEIGHT);
+    go->AddComponent<Transform>()->SetLocalPosition(x, y, z);
+    scene.Add(go);
+}
+
 void dae::LevelLoader::SpawnCornerHole(Scene& scene, float x, float y, float z)
 {
     auto go = std::make_shared<GameObject>();
-    go->AddComponent<RenderComponent>("hole.png", TileMap::TILE_WIDTH_EMPTY , TileMap::TILE_HEIGHT_EMPTY );
+    go->AddComponent<RenderComponent>("hole_with_background.png", TileMap::TILE_WIDTH, TileMap::TILE_HEIGHT);
     go->AddComponent<Transform>()->SetLocalPosition(x, y, z);
     scene.Add(go);
 }
@@ -102,7 +106,7 @@ void dae::LevelLoader::SpawnCornerHole(Scene& scene, float x, float y, float z)
 void dae::LevelLoader::SpawnGem(Scene& scene, float x, float y, float z)
 {
     auto pEmeraldCollectible = std::make_shared<GameObject>();
-    pEmeraldCollectible->AddComponent<RenderComponent>("Emerald.png", 25, 25 );
+    pEmeraldCollectible->AddComponent<RenderComponent>("Gem.png", 25, 20 );
     pEmeraldCollectible->AddComponent<Transform>()->SetLocalPosition(x, y, z);
 
     std::shared_ptr<dae::Observer>collectible = std::make_shared<dae::CollectibleComponent>(pEmeraldCollectible.get());
@@ -118,7 +122,7 @@ void dae::LevelLoader::SpawnGoldBag(Scene& scene, float x, float y, float z, Til
 
     pGoldBag->AddComponent<dae::RenderComponent>("CoinBagSingle.png", 32, 32);
     pGoldBag->AddComponent<Transform>()->SetLocalPosition(x, y, z);
-    auto collision = pGoldBag->AddComponent<dae::CollisionComponent>(30.f, 32.f, &scene);
+    auto collision = pGoldBag->AddComponent<dae::CollisionComponent>(30.f, 30.f, &scene);
     pGoldBag->AddComponent<dae::AnimationComponent>();
 
     auto goldBagLogic = pGoldBag->AddComponent<dae::GoldBagComponent>();
@@ -128,13 +132,4 @@ void dae::LevelLoader::SpawnGoldBag(Scene& scene, float x, float y, float z, Til
     collision->AddObserver(std::make_shared<GoldBagObserver>(goldBagLogic));
 
     scene.Add(pGoldBag);
-}
-
-void dae::LevelLoader::SpawnBoundary(Scene& scene, float x, float y)
-{
-    auto wall = std::make_shared<GameObject>();
-    wall->AddComponent<RenderComponent>("Backgrounds_1.png", TileMap::TILE_WIDTH, TileMap::TILE_HEIGHT);
-    wall->AddComponent<Transform>()->SetLocalPosition(x, y, 0.f);
-    wall->AddComponent<CollisionComponent>(static_cast<float>(TileMap::TILE_WIDTH), static_cast<float>(TileMap::TILE_HEIGHT), &scene)->SetIsTrigger(false); 
-    scene.Add(wall);
 }

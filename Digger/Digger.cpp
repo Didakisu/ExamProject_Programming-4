@@ -38,6 +38,7 @@
 #include "GoldBagComponent.h"
 #include "GoldBagStates.h"
 #include "PlayerComponent.h"
+#include "EnemyComponent.h"
 
 
 
@@ -50,17 +51,7 @@ void load()
 	dae::LevelLoader loader;
 	loader.LoadLevel("D:/3_Third Year/2nd Semester/Programming 4/2DAE10_Programming4_01_Radeva_Dimana/Data/level.txt", scene, *s_TileMap);
 
-	//character
-	//auto pCharacter_2 = std::make_shared<dae::GameObject>();
-	//pCharacter_2->AddComponent<dae::DirectionComponent>(); pCharacter_2->AddComponent<dae::RenderComponent>("MainCharacter.png", 32, 32);
-	//pCharacter_2->AddComponent<dae::Transform>()->SetLocalPosition(s_TileMap->TILE_WIDTH * 10.f, s_TileMap->TILE_HEIGHT * 2.f, 3.f);
-
-	//auto pAnimComp = pCharacter_2->AddComponent<dae::AnimationComponent>();
-	//pAnimComp->AddAnimation("Run", "MainCharacter.png", 32 , 32 , 4, 0.15f);
-	//pAnimComp->PlayAnimation("Run");
-	////
-	//pCharacter_2->AddComponent<dae::CollisionComponent>(32.f, 32.f , &scene);
-
+	
 	//auto pHoleBehindCharacter = std::make_shared<dae::GameObject>();
 	//pHoleBehindCharacter->AddComponent<dae::RenderComponent>("tile.png", 35, 28);
 	//pHoleBehindCharacter->AddComponent<dae::Transform>();
@@ -84,6 +75,9 @@ void load()
 	//auto sound = dae::ServiceLocator::GetSoundSystem();
 	//sound->LoadSound(DEATH_SOUND_ID, "Data_death.wav");
 
+	
+
+	//player
 	auto pCharacter = std::make_shared<dae::GameObject>();
 
 	auto playerComp = pCharacter->AddComponent<dae::PlayerComponent>(scene, s_TileMap);
@@ -92,27 +86,27 @@ void load()
 
 	scene.Add(pCharacter);
 
-	// Setup hole behind player if needed similarly, attach as child etc.
 
 
+	//enemy
+	auto pEnemy = std::make_shared<dae::GameObject>();
+
+	auto enemyComp = pEnemy->AddComponent<dae::EnemyComponent>(scene, s_TileMap);
+	enemyComp->Initialize({ s_TileMap->TILE_WIDTH * 13.f, s_TileMap->TILE_HEIGHT * 1.f, 4.f });
+	
+
+	scene.Add(pEnemy);
 
 
+	//auto pCharacter_2 = std::make_shared<dae::GameObject>();
+	//pCharacter_2->AddComponent<dae::DirectionComponent>(); pCharacter_2->AddComponent<dae::RenderComponent>("MainCharacter.png", 32, 32);
+	//pCharacter_2->AddComponent<dae::Transform>()->SetLocalPosition(s_TileMap->TILE_WIDTH * 10.f, s_TileMap->TILE_HEIGHT * 2.f, 3.f);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	//auto pAnimComp = pCharacter_2->AddComponent<dae::AnimationComponent>();
+	//pAnimComp->AddAnimation("Run", "MainCharacter.png", 32 , 32 , 4, 0.15f);
+	//pAnimComp->PlayAnimation("Run");
+	////
+	//pCharacter_2->AddComponent<dae::CollisionComponent>(32.f, 32.f , &scene);
 
 	//gem
 	/*std::vector<dae::GameObject*> collectibles;

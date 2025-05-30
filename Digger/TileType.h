@@ -4,5 +4,7 @@ enum class TileType {
     Dirt,
     Gem,
     GoldBag,
-    Boundary
+    Boundary,
+    Hole,
+    UI
 };

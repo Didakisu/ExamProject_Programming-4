@@ -13,10 +13,9 @@ namespace dae
         void OnEnter() override;
         void Update(float deltaTime) override;
 
+        explicit GoldBagRestingState(GoldBagComponent* bag) : m_Bag(bag) {}
     private:
         GoldBagComponent* m_Bag{};
-    public:
-        explicit GoldBagRestingState(GoldBagComponent* bag) : m_Bag(bag) {}
     };
 
     class GoldBagShakingState : public State
@@ -25,10 +24,9 @@ namespace dae
         void OnEnter() override;
         void Update(float deltaTime) override;
 
+        explicit GoldBagShakingState(GoldBagComponent* bag) : m_Bag(bag) {}
     private:
         GoldBagComponent* m_Bag{};
-    public:
-        explicit GoldBagShakingState(GoldBagComponent* bag) : m_Bag(bag) {}
     };
 
     class GoldBagFallingState : public State
@@ -37,10 +35,9 @@ namespace dae
         void OnEnter() override;
         void Update(float deltaTime) override;
 
+        explicit GoldBagFallingState(GoldBagComponent* bag) : m_Bag(bag) {}
     private:
         GoldBagComponent* m_Bag{};
-    public:
-        explicit GoldBagFallingState(GoldBagComponent* bag) : m_Bag(bag) {}
     };
 
     class GoldBagBreakingState : public State

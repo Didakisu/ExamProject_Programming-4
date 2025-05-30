@@ -19,6 +19,7 @@ public:
     }
 
     void Execute(float deltaTime) override;
+    bool IsDiggable(TileType tile);
 
 private:
     dae::GameObject* m_pGameObject;

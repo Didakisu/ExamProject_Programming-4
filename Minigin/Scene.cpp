@@ -49,8 +49,6 @@ void Scene::Update(float deltaTime)
 			++it;
 		}
 	}
-
-
 }
 
 void dae::Scene::FixedUpdate()
