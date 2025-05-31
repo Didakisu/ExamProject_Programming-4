@@ -41,14 +41,19 @@ namespace dae
         void EvaluateDirectionChange();
 
         EnemyDirection GetOppositeDirection(EnemyDirection dir) const;
+        Direction ConvertToDirection(EnemyDirection dir) const;
+        glm::vec2 GetDirectionVector(EnemyDirection dir) const;
 
         void MoveTowardsNextTile(float deltaTime);                        
-        glm::vec2 GetDirectionVector(EnemyDirection dir) const; 
+        
         void AddMoveOptionIfValid(std::vector<EnemyDirection>& out, int x, int y, EnemyDirection dir, EnemyDirection opposite); 
-
         void HandleEnragedBehavior(float deltaTime);
         void UpdateEnragedTimers(float deltaTime);
         bool ShouldEnterEnragedState() const;
+
+        void Die();
+        void DieByFallingBag(GameObject* bag);
+        void HandleDeadBehavior(/*float *//*deltaTime*/);
     protected:
         std::string CheckNextState() override;
     private:
@@ -61,7 +66,8 @@ namespace dae
         CollisionComponent* m_pCollisionComponent{};
 
         EnemyDirection m_CurrentDirection{ EnemyDirection::None };
-        float m_Speed{ 40.f };
+        EnemyDirection m_LastDirection{ EnemyDirection::None };
+        float m_Speed{ 35.f };
 
         int m_TileX{};
         int m_TileY{};       
@@ -73,5 +79,9 @@ namespace dae
         bool m_IsEnraged{false};
         float m_EnragedCooldown{0.f};
         float m_EnragedTimer{0.f};
+
+        bool m_IsDead{ false };
+        bool m_FallingWithBag{ false };
+        GameObject* m_BagToFollow{ nullptr };
     };
 }

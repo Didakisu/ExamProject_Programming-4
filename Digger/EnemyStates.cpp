@@ -16,6 +16,7 @@ namespace dae
         auto* anim = m_Enemy->GetOwner()->GetComponent<AnimationComponent>();
         if (anim)
         {
+
             anim->AddAnimation("Walk", "enemy_sprites.png", 64 / 4, 18, 4, 0.15f);
             anim->PlayAnimation("Walk");
         }
@@ -33,6 +34,7 @@ namespace dae
         auto* anim = m_Enemy->GetOwner()->GetComponent<AnimationComponent>();
         if (anim)
         {
+
             anim->AddAnimation("EnragedDig", "EnragedEnemies.png", 64 / 4, 15, 4, 0.15f);
             anim->PlayAnimation("EnragedDig");
         }
@@ -42,5 +44,25 @@ namespace dae
     {
         //std::cout << "State: Enraged" << std::endl;
         m_Enemy->HandleEnragedBehavior(deltaTime);
+    }
+
+    void EnemyDeadState::OnEnter()
+    {
+        m_Enemy->Die();
+        //m_Enemy->GetOwner()->MarkForDestruction();
+
+        auto* anim = m_Enemy->GetOwner()->GetComponent<AnimationComponent>();
+        if (anim)
+        {
+
+            anim->AddAnimation("Death", "NobbinDeath.png", 16, 16, 1, 0.15f);
+            anim->PlayAnimation("Death");
+        }
+    }
+
+    void EnemyDeadState::Update(float /*deltaTime*/)
+    {
+        std::cout << "[DEBUG] EnemyDeadState::Update()\n";
+        m_Enemy->HandleDeadBehavior(/*deltaTime*/);
     }
 }

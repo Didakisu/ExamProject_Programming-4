@@ -28,7 +28,6 @@ namespace dae
         int m_width; 
         int m_height; 
 
-        //
         SDL_Rect m_srcRect{};
         bool m_useSrcRect{ false };
     };

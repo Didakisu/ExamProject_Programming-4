@@ -3,19 +3,42 @@
 #include <iostream>
 #include "EnemyStates.h"
 #include <ctime>
+#include "LevelLoader.h"
+#include <random>
+#include <unordered_map>
+#include "GoldBagStates.h"
+#include "GoldBagComponent.h"
+
+namespace //anonymous namespace
+{
+    std::random_device rd;
+    std::mt19937 rng(rd());
+
+    struct DirectionMapping
+    {
+        glm::vec2 vector;
+        dae::EnemyDirection opposite;
+        dae::Direction asDirection;
+    };
+
+    const std::unordered_map<dae::EnemyDirection, DirectionMapping> g_DirectionMappings = 
+    {
+        { dae::EnemyDirection::Left,  { {-1, 0}, dae::EnemyDirection::Right, dae::Direction::Left  } },
+        { dae::EnemyDirection::Right, { { 1, 0}, dae::EnemyDirection::Left,  dae::Direction::Right } },
+        { dae::EnemyDirection::Up,    { { 0,-1}, dae::EnemyDirection::Down,  dae::Direction::Up    } },
+        { dae::EnemyDirection::Down,  { { 0, 1}, dae::EnemyDirection::Up,    dae::Direction::Down  } }
+    };
+}
 
 namespace dae
 {
     dae::EnemyComponent::EnemyComponent(GameObject* owner, Scene& scene, std::shared_ptr<TileMap> tileMap)
         : Component(owner), m_Scene(scene), m_pTileMap(tileMap)
     {
-
     }
 
     void dae::EnemyComponent::Initialize(const glm::vec3& startPosition)
     {
-        srand(static_cast<unsigned int>(time(nullptr)));
-
         m_pDirectionComponent = GetOwner()->AddComponent<DirectionComponent>();
         GetOwner()->AddComponent<RenderComponent>("enemy_sprites.png", 32, 32);
 
@@ -27,20 +50,28 @@ namespace dae
 
         AddState("Normal", std::make_unique<EnemyNormalState>(this));
         AddState("Enraged", std::make_unique<EnemyEnragedState>(this));
+        AddState("Dead", std::make_unique<EnemyDeadState>(this));
         SetInitialState("Normal");
 
-        m_CurrentDirection = EnemyDirection::Down;//doesn't matter which way 
+        m_CurrentDirection = EnemyDirection::Down;
     }
 
     void dae::EnemyComponent::Update(float deltaTime)
     {
+       /* if (m_IsDead)
+            return;*/
         StateMachine::Update(deltaTime);
         UpdateEnragedTimers(deltaTime);
     }
 
     std::string EnemyComponent::CheckNextState()
     {
-       /* if (m_IsEnraged)
+        if (m_IsDead)
+        {
+            return "Dead";
+        }
+
+        if (m_IsEnraged)
         {
             return "Enraged";
         }
@@ -48,9 +79,9 @@ namespace dae
         if (ShouldEnterEnragedState())
         {
             m_IsEnraged = true;
-            m_EnragedTimer = 5.f; 
+            m_EnragedTimer = 5.f;
             return "Enraged";
-        }*/
+        }
 
         return "Normal";
     }
@@ -58,18 +89,17 @@ namespace dae
     void EnemyComponent::HandleWalking(float deltaTime)
     {
         if (!m_pTransform || !m_pTileMap) return;
-    
+
         UpdateTilePosition();
-    
+
         bool snapped = CheckTileSnap();
         if (snapped)
         {
             EvaluateDirectionChange();
         }
-    
+
         MoveTowardsNextTile(deltaTime);
     }
-
 
     void EnemyComponent::UpdateTilePosition()
     {
@@ -78,7 +108,7 @@ namespace dae
         m_TileX = static_cast<int>(round(pos.x / TileMap::TILE_WIDTH));
         m_TileY = static_cast<int>(round(pos.y / TileMap::TILE_HEIGHT));
 
-        m_DesiredX = m_TileX * TileMap::TILE_WIDTH;//desired tile for snapping
+        m_DesiredX = m_TileX * TileMap::TILE_WIDTH;
         m_DesiredY = m_TileY * TileMap::TILE_HEIGHT;
     }
 
@@ -94,7 +124,7 @@ namespace dae
 
         if (atTileCenter && (m_TileX != m_LastTileX || m_TileY != m_LastTileY))
         {
-            pos.x = static_cast<float>(m_DesiredX);//snap the pos tothe center
+            pos.x = static_cast<float>(m_DesiredX);
             pos.y = static_cast<float>(m_DesiredY);
             m_pTransform->SetLocalPosition(pos.x, pos.y, pos.z);
 
@@ -109,45 +139,43 @@ namespace dae
 
     void EnemyComponent::EvaluateDirectionChange()
     {
-        glm::vec2 dirVec = GetDirectionVector(m_CurrentDirection);
+        std::vector<EnemyDirection> options;
 
-        int nextTx = m_TileX + static_cast<int>(dirVec.x);
-        int nextTy = m_TileY + static_cast<int>(dirVec.y);
+        AddMoveOptionIfValid(options, m_TileX, m_TileY - 1, EnemyDirection::Up, EnemyDirection::Down);
+        AddMoveOptionIfValid(options, m_TileX, m_TileY + 1, EnemyDirection::Down, EnemyDirection::Up);
+        AddMoveOptionIfValid(options, m_TileX - 1, m_TileY, EnemyDirection::Left, EnemyDirection::Right);
+        AddMoveOptionIfValid(options, m_TileX + 1, m_TileY, EnemyDirection::Right, EnemyDirection::Left);
 
-        TileType nextTile = m_pTileMap->GetTile(nextTx, nextTy);
-        bool canContinue = IsWalkable(nextTile);
-
-        if (!canContinue)
+        if (options.size() > 1)
         {
-            std::vector<EnemyDirection> options;
-
-            AddMoveOptionIfValid(options, m_TileX, m_TileY - 1, EnemyDirection::Up, EnemyDirection::Down);
-            AddMoveOptionIfValid(options, m_TileX, m_TileY + 1, EnemyDirection::Down, EnemyDirection::Up);
-            AddMoveOptionIfValid(options, m_TileX - 1, m_TileY, EnemyDirection::Left, EnemyDirection::Right);
-            AddMoveOptionIfValid(options, m_TileX + 1, m_TileY, EnemyDirection::Right, EnemyDirection::Left);
-
-            if (!options.empty())
-            {
-                m_CurrentDirection = options[rand() % options.size()];
-            }
-            else
-            {
-                // No options found - try going backwards (opposite direction)
-                m_CurrentDirection = GetOppositeDirection(m_CurrentDirection);
-            }
+            std::uniform_int_distribution<size_t> dist(0, options.size() - 1);
+            size_t idx = dist(rng);
+           // std::cout << "random direction chosen" << idx << " out of " << options.size() << std::endl;
+            m_CurrentDirection = options[idx];
+        }
+        else if (options.size() == 1)
+        {
+            m_CurrentDirection = options[0];
+        }
+        else
+        {
+            m_CurrentDirection = GetOppositeDirection(m_CurrentDirection);
         }
     }
 
     EnemyDirection EnemyComponent::GetOppositeDirection(EnemyDirection dir) const
     {
-        switch (dir)
-        {
-        case EnemyDirection::Left:  return EnemyDirection::Right;
-        case EnemyDirection::Right: return EnemyDirection::Left;
-        case EnemyDirection::Up:    return EnemyDirection::Down;
-        case EnemyDirection::Down:  return EnemyDirection::Up;
-        default:                   return EnemyDirection::None;
-        }
+        return g_DirectionMappings.at(dir).opposite;
+    }
+
+    glm::vec2 EnemyComponent::GetDirectionVector(EnemyDirection dir) const
+    {
+        return g_DirectionMappings.at(dir).vector;
+    }
+
+    Direction EnemyComponent::ConvertToDirection(EnemyDirection dir) const
+    {
+        return g_DirectionMappings.at(dir).asDirection;
     }
 
     void EnemyComponent::AddMoveOptionIfValid(std::vector<EnemyDirection>& out, int x, int y, EnemyDirection dir, EnemyDirection opposite)
@@ -167,13 +195,12 @@ namespace dae
         glm::vec3 pos = m_pTransform->GetLocalPosition();
         glm::vec2 dirVec = GetDirectionVector(m_CurrentDirection);
 
-        //move smoothly
         glm::vec2 nextPos = {
             pos.x + dirVec.x * m_Speed * deltaTime,
             pos.y + dirVec.y * m_Speed * deltaTime
         };
 
-        float maxX = static_cast<float>(m_pTileMap->GetWidth() * TileMap::TILE_WIDTH - TileMap::TILE_WIDTH);//map bounds
+        float maxX = static_cast<float>(m_pTileMap->GetWidth() * TileMap::TILE_WIDTH - TileMap::TILE_WIDTH);
         float maxY = static_cast<float>(m_pTileMap->GetHeight() * TileMap::TILE_HEIGHT);
 
         if (nextPos.x < 0.f || nextPos.y < 0.f || nextPos.x >= maxX || nextPos.y >= maxY)
@@ -183,38 +210,19 @@ namespace dae
             m_pTransform->SetLocalPosition(nextPos.x, nextPos.y, pos.z);
     }
 
-    glm::vec2 EnemyComponent::GetDirectionVector(EnemyDirection dir) const
-    {
-        switch (dir)
-        {
-        case EnemyDirection::Left:  return { -1, 0 };
-        case EnemyDirection::Right: return { 1, 0 };
-        case EnemyDirection::Up:    return { 0, -1 };
-        case EnemyDirection::Down:  return { 0, 1 };
-        default: return { 0, 0 };
-        }
-    }
-
     bool EnemyComponent::IsWalkable(TileType type)
     {
         return type == TileType::Empty || type == TileType::Hole;
     }
 
-
-
-
-
-
-
-
-
-
-
     void EnemyComponent::HandleEnragedBehavior(float deltaTime)
     {
+        if (!m_pTransform || !m_pTileMap) return;
+
         UpdateTilePosition();
 
-        if (CheckTileSnap()) 
+        bool snapped = CheckTileSnap();
+        if (snapped)
         {
             glm::vec2 dirVec = GetDirectionVector(m_CurrentDirection);
             int targetX = m_TileX + static_cast<int>(dirVec.x);
@@ -224,14 +232,17 @@ namespace dae
             if (targetTile == TileType::Dirt)
             {
                 m_pTileMap->SetTile(targetX, targetY, TileType::Empty);
-            }
-            else
-            {
-                m_IsEnraged = false;
-                // No diggable tile ahead, maybe change direction or stop enraged state
-            }
-        }
 
+                float fx = static_cast<float>(targetX * TileMap::TILE_WIDTH);
+                float fy = static_cast<float>(targetY * TileMap::TILE_HEIGHT);
+                const float z = 1.f;
+
+                Direction dir = ConvertToDirection(m_CurrentDirection);
+                dae::LevelLoader::SpawnEmpty(m_Scene, fx, fy, z, dir);
+            }
+
+            EvaluateDirectionChange();
+        }
         MoveTowardsNextTile(deltaTime);
     }
 
@@ -243,7 +254,9 @@ namespace dae
             if (m_EnragedTimer <= 0.f)
             {
                 m_IsEnraged = false;
-                m_EnragedCooldown = 5.f + static_cast<float>(rand() % 10); 
+                std::uniform_int_distribution<int> cooldownDist(0, 9);
+                int cooldownRand = cooldownDist(rng);
+                m_EnragedCooldown = 5.f + static_cast<float>(cooldownRand);
             }
         }
         else
@@ -261,8 +274,62 @@ namespace dae
 
         if (m_EnragedCooldown <= 0.f)
         {
-            return (rand() % 100) < 10;
+            std::uniform_int_distribution<int> chanceDist(0, 999);
+            int chance = chanceDist(rng);
+            return chance < 1;
         }
         return false;
+    }
+
+    void EnemyComponent::Die()
+    {
+        if (m_IsDead)
+            return;
+
+        m_IsDead = true;
+    }
+
+    void EnemyComponent::DieByFallingBag(GameObject* bag)
+    {
+        m_IsDead = true;
+        m_BagToFollow = bag;
+        m_FallingWithBag = true;
+    }
+
+    void EnemyComponent::HandleDeadBehavior()
+    {
+        if (!m_FallingWithBag)
+        {
+            return;
+        }
+
+        if (!m_BagToFollow)
+        {
+            return;
+        }
+
+        auto bagTransform = m_BagToFollow->GetComponent<Transform>();
+        auto myTransform = GetOwner()->GetComponent<Transform>();
+        if (bagTransform && myTransform)
+        {
+            auto bagPos = bagTransform->GetLocalPosition();
+            const float yOffset = -(TileMap::TILE_HEIGHT/2);
+
+            myTransform->SetLocalPosition(bagPos.x, bagPos.y + yOffset, bagPos.z);
+        }
+
+        auto bagComp = m_BagToFollow->GetComponent<GoldBagComponent>();
+        if (bagComp)
+        {
+            if (bagComp->IsBroken())
+            {
+                m_FallingWithBag = false;
+                GetOwner()->MarkForDestruction();
+            }
+            else
+            {
+                GetOwner()->MarkForDestruction();
+            }
+        }
     }
 }

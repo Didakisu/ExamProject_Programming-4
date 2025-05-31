@@ -40,16 +40,16 @@ namespace dae
     void PlayerComponent::BindInput()
     {
         InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_W, InputState::Pressed,
-            std::make_unique<MoveCommand>(GetOwner(), 100.0f, glm::vec2{ 0, -1 }, m_pTileMap, m_Scene));
+            std::make_unique<MoveCommand>(GetOwner(), 45.0f, glm::vec2{ 0, -1 }, m_pTileMap, m_Scene));
 
         InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_S, InputState::Pressed,
-            std::make_unique<MoveCommand>(GetOwner(), 100.0f, glm::vec2{ 0, 1 }, m_pTileMap, m_Scene));
+            std::make_unique<MoveCommand>(GetOwner(), 45.0f, glm::vec2{ 0, 1 }, m_pTileMap, m_Scene));
 
         InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_A, InputState::Pressed,
-            std::make_unique<MoveCommand>(GetOwner(), 100.0f, glm::vec2{ -1, 0 }, m_pTileMap, m_Scene));
+            std::make_unique<MoveCommand>(GetOwner(), 45.0f, glm::vec2{ -1, 0 }, m_pTileMap, m_Scene));
 
         InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_D, InputState::Pressed,
-            std::make_unique<MoveCommand>(GetOwner(), 100.0f, glm::vec2{ 1, 0 }, m_pTileMap, m_Scene));
+            std::make_unique<MoveCommand>(GetOwner(), 45.0f, glm::vec2{ 1, 0 }, m_pTileMap, m_Scene));
 
         InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_X, InputState::Down,
             std::make_unique<KillPlayerCommand>(GetOwner()));

@@ -29,7 +29,7 @@ namespace dae
 		EnemyComponent* m_Enemy{};
 	};
 
-	/*class EnemyDeadState : public State
+	class EnemyDeadState : public State
 	{
 	public:
 		void OnEnter() override;
@@ -40,7 +40,7 @@ namespace dae
 		EnemyComponent* m_Enemy{};
 	};
 
-	class EnemyBonusState : public State
+	/*class EnemyBonusState : public State
 	{
 	public:
 		void OnEnter() override;

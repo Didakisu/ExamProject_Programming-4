@@ -7,6 +7,7 @@
 #include <RenderComponent.h>
 #include <iostream>
 #include "PlayerComponent.h"
+#include "EnemyComponent.h"
 
 namespace dae
 {
@@ -21,6 +22,21 @@ namespace dae
     {
         if (event != EVENT_COLLISION)
             return;
+
+        //enemy dies from falling bag
+        if (m_pGoldBagComponent->IsInFallingState())
+        {
+            if (gameObject.HasComponent<EnemyComponent>())
+            {
+                auto enemy = gameObject.GetComponent<EnemyComponent>();
+                if (enemy)
+                {
+                    enemy->DieByFallingBag(m_pGoldBagComponent->GetOwner());
+                    std::cout << "Enemy killed by falling bag\n";
+                    return;
+                }
+            }
+        }
 
         auto playerTransform = gameObject.GetComponent<Transform>();
         auto bagTransform = m_pGoldBagComponent->GetOwner()->GetComponent<Transform>();
@@ -59,7 +75,6 @@ namespace dae
     GoldBagComponent::GoldBagComponent(GameObject* owner)
         : Component(owner)
     {
-       
         InitializeAnimations();
 
         AddState("Resting", std::make_unique<GoldBagRestingState>(this));
@@ -234,6 +249,11 @@ namespace dae
     bool GoldBagComponent::IsInShakingState() const
     {
         return dynamic_cast<GoldBagShakingState*>(const_cast<State*>(GetCurrentState())) != nullptr;
+    }
+
+    bool GoldBagComponent::IsBroken() const
+    {
+        return m_IsBroken;
     }
 
     void GoldBagComponent::TryPush(PushDirection dir)

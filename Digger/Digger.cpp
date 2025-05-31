@@ -40,16 +40,15 @@
 #include "PlayerComponent.h"
 #include "EnemyComponent.h"
 
-
-
 void load()
 {
+
 	auto& scene = dae::SceneManager::GetInstance().CreateScene("Demo");
 
 	//TileMap tileMap;
 	auto s_TileMap = std::make_shared<TileMap>();
 	dae::LevelLoader loader;
-	loader.LoadLevel("D:/3_Third Year/2nd Semester/Programming 4/2DAE10_Programming4_01_Radeva_Dimana/Data/level.txt", scene, *s_TileMap);
+	loader.LoadLevel("D:/3_Third Year/2nd Semester/Programming 4/2DAE10_Programming4_01_Radeva_Dimana/Data/level.txt", scene, *s_TileMap); //fix this
 
 	
 	//auto pHoleBehindCharacter = std::make_shared<dae::GameObject>();
@@ -81,7 +80,7 @@ void load()
 	auto pCharacter = std::make_shared<dae::GameObject>();
 
 	auto playerComp = pCharacter->AddComponent<dae::PlayerComponent>(scene, s_TileMap);
-	playerComp->Initialize({ s_TileMap->TILE_WIDTH * 10.f, s_TileMap->TILE_HEIGHT * 2.f, 3.f });
+	playerComp->Initialize({ s_TileMap->TILE_WIDTH * 7.f, s_TileMap->TILE_HEIGHT * 10.f, 3.f });
 	playerComp->BindInput();
 
 	scene.Add(pCharacter);
@@ -92,7 +91,7 @@ void load()
 	auto pEnemy = std::make_shared<dae::GameObject>();
 
 	auto enemyComp = pEnemy->AddComponent<dae::EnemyComponent>(scene, s_TileMap);
-	enemyComp->Initialize({ s_TileMap->TILE_WIDTH * 13.f, s_TileMap->TILE_HEIGHT * 1.f, 4.f });
+	enemyComp->Initialize({ s_TileMap->TILE_WIDTH * 13.f, s_TileMap->TILE_HEIGHT * 2.f, 4.f });
 	
 
 	scene.Add(pEnemy);

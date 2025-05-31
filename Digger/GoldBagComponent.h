@@ -74,6 +74,9 @@ namespace dae
         void SetScene(Scene* scene) { m_pScene = scene; }
         Scene* GetScene() const { return m_pScene; }
 
+        bool IsBroken() const;
+
+
     protected:
         std::string CheckNextState() override;
 
