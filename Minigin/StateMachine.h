@@ -9,7 +9,7 @@ namespace dae {
     public:
         virtual ~StateMachine() = default;
 
-        void Update(float deltaTime);
+        void Update(float deltaTime); 
         void AddState(const std::string& name, std::unique_ptr<State> state);
         void SetInitialState(const std::string& stateName);
 

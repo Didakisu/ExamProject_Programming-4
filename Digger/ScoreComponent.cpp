@@ -9,10 +9,12 @@ namespace dae
 
 	}
 
-	void dae::ScoreComponent::OnNotify(const GameObject& , Event )
+	void dae::ScoreComponent::OnNotify(const GameObject& , Event /*event*/)
 	{
-		//std::cout << "collected coin!" << std::endl;
-		m_Points += 10;
-		//NotifyObservers(*m_pOwner, EVENT_PLAYER_LOSING_LIFE);
+		/*if (event == Event::EVENT_PLAYER_COLLECT_ITEM)
+		{
+			std::cout << "Collected an item!" << std::endl;
+			m_Points += 10;
+		}*/
 	}
 }

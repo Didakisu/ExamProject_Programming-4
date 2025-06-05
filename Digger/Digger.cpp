@@ -40,32 +40,40 @@
 #include "PlayerComponent.h"
 #include "EnemyComponent.h"
 #include "EnemySpawner.h"
+#include "GameController.h"
 
 
 void load()
 {
-	std::cout << "Scene created\n";
-	auto& scene = dae::SceneManager::GetInstance().CreateScene("Demo");
-	//create game states manager
+	//std::cout << "Scene created\n";
+	//auto& scene = dae::SceneManager::GetInstance().CreateScene("Demo");
+	////create game states manager
 
-	auto s_TileMap = std::make_shared<TileMap>();
+	//auto s_TileMap = std::make_shared<TileMap>();
 
-	dae::LevelLoader loader;
-	loader.LoadLevel("D:/3_Third Year/2nd Semester/Programming 4/2DAE10_Programming4_01_Radeva_Dimana/Data/level.txt", scene, *s_TileMap); //fix this
-	
-	//player
-	auto pCharacter = std::make_shared<dae::GameObject>();
-	auto playerComp = pCharacter->AddComponent<dae::PlayerComponent>(scene, s_TileMap);
-	playerComp->Initialize({ s_TileMap->TILE_WIDTH * 7.f, s_TileMap->TILE_HEIGHT * 10.f, 3.f });
-	playerComp->BindInput();
-	scene.Add(pCharacter);
-	
-	//enemySpawner setup
-	const auto& spawnPoints = loader.GetEnemySpawnPositions();
-	auto enemySpawnerGO = std::make_shared<dae::GameObject>();
-	enemySpawnerGO->AddComponent<dae::EnemySpawner>(scene, s_TileMap, spawnPoints, 1, 5.0f);
-	enemySpawnerGO->AddComponent<dae::Transform>();
-	scene.Add(enemySpawnerGO);
+	//dae::LevelLoader loader;
+	////loader.LoadLevel("D:/3_Third Year/2nd Semester/Programming 4/2DAE10_Programming4_01_Radeva_Dimana/Data/level.txt", scene, *s_TileMap); //fix this
+	//loader.LoadLevel("../Data/level.txt", scene, *s_TileMap);
+
+	////player
+	//auto pCharacter = std::make_shared<dae::GameObject>();
+	//auto playerComp = pCharacter->AddComponent<dae::PlayerComponent>(scene, s_TileMap);
+	//playerComp->Initialize({ s_TileMap->TILE_WIDTH * 7.f, s_TileMap->TILE_HEIGHT * 10.f, 3.f });
+	//playerComp->BindInput();
+	//scene.Add(pCharacter);
+	//
+	////enemySpawner setup
+	///*const auto& spawnPoints = loader.GetEnemySpawnPositions();
+	//auto enemySpawnerGO = std::make_shared<dae::GameObject>();
+	//enemySpawnerGO->AddComponent<dae::EnemySpawner>(scene, s_TileMap, spawnPoints, 1, 5.0f);
+	//enemySpawnerGO->AddComponent<dae::Transform>();
+	//scene.Add(enemySpawnerGO);*/
+
+	auto& rootScene = dae::SceneManager::GetInstance().CreateScene("RootScene");
+
+	auto gameControllerGO = std::make_shared<dae::GameObject>();
+	gameControllerGO->AddComponent<dae::GameController>();
+	rootScene.Add(gameControllerGO);
 }
 
 int main(int, char* []) {

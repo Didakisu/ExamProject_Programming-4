@@ -16,7 +16,6 @@ namespace dae
         }
     }
 
-
     PlayerComponent::PlayerComponent(GameObject* owner, Scene& scene, std::shared_ptr<TileMap> tileMap)
         : Component(owner), m_Scene(scene), m_pTileMap(tileMap)
     {

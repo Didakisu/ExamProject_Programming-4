@@ -12,6 +12,7 @@
 #include <unordered_set>
 #include <Physics.h>
 #include "PlayerComponent.h"
+#include "GameController.h"
 
 
 
@@ -181,19 +182,6 @@ bool MoveCommand::IsDiggable(TileType tile)
 
 void CollectCommand::Execute(float /*deltaTime*/)
 {
-
-    //if (m_GameObject)
-    //{
-    //   /* auto scoreComp = m_GameObject->GetComponent<dae::ScoreComponent>();
-    //    if (scoreComp)
-    //    {
-    //        scoreComp->PickUpCoin();
-    //    }*/
-    //    
-    //    auto& eventManager = dae::EventManager::GetInstance();
-    //    eventManager.FireEvent(EVENT_PLAYER_COLLECT_ITEM, nullptr , m_GameObject);
-    //}
-
     if (!m_GameObject) return;
 
     for (auto collectibleObj : m_Collectibles)
@@ -224,5 +212,14 @@ void FireCommand::Execute(float /*deltaTime*/)
     if (auto playerComp = m_GameObject->GetComponent<dae::PlayerComponent>())
     {
         playerComp->TryFire();
+    }
+}
+
+void RequestStateChangeCommand::Execute(float)
+{
+    m_IsRequested = true;
+    if (m_pController)
+    {
+        m_pController->RequestStateChange(m_TargetState);
     }
 }

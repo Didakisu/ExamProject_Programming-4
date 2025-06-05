@@ -22,7 +22,6 @@ namespace dae
         Right
     };
 
-
     class GoldBagObserver: public Observer
     {
     public:

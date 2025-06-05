@@ -3,6 +3,8 @@
 #include "TileMap.h"
 #include "Scene.h"
 
+namespace dae { class GameController; }
+
 class MoveCommand final : public dae::Command {
 public:
     explicit MoveCommand(dae::GameObject* pGameObject
@@ -50,9 +52,7 @@ public:
     {
 
     }
-
     void Execute(float deltaTime) override;
-
 private:
     dae::GameObject* m_GameObject;
     std::vector<dae::GameObject*> m_Collectibles;
@@ -66,10 +66,26 @@ public:
     {
 
     }
-
     void Execute(float deltaTime) override;
-
 private:
     dae::GameObject* m_GameObject{};
     dae::Scene& m_Scene;
+};
+
+
+class RequestStateChangeCommand : public dae::Command
+{
+public:
+    RequestStateChangeCommand(dae::GameController* controller, const std::string& targetState)
+        : m_pController(controller), m_TargetState(targetState), m_IsRequested(false) 
+    {
+    }
+    void Execute(float) override;
+    bool IsRequested() const { return m_IsRequested; }
+    void Reset() { m_IsRequested = false; }
+
+private:
+    dae::GameController* m_pController;
+    std::string m_TargetState;
+    bool m_IsRequested;
 };

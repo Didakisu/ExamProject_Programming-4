@@ -136,5 +136,4 @@ namespace dae
         auto collider = m_Bag->GetOwner()->AddComponent<CollisionComponent>(32.f, 32.f, scene);
         collider->AddObserver(goldCollectible);
     }
-
 }

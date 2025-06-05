@@ -25,7 +25,7 @@ namespace dae
         }
 
         void OnNotify(const GameObject& gameObject, Event event) override;
-        //bool SetDead(bool isDead);
+
     private:
         PlayerComponent* m_pPlayer;
     };
@@ -68,7 +68,6 @@ namespace dae
         float m_TotalBounceDuration{ 0.6f };
         bool m_HasPlayedRipAnimation{ false };
 
-        //
         float m_FireCooldown{ 0.f };
         const float m_FireCooldownDuration{ 1.f }; 
         dae::GameObject* m_pFireball{ nullptr };
