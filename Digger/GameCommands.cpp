@@ -11,6 +11,8 @@
 #include "LevelLoader.h"
 #include <unordered_set>
 #include <Physics.h>
+#include "PlayerComponent.h"
+
 
 
 constexpr int DISTANCE_EPSILON = 10;
@@ -45,39 +47,35 @@ void MoveCommand::Execute(float deltaTime)
         int distanceX = abs(desiredXPos - static_cast<int>(pos.x));
         int distanceY = abs(desiredYPos - static_cast<int>(pos.y));
 
-       
-
-
         bool snapped = false;
 
-
-            switch (oldDirEnum)
+        switch (oldDirEnum)
+        {
+        case dae::Direction::Left:
+        case dae::Direction::Right:
+            if (distanceX > DISTANCE_EPSILON)
             {
-            case dae::Direction::Left:
-            case dae::Direction::Right:
-                if (distanceX > DISTANCE_EPSILON)
-                {
-                    dir = oldDir;
-                }
-                else
-                {
-                    pos.x = static_cast<float>(desiredXPos);
-                    snapped = true;
-                }
-                break;
-            case dae::Direction::Down:
-            case dae::Direction::Up:
-                if (distanceY > DISTANCE_EPSILON)
-                {
-                    dir = oldDir;
-                }
-                else
-                {
-                    pos.y = static_cast<float>(desiredYPos);
-                    snapped = true;
-                }
-                break;
+                dir = oldDir;
             }
+            else
+            {
+                pos.x = static_cast<float>(desiredXPos);
+                snapped = true;
+            }
+            break;
+        case dae::Direction::Down:
+        case dae::Direction::Up:
+            if (distanceY > DISTANCE_EPSILON)
+            {
+                dir = oldDir;
+            }
+            else
+            {
+                pos.y = static_cast<float>(desiredYPos);
+                snapped = true;
+            }
+            break;
+        }
 
         if (snapped)
         {
@@ -170,16 +168,16 @@ bool MoveCommand::IsDiggable(TileType tile)
     return tile == TileType::Dirt || tile == TileType::Gem || tile == TileType::GoldBag;
 }
 
-void KillPlayerCommand::Execute(float /*deltaTime*/)
-{
-    if (m_GameObject)
-    {
-        auto healthComp = m_GameObject->GetComponent<dae::HealthComponent>();
-        if (healthComp) {
-            healthComp->LoseLife();
-        }
-    }
-}
+//void KillPlayerCommand::Execute(float /*deltaTime*/)
+//{
+//    if (m_GameObject)
+//    {
+//        auto healthComp = m_GameObject->GetComponent<dae::HealthComponent>();
+//        if (healthComp) {
+//            healthComp->LoseLife();
+//        }
+//    }
+//}
 
 void CollectCommand::Execute(float /*deltaTime*/)
 {
@@ -195,7 +193,6 @@ void CollectCommand::Execute(float /*deltaTime*/)
     //    auto& eventManager = dae::EventManager::GetInstance();
     //    eventManager.FireEvent(EVENT_PLAYER_COLLECT_ITEM, nullptr , m_GameObject);
     //}
-
 
     if (!m_GameObject) return;
 
@@ -217,5 +214,15 @@ void CollectCommand::Execute(float /*deltaTime*/)
             }
         }
     }
+}
 
+
+void FireCommand::Execute(float /*deltaTime*/)
+{
+    if (!m_GameObject) return;
+
+    if (auto playerComp = m_GameObject->GetComponent<dae::PlayerComponent>())
+    {
+        playerComp->TryFire();
+    }
 }

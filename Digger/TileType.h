@@ -6,5 +6,7 @@ enum class TileType {
     GoldBag,
     Boundary,
     Hole,
-    UI
+    UI,
+    Enemy,
+    Undefined
 };

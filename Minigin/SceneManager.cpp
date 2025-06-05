@@ -1,5 +1,6 @@
 #include "SceneManager.h"
 #include "Scene.h"
+#include <iostream>
 
 void dae::SceneManager::Update(float deltaTime) 
 {
@@ -48,4 +49,7 @@ void dae::SceneManager::GetCurrentScene()
 
 }
 
-
+void dae::SceneManager::DeleteScene(const std::string& name)
+{
+	std::erase_if(m_scenes, [name](std::shared_ptr<Scene>& ptr) {return ptr->GetName() == name;});
+}

@@ -24,22 +24,11 @@ namespace dae
             return;
 
         //enemy dies from falling bag
-        if (m_pGoldBagComponent->IsInFallingState())
-        {
-            if (gameObject.HasComponent<EnemyComponent>())
-            {
-                auto enemy = gameObject.GetComponent<EnemyComponent>();
-                if (enemy)
-                {
-                    enemy->DieByFallingBag(m_pGoldBagComponent->GetOwner());
-                    std::cout << "Enemy killed by falling bag\n";
-                    return;
-                }
-            }
-        }
 
         auto playerTransform = gameObject.GetComponent<Transform>();
         auto bagTransform = m_pGoldBagComponent->GetOwner()->GetComponent<Transform>();
+
+        
 
         if (!playerTransform || !bagTransform)
             return;
@@ -49,6 +38,30 @@ namespace dae
 
         float verticalDifference = std::abs(playerPos.y - bagPos.y);
         float maxVerticalOffset = 4.0f; 
+
+        if (m_pGoldBagComponent->IsInFallingState() && verticalDifference > 30.f)
+        {
+            if (gameObject.HasComponent<EnemyComponent>())
+            {
+                auto enemy = gameObject.GetComponent<EnemyComponent>();
+                if (enemy)
+                {
+                    enemy->DieByFallingBag(m_pGoldBagComponent->GetOwner());
+                    return;
+                }
+            }
+
+            if (gameObject.HasComponent<PlayerComponent>())
+            {
+                auto player = gameObject.GetComponent<PlayerComponent>();
+                if (player)
+                {
+                    player->SetDead(true);
+                    return;
+                }
+            }
+        }
+
         if (verticalDifference > maxVerticalOffset)
         {
             return; 

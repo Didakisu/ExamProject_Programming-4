@@ -7,6 +7,11 @@ using namespace dae;
 
 unsigned int Scene::m_idCounter = 0;
 
+std::string dae::Scene::GetName()
+{
+	return m_name;
+}
+
 Scene::Scene(const std::string& name) : m_name(name) {}
 
 Scene::~Scene() = default;

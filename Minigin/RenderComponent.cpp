@@ -39,9 +39,9 @@ namespace dae
         SDL_RendererFlip flip = SDL_FLIP_NONE;
         double angle = 0.0;
 
-        //?
         auto dirComp = m_pOwner->GetComponent<DirectionComponent>();
-        if (dirComp)
+        auto animComp = m_pOwner->GetComponent<AnimationComponent>();
+        if (dirComp && (!animComp || animComp->CurrentAnimationUsesDirection()))
         {
             switch (dirComp->GetDirection())
             {
@@ -68,8 +68,6 @@ namespace dae
             nullptr,
             flip
         );
-
-
     }
 
     void RenderComponent::SetTexture(const std::string& filename)

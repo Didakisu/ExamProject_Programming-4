@@ -29,24 +29,14 @@ private:
     dae::Scene& m_Scene;
 };
 
-class KillPlayerCommand final: public dae::Command
-{
-public:
-    explicit KillPlayerCommand(dae::GameObject* gameObject)
-        : m_GameObject(gameObject) {
-    }
-
-    void Execute(float deltaTime) override;
-private:
-    dae::GameObject* m_GameObject;
-};
-
-//class CollectCommand final: public dae::Command
+//class KillPlayerCommand final: public dae::Command
 //{
 //public:
-//    explicit CollectCommand(dae::GameObject* gameObject)
-//        : m_GameObject(gameObject) {
+//    explicit KillPlayerCommand(dae::GameObject* gameObject)
+//        : m_GameObject(gameObject) 
+//    {
 //    }
+//
 //    void Execute(float deltaTime) override;
 //private:
 //    dae::GameObject* m_GameObject;
@@ -55,8 +45,10 @@ private:
 class CollectCommand final : public dae::Command
 {
 public:
-    explicit CollectCommand(dae::GameObject* gameObject, std::vector<dae::GameObject*> collectibles)
-        : m_GameObject(gameObject), m_Collectibles(collectibles) {
+    explicit CollectCommand(dae::GameObject* gameObject, std::vector<dae::GameObject*> collectibles):
+        m_GameObject(gameObject), m_Collectibles(collectibles) 
+    {
+
     }
 
     void Execute(float deltaTime) override;
@@ -66,7 +58,18 @@ private:
     std::vector<dae::GameObject*> m_Collectibles;
 };
 
+class FireCommand final : public dae::Command
+{
+public:
+    FireCommand(dae::GameObject* gameObject, dae::Scene& scene) :
+        m_GameObject(gameObject), m_Scene(scene)
+    {
 
+    }
 
+    void Execute(float deltaTime) override;
 
-
+private:
+    dae::GameObject* m_GameObject{};
+    dae::Scene& m_Scene;
+};

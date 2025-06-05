@@ -5,12 +5,14 @@
 namespace dae
 {
 	class EnemyComponent;
+	class GameObject;
 
 	class EnemyNormalState : public State
 	{
 	public:
 		void OnEnter() override;
 		void Update(float deltaTime) override;
+		void OnExit() override;
 
 		explicit EnemyNormalState(EnemyComponent* enemy) : m_Enemy(enemy) {}
 
@@ -23,10 +25,13 @@ namespace dae
 	public:
 		void OnEnter() override;
 		void Update(float deltaTime) override;
+		//void OnExit() override;
 
-		explicit EnemyEnragedState(EnemyComponent* enemy) : m_Enemy(enemy) {}
+		explicit EnemyEnragedState(EnemyComponent* enemy) : m_Enemy(enemy)/*, m_pPlayer(nullptr)*/ {}
 	private:
 		EnemyComponent* m_Enemy{};
+		//GameObject* m_pPlayer; 
+		//GameObject* FindPlayer();
 	};
 
 	class EnemyDeadState : public State
@@ -34,6 +39,7 @@ namespace dae
 	public:
 		void OnEnter() override;
 		void Update(float deltaTime) override;
+		//void OnExit() override;
 
 		explicit EnemyDeadState(EnemyComponent* enemy) : m_Enemy(enemy) {}
 	private:

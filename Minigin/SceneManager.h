@@ -17,6 +17,7 @@ namespace dae
 		void Render();
 		float GetDeltaTime() const;
 		void GetCurrentScene();
+		void DeleteScene(const std::string& name);
 
 	private:
 		friend class Singleton<SceneManager>;

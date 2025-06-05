@@ -19,9 +19,9 @@ namespace dae
     {
     }
 
-    void AnimationComponent::AddAnimation(const std::string& name, const std::string& spriteSheet, int frameWidth, int frameHeight, int numFrames, float frameTime)
+    void AnimationComponent::AddAnimation(const std::string& name, const std::string& spriteSheet, int frameWidth, int frameHeight, int numFrames, float frameTime, bool useDirection , bool loop )
     {
-        dae::Animation anim = { spriteSheet, frameWidth, frameHeight, numFrames, frameTime };
+        dae::Animation anim = { spriteSheet, frameWidth, frameHeight, numFrames, frameTime , useDirection , loop };
         m_animations[name] = anim;
     }
 
@@ -52,11 +52,21 @@ namespace dae
         const dae::Animation& currentAnim = m_animations[m_currentAnimation];
 
         m_elapsedTime += deltaTime;
+
         if (m_elapsedTime >= currentAnim.frameTime)
         {
             m_elapsedTime -= currentAnim.frameTime;
-            m_currentFrame = (m_currentFrame + 1) % currentAnim.numFrames;
+
+            if (m_currentFrame + 1 < currentAnim.numFrames)
+            {
+                m_currentFrame++;
+            }
+            else if (currentAnim.loop)
+            {
+                m_currentFrame = 0;
+            }
         }
+
 
         auto* pRenderComp = m_pOwner->GetComponent<RenderComponent>();
         if (pRenderComp)
@@ -108,6 +118,15 @@ namespace dae
     const std::string& AnimationComponent::GetCurrentAnimationName() const
     {
         return m_currentAnimation; 
+    }
+
+    bool AnimationComponent::CurrentAnimationUsesDirection() const
+    {
+        auto it = m_animations.find(m_currentAnimation);
+        if (it == m_animations.end())
+            return true; // Default to true if not found
+
+        return it->second.useDirection;
     }
 
 } 

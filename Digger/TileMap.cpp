@@ -14,6 +14,7 @@ void TileMap::LoadFromText(const std::vector<std::string>& lines) {
             case '.': row.push_back(TileType::Boundary); break;
             case 'H': row.push_back(TileType::Hole); break;
             case 'U': row.push_back(TileType::UI); break;
+            case 'N': row.push_back(TileType::Enemy); break;
             default: throw std::runtime_error("Invalid tile in level file");
             }
         }
@@ -27,7 +28,7 @@ void TileMap::Render() const {
 
 TileType TileMap::GetTile(int x, int y) const {
     if (y < 0 || y >= static_cast<int>(m_Tiles.size()) ||
-        x < 0 || x >= static_cast<int>(m_Tiles[y].size())) return TileType::Dirt;
+        x < 0 || x >= static_cast<int>(m_Tiles[y].size())) return TileType::Undefined;
     return m_Tiles[y][x];
 }
 

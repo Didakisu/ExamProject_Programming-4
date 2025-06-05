@@ -12,14 +12,17 @@ namespace dae
         int frameHeight;
         int numFrames;
         float frameTime;
+        bool useDirection = true;
+        bool loop = true; 
     };
+
 
     class AnimationComponent final : public Component
     {
     public:
         AnimationComponent(GameObject* owner);
 
-        void AddAnimation(const std::string& name, const std::string& spriteSheet, int frameWidth, int frameHeight, int numFrames, float frameTime);
+        void AddAnimation(const std::string& name, const std::string& spriteSheet, int frameWidth, int frameHeight, int numFrames, float frameTime, bool useDirection = true , bool loop = true);
         void PlayAnimation(const std::string& name);
         void StopAnimation();
 
@@ -27,6 +30,9 @@ namespace dae
         void Render() const override;
 
         const std::string& GetCurrentAnimationName() const;
+
+        //
+        bool CurrentAnimationUsesDirection() const;
 
     private:
         std::unordered_map<std::string, dae::Animation> m_animations;

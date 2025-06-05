@@ -3,10 +3,18 @@
 #include <string>
 #include "DirectionComponent.h"
 #include <optional>
+#include <vector>
 
 class TileMap;
 
-namespace dae {
+
+namespace dae 
+{
+    class EnemySpawner;
+
+    struct SpawnPoint {
+        float x, y, z;
+    };
 
     class LevelLoader 
     {
@@ -18,6 +26,12 @@ namespace dae {
         static void SpawnGem(Scene& scene, float x, float y, float z);
         static void SpawnGoldBag(Scene& scene, float x, float y, float z, TileMap* pTileMap);
         static void SpawnUI(Scene& scene, float x, float y, float z);
+        static void SpawnEnemy(Scene& scene, float x, float y, float z, std::shared_ptr<TileMap> pTileMap, EnemySpawner* pSpawner);
+        //
+        const std::vector<SpawnPoint>& GetEnemySpawnPositions() const { return m_EnemySpawnPositions; }
+
+    private:
+       static std::vector<SpawnPoint> m_EnemySpawnPositions;
     };
 
 }

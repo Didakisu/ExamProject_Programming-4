@@ -13,6 +13,12 @@
 #include "HealthComponent.h"
 #include "GoldBagComponent.h"
 #include "GoldBagStates.h"
+#include "EnemyComponent.h"
+#include "EnemySpawner.h"
+
+
+
+std::vector<dae::SpawnPoint> dae::LevelLoader::m_EnemySpawnPositions{};
 
 void dae::LevelLoader::LoadLevel(const std::string& filename, Scene& scene, TileMap& outMap)
 {
@@ -61,6 +67,10 @@ void dae::LevelLoader::LoadLevel(const std::string& filename, Scene& scene, Tile
             case TileType::Hole:
                 SpawnCornerHole(scene, fxDirt, fyDirt, zGem);
                 break;
+            case TileType::Enemy:
+                SpawnEmpty(scene, fxDirt, fyDirt, zGem, std::nullopt);
+                m_EnemySpawnPositions.push_back({ fxDirt, fyDirt, zGoldBag });
+                break;
             default:
                 break;
             }
@@ -93,6 +103,16 @@ void dae::LevelLoader::SpawnUI(Scene& scene, float x, float y, float z)
     go->AddComponent<RenderComponent>("Rectangle.png", TileMap::TILE_WIDTH, TileMap::TILE_HEIGHT);
     go->AddComponent<Transform>()->SetLocalPosition(x, y, z);
     scene.Add(go);
+}
+
+void dae::LevelLoader::SpawnEnemy(Scene& scene, float x, float y, float z, std::shared_ptr<TileMap> pTileMap, EnemySpawner* pSpawner)
+{
+    auto enemyGO = std::make_shared<GameObject>();
+    enemyGO->AddComponent<Transform>()->SetLocalPosition(x , y , z);
+    auto enemyComp = enemyGO->AddComponent<EnemyComponent>(scene, pTileMap);
+    enemyComp->Initialize({ x, y, z } , pSpawner);
+    scene.Add(enemyGO);
+    std::cout << "Enemy spawned and initialized with observer." << std::endl;
 }
 
 void dae::LevelLoader::SpawnCornerHole(Scene& scene, float x, float y, float z)

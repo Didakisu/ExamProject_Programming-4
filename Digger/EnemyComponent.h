@@ -10,11 +10,13 @@
 #include "AnimationComponent.h"
 #include "RenderComponent.h"
 #include "StateMachine.h"
+#include "EnemySpawner.h"
 
 namespace dae
 {
     class State;
     class StateMachine;
+    class EnemySpawner; 
 
     enum class EnemyDirection 
     { 
@@ -25,12 +27,12 @@ namespace dae
       None
     };
 
-    class EnemyComponent final : public Component, public StateMachine
+    class EnemyComponent final : public Component, public StateMachine ,public Subject
     {
     public:
         EnemyComponent(GameObject* owner, Scene& scene, std::shared_ptr<TileMap> tileMap);
         ~EnemyComponent() override = default;
-        void Initialize(const glm::vec3& startPosition);
+        void Initialize(const glm::vec3& startPosition, EnemySpawner* spawner);
         void Update(float deltaTime) override;
 
         void HandleWalking(float deltaTime);
@@ -54,6 +56,14 @@ namespace dae
         void Die();
         void DieByFallingBag(GameObject* bag);
         void HandleDeadBehavior(/*float *//*deltaTime*/);
+        void ResetDeadState() { m_IsDead = false; }
+
+        void SetTileMap(std::shared_ptr<TileMap> tileMap);
+
+        Scene& GetScene() { return m_Scene; }
+        const Scene& GetScene() const { return m_Scene; }
+        GameObject* FindPlayer();
+
     protected:
         std::string CheckNextState() override;
     private:
