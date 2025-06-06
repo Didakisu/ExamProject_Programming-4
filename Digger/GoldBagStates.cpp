@@ -130,10 +130,11 @@ namespace dae
             render->SetSourceRect({ 30 , 0 , 15 , 18 });
         }
 
-        auto goldCollectible = std::make_shared<CollectibleComponent>(m_Bag->GetOwner());
+        auto goldCollectible = std::make_shared<CollectibleComponent>(m_Bag->GetOwner() , 20);
         m_Bag->GetOwner()->AddComponent<CollectibleComponent>();
 
         auto collider = m_Bag->GetOwner()->AddComponent<CollisionComponent>(32.f, 32.f, scene);
         collider->AddObserver(goldCollectible);
+
     }
 }

@@ -129,7 +129,7 @@ void dae::LevelLoader::SpawnGem(Scene& scene, float x, float y, float z)
     pEmeraldCollectible->AddComponent<RenderComponent>("Gem.png", 25, 20 );
     pEmeraldCollectible->AddComponent<Transform>()->SetLocalPosition(x, y, z);
 
-    std::shared_ptr<dae::Observer>collectible = std::make_shared<dae::CollectibleComponent>(pEmeraldCollectible.get());
+    std::shared_ptr<dae::Observer>collectible = std::make_shared<dae::CollectibleComponent>(pEmeraldCollectible.get() , 10);
     auto collision = pEmeraldCollectible->AddComponent<dae::CollisionComponent>(30.f, 32.f, &scene);
     collision->AddObserver(collectible);
 

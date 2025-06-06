@@ -9,22 +9,25 @@
 
 namespace dae
 {
-    CollectibleComponent::CollectibleComponent(GameObject* owner)
-        : Component(owner)
+    CollectibleComponent::CollectibleComponent(GameObject* owner, int points)
+        : Component(owner), m_Points(points)
     {
+        //std::cout << "CollectibleComponent created and attached to GameObject: " << GetOwner() << std::endl;
     }
 
-    void CollectibleComponent::OnCollected()
+    void CollectibleComponent::OnCollected(GameObject* collector)
     {
         if (!m_IsCollected)
-        {
+        {   
             std::cout << "CollectibleComponent: OnCollected triggered!\n";
+            std::cout << "CollectibleComponent: OnCollected triggered! Owner address: " << GetOwner() << std::endl;
             m_IsCollected = true;
 
-            EventManager::GetInstance().FireEvent(EVENT_PLAYER_COLLECT_ITEM, nullptr, GetOwner());
+            EventManager::GetInstance().FireEvent(EVENT_PLAYER_COLLECT_ITEM, GetOwner(), collector);
+
             GetOwner()->MarkForDestruction();
         }
-    }
+    } 
 
     void CollectibleComponent::Update(float /*deltaTime*/)
     {
@@ -53,7 +56,7 @@ namespace dae
         {
             if (myCollision->IsOverlapping(*playerCollision))
             {
-                OnCollected();
+                OnCollected(const_cast<GameObject*>(player));
             }
             else
             {
@@ -61,5 +64,4 @@ namespace dae
             }
         }
     }
-
 }

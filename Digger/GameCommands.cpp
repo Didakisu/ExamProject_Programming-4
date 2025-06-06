@@ -196,7 +196,7 @@ void CollectCommand::Execute(float /*deltaTime*/)
                 float dist = glm::distance(glm::vec2(playerPos.x, playerPos.y), glm::vec2(objPos.x, objPos.y));
                 if (dist < 50.f)
                 {
-                    collectible->OnCollected();
+                    collectible->OnCollected(m_GameObject);
                     break;
                 }
             }

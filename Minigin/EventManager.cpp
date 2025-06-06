@@ -41,6 +41,7 @@ void dae::EventManager::ProcessEvents()
     }
 }
 
+
 void dae::EventManager::AddObserver(Observer* observer , std::vector<Event> events)
 {
     m_Observers.push_back({ events,observer });

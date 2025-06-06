@@ -40,6 +40,8 @@ namespace dae
         EventManager::GetInstance().AddObserver(m_pScoreComponent, { EVENT_PLAYER_COLLECT_ITEM });
         m_pCollisionComponent->AddObserver(std::make_shared<PlayerObserver>(this));
 
+        std::cout << "ScoreComponent observer registered: " << (m_pScoreComponent ? "yes" : "no") << std::endl;
+
         //hole behind character
         auto pHoleBehindCharacter = std::make_shared<dae::GameObject>();
         pHoleBehindCharacter->AddComponent<dae::RenderComponent>("tile.png", 35, 28);

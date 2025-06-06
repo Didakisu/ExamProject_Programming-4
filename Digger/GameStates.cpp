@@ -47,7 +47,6 @@ namespace dae
 
 		auto pCharacter = std::make_shared<dae::GameObject>();
 		auto playerComp = pCharacter->AddComponent<dae::PlayerComponent>(scene, m_TileMap);
-		pCharacter->AddComponent<dae::ScoreComponent>();
 		playerComp->Initialize(glm::vec3{ TileMap::TILE_WIDTH * 7.f, TileMap::TILE_HEIGHT* 10.f, 3.f });
 		playerComp->BindInput();
 		scene.Add(pCharacter);

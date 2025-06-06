@@ -8,9 +8,9 @@ namespace dae
     class CollectibleComponent final : public Component, public Observer
     {
     public:
-        CollectibleComponent(GameObject* owner);
+        CollectibleComponent(GameObject* owner , int points = 10);
         void Update(float /*deltaTime*/) override;
-        void OnCollected();
+        void OnCollected(GameObject* collector);
         bool IsCollected() const { return m_IsCollected; }
         int GetPoints() const { return m_Points; }
 
