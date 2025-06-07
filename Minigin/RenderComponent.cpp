@@ -23,6 +23,9 @@ namespace dae
 
     void RenderComponent::Render() const
     {
+        if (!m_IsEnabled)
+            return;
+
         if (!m_texture) return;
 
         auto transform = m_pOwner->GetComponent<Transform>();
@@ -73,11 +76,6 @@ namespace dae
     void RenderComponent::SetTexture(const std::string& filename)
     {
         m_texture = ResourceManager::GetInstance().LoadTexture(filename);
-
-        //if (m_texture)
-        //{
-        //    //m_texture->Resize(static_cast<int>(m_width), static_cast<int>(m_height));
-        //}
     }
 
     void RenderComponent::SetSourceRect(const SDL_Rect& rect)
@@ -85,5 +83,4 @@ namespace dae
         m_srcRect = rect;
         m_useSrcRect = true;
     }
-
 }

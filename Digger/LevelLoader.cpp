@@ -15,10 +15,11 @@
 #include "GoldBagStates.h"
 #include "EnemyComponent.h"
 #include "EnemySpawner.h"
-
+#include "Data.h"
 
 
 std::vector<dae::SpawnPoint> dae::LevelLoader::m_EnemySpawnPositions{};
+std::vector<std::shared_ptr<dae::Observer>> dae::LevelLoader::m_CollectibleObservers{};
 
 void dae::LevelLoader::LoadLevel(const std::string& filename, Scene& scene, TileMap& outMap)
 {
@@ -126,12 +127,14 @@ void dae::LevelLoader::SpawnCornerHole(Scene& scene, float x, float y, float z)
 void dae::LevelLoader::SpawnGem(Scene& scene, float x, float y, float z)
 {
     auto pEmeraldCollectible = std::make_shared<GameObject>();
-    pEmeraldCollectible->AddComponent<RenderComponent>("Gem.png", 25, 20 );
+    pEmeraldCollectible->AddComponent<RenderComponent>("Gem.png", 25, 20);
     pEmeraldCollectible->AddComponent<Transform>()->SetLocalPosition(x, y, z);
 
-    std::shared_ptr<dae::Observer>collectible = std::make_shared<dae::CollectibleComponent>(pEmeraldCollectible.get() , 10);
-    auto collision = pEmeraldCollectible->AddComponent<dae::CollisionComponent>(30.f, 32.f, &scene);
-    collision->AddObserver(collectible);
+    auto collision = pEmeraldCollectible->AddComponent<dae::CollisionComponent>(20.f, 22.f, &scene);
+    auto collectibleObserver = std::make_shared<dae::CollectibleComponent>(pEmeraldCollectible.get() ,EVENT_COLLECTED_GEM);
+    collision->AddObserver(collectibleObserver);
+
+    m_CollectibleObservers.push_back(collectibleObserver);
 
     scene.Add(pEmeraldCollectible);
 }

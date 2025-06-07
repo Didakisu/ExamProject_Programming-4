@@ -8,6 +8,7 @@
 #include "Scene.h"
 #include <iostream>
 #include <memory>
+#include "Data.h"
 
 namespace dae
 {
@@ -28,7 +29,6 @@ namespace dae
             m_Bag->ResetHasHitGround();
         }
     }
-
 
     void GoldBagShakingState::OnEnter()
     {
@@ -130,11 +130,16 @@ namespace dae
             render->SetSourceRect({ 30 , 0 , 15 , 18 });
         }
 
-        auto goldCollectible = std::make_shared<CollectibleComponent>(m_Bag->GetOwner() , 20);
+        /*auto goldCollectible = std::make_shared<CollectibleComponent>(m_Bag->GetOwner() , 20);
         m_Bag->GetOwner()->AddComponent<CollectibleComponent>();
 
         auto collider = m_Bag->GetOwner()->AddComponent<CollisionComponent>(32.f, 32.f, scene);
-        collider->AddObserver(goldCollectible);
+        collider->AddObserver(goldCollectible);*/
 
+        auto goldCollectible = std::make_shared<CollectibleComponent>(m_Bag->GetOwner(), EVENT_COLLECTED_GOLD);
+
+        // Attach the observer to a CollisionComponent
+        auto collider = m_Bag->GetOwner()->AddComponent<CollisionComponent>(32.f, 32.f, scene);
+        collider->AddObserver(goldCollectible);
     }
 }

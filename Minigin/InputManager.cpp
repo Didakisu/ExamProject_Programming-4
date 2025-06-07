@@ -74,23 +74,23 @@ namespace dae {
         m_KeyboardBindings.push_back({ key, state, std::move(command) });
     }
 
-        void InputManager::UnbindGamepadCommand(Gamepad::GamePadButton button) {
-        m_GamepadBindings.erase(
-            std::remove_if(m_GamepadBindings.begin(), m_GamepadBindings.end(),
-                [button](const GamepadBinding& binding) {
-                    return binding.button == button;
-                }),
-            m_GamepadBindings.end()
-        );
+    void InputManager::UnbindGamepadCommand(Gamepad::GamePadButton button) {
+    m_GamepadBindings.erase(
+        std::remove_if(m_GamepadBindings.begin(), m_GamepadBindings.end(),
+            [button](const GamepadBinding& binding) {
+                return binding.button == button;
+            }),
+        m_GamepadBindings.end()
+    );
     }
 
-        void InputManager::UnbindKeyboardCommand(SDL_Scancode key) {
-            m_KeyboardBindings.erase(
-                std::remove_if(m_KeyboardBindings.begin(), m_KeyboardBindings.end(),
-                    [key](const KeyboardBinding& binding) {
-                        return binding.key == key;
-                    }),
-                m_KeyboardBindings.end()
-            );
-        }
+    void InputManager::UnbindKeyboardCommand(SDL_Scancode key) {
+        m_KeyboardBindings.erase(
+            std::remove_if(m_KeyboardBindings.begin(), m_KeyboardBindings.end(),
+                [key](const KeyboardBinding& binding) {
+                    return binding.key == key;
+                }),
+            m_KeyboardBindings.end()
+        );
+    }
 }

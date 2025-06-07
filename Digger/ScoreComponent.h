@@ -16,5 +16,7 @@ namespace dae
     private:
         GameObject* m_pOwner;
         int m_Points{};
+        int m_ConsecutiveGemsCollected = 0;
+        int m_LiveCounter{};
     };
 }

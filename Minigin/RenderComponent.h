@@ -23,6 +23,8 @@ namespace dae
         int GetWidth() const { return m_width; }
         int GetHeight() const { return m_height; }
 
+        void SetEnabled(bool enabled) { m_IsEnabled = enabled; }
+        bool IsEnabled() const { return m_IsEnabled; }
     private:
         std::shared_ptr<Texture2D> m_texture; 
         int m_width; 
@@ -30,8 +32,7 @@ namespace dae
 
         SDL_Rect m_srcRect{};
         bool m_useSrcRect{ false };
+
+        bool m_IsEnabled{ true };
     };
 }
-
-
-    

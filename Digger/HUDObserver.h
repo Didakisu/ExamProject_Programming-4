@@ -5,20 +5,20 @@
 #include "HealthComponent.h"
 #include "ScoreComponent.h"
 #include "GameObject.h"
+#include <RenderComponent.h>
 
 namespace dae
 {
     class HUDObserver : public Component, public Observer
     {
     public:
-        HUDObserver(GameObject* owner, TextComponent* healthText, TextComponent* scoreText, HealthComponent* health, ScoreComponent* score);
-
-        void OnNotify(const GameObject& gameObject, Event event) override;
-
+        HUDObserver(dae::GameObject* pOwner, TextComponent* pScoreText, ScoreComponent* pScoreComponent, const std::vector<RenderComponent*>& lifeIcons);
+        void OnNotify(const GameObject& sender, Event event) override;
+        void SetLifeIcons(const std::vector<RenderComponent*>& lifeIcons) { m_LifeIcons = lifeIcons; }
     private:
-        TextComponent* m_pHealthTextComponent;
-        TextComponent* m_pScoreTextComponent;
-        HealthComponent* m_pHealthComponent;
-        ScoreComponent* m_pScoreComponent;
+        TextComponent* m_pScoreText{};
+        ScoreComponent* m_pScoreComponent{};
+        HealthComponent* m_pHealthComponent{};
+        std::vector<RenderComponent*> m_LifeIcons;
     };
 }

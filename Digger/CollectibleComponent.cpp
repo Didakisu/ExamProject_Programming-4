@@ -1,67 +1,38 @@
 #include "CollectibleComponent.h"
 #include "EventManager.h"
 #include "Data.h"
-#include <RenderComponent.h>
-#include "CollisionComponent.h"
 #include <iostream>
 #include "PlayerComponent.h"
 #include "EnemyComponent.h"
 
 namespace dae
 {
-    CollectibleComponent::CollectibleComponent(GameObject* owner, int points)
-        : Component(owner), m_Points(points)
+    CollectibleComponent::CollectibleComponent(GameObject* owner, Event collectEvent)
+        : m_Owner(owner), m_CollectEvent(collectEvent)
     {
-        //std::cout << "CollectibleComponent created and attached to GameObject: " << GetOwner() << std::endl;
-    }
-
-    void CollectibleComponent::OnCollected(GameObject* collector)
-    {
-        if (!m_IsCollected)
-        {   
-            std::cout << "CollectibleComponent: OnCollected triggered!\n";
-            std::cout << "CollectibleComponent: OnCollected triggered! Owner address: " << GetOwner() << std::endl;
-            m_IsCollected = true;
-
-            EventManager::GetInstance().FireEvent(EVENT_PLAYER_COLLECT_ITEM, GetOwner(), collector);
-
-            GetOwner()->MarkForDestruction();
-        }
-    } 
-
-    void CollectibleComponent::Update(float /*deltaTime*/)
-    {
-
     }
 
     void CollectibleComponent::OnNotify(const GameObject& gameObject, Event event)
     {
         if (event == EVENT_COLLISION)
         {
-            TryCollect(&gameObject);
+            const GameObject* other = &gameObject;
+
+            if (m_IsCollected) return;
+
+            if (!other->HasComponent<PlayerComponent>() && !other->HasComponent<EnemyComponent>())
+                return;
+
+            OnCollected(const_cast<GameObject*>(other));
         }
     }
 
-    void CollectibleComponent::TryCollect(const GameObject* player)
+    void CollectibleComponent::OnCollected(GameObject* collector)
     {
         if (m_IsCollected) return;
-
-        if (!player->HasComponent<PlayerComponent>() && !player->HasComponent<EnemyComponent>())
-            return;
-
-        auto myCollision = GetOwner()->GetComponent<CollisionComponent>();
-        auto playerCollision = player->GetComponent<CollisionComponent>();
-
-        if (myCollision && playerCollision)
-        {
-            if (myCollision->IsOverlapping(*playerCollision))
-            {
-                OnCollected(const_cast<GameObject*>(player));
-            }
-            else
-            {
-                std::cout << "no collision detected." << std::endl;
-            }
-        }
+        m_IsCollected = true;
+        std::cout << "CollectibleComponent: collected by " << collector << std::endl;
+        EventManager::GetInstance().FireEvent(m_CollectEvent, m_Owner, collector);
+        m_Owner->MarkForDestruction();
     }
 }

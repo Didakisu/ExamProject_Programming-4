@@ -1,11 +1,12 @@
 #include "HealthComponent.h"
 #include "Data.h"
 #include <ServiceLocator.h>
+#include "EventManager.h"
 
 dae::HealthComponent::HealthComponent(GameObject* owner, int initialLives)
     : Component(owner), m_pOwner(owner), m_Lives(initialLives)
 {
-
+    EventManager::GetInstance().AddObserver(this, { EVENT_PLAYER_GAINED_LIFE });
 }
 
 void dae::HealthComponent::LoseLife()
@@ -20,5 +21,13 @@ void dae::HealthComponent::LoseLife()
             auto soundSystem = dae::ServiceLocator::GetSoundSystem();
             soundSystem->Play(DEATH_SOUND_ID, 50);
         }
+    }
+}
+
+void dae::HealthComponent::OnNotify(const GameObject& /*gameObject*/, Event event)
+{
+    if (event == EVENT_PLAYER_GAINED_LIFE)
+    {
+        m_Lives += 1;
     }
 }

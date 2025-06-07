@@ -12,6 +12,7 @@
 #include "Scene.h"
 #include "TileMap.h"
 #include "Observer.h"
+#include "HealthComponent.h"
 
 namespace dae 
 {
@@ -48,6 +49,7 @@ namespace dae
 
         //
         void TryFire();
+        void RespawnPlayer();
     private:
         Scene& m_Scene;
         std::shared_ptr<TileMap> m_pTileMap;
@@ -57,6 +59,7 @@ namespace dae
         Transform* m_pTransform{};
         CollisionComponent* m_pCollisionComponent{};
         ScoreComponent* m_pScoreComponent{};
+        HealthComponent* m_pHealthComponent{};
 
         bool m_IsDead{ false };
 
@@ -71,5 +74,10 @@ namespace dae
         float m_FireCooldown{ 0.f };
         const float m_FireCooldownDuration{ 1.f }; 
         dae::GameObject* m_pFireball{ nullptr };
+
+        bool m_ShouldRespawn = false;
+        float m_RespawnTimer = 0.f;
+        float m_RespawnDelay = 5.f;
+        glm::vec3 m_RespawnPosition{};
     };
 }

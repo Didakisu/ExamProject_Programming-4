@@ -3,6 +3,7 @@
 #include "EnemyComponent.h"
 #include "FireBallComponent.h"
 
+
 namespace dae 
 {
     void PlayerObserver::OnNotify(const GameObject& gameObject, Event event)
@@ -13,12 +14,14 @@ namespace dae
         if (gameObject.HasComponent<EnemyComponent>())
         {
             m_pPlayer->SetDead(true);
+
         }
     }
 
     PlayerComponent::PlayerComponent(GameObject* owner, Scene& scene, std::shared_ptr<TileMap> tileMap)
         : Component(owner), m_Scene(scene), m_pTileMap(tileMap)
     {
+
     }
 
     void PlayerComponent::Initialize(const glm::vec3& startPosition)
@@ -39,6 +42,10 @@ namespace dae
 
         EventManager::GetInstance().AddObserver(m_pScoreComponent, { EVENT_PLAYER_COLLECT_ITEM });
         m_pCollisionComponent->AddObserver(std::make_shared<PlayerObserver>(this));
+
+        m_pHealthComponent = GetOwner()->AddComponent<HealthComponent>(3);
+
+        m_RespawnPosition = startPosition;
 
         std::cout << "ScoreComponent observer registered: " << (m_pScoreComponent ? "yes" : "no") << std::endl;
 
@@ -75,6 +82,16 @@ namespace dae
         if (m_IsDead)
         {
             BouncingEffect(deltaTime);
+
+            if (m_ShouldRespawn)
+            {
+                m_RespawnTimer += deltaTime;
+                if (m_RespawnTimer >= m_RespawnDelay)
+                {
+                    RespawnPlayer();
+                    m_ShouldRespawn = false;
+                }
+            }
         }
 
         m_FireCooldown -= deltaTime;
@@ -86,12 +103,21 @@ namespace dae
         {
             std::cout << "[DEBUG] Player just died\n";
             m_IsDead = true;
+            m_ShouldRespawn = true;
+            m_RespawnTimer = 0.f;
+
+            if (m_pHealthComponent)
+            {
+                m_pHealthComponent->LoseLife();
+            }
 
             m_pAnimationComponent->StopAnimation(); 
             m_pAnimationComponent->AddAnimation("Dead", "test_1.png", 32, 32, 1, 0.f, false);
             m_pAnimationComponent->PlayAnimation("Dead");
 
             m_BounceTime = 0.f; 
+
+            dae::EventManager::GetInstance().FireEvent(EVENT_PLAYER_LOSING_LIFE, GetOwner(), nullptr);
         }
     }
 
@@ -163,4 +189,24 @@ namespace dae
 
         m_FireCooldown = m_FireCooldownDuration;
     }
+
+    void PlayerComponent::RespawnPlayer()
+    {
+        m_IsDead = false;
+        m_HasPlayedRipAnimation = false;
+        m_BounceTime = 0.f;
+
+        if (m_pTransform)
+        {
+            m_pTransform->SetLocalPosition(m_RespawnPosition.x , m_RespawnPosition.y , m_RespawnPosition.z);
+        }
+
+        if (m_pAnimationComponent)
+        {
+            m_pAnimationComponent->PlayAnimation("Run");
+        }
+
+        std::cout << "[DEBUG] Player respawned\n";
+    }
+
 }

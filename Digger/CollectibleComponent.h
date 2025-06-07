@@ -1,27 +1,20 @@
 #pragma once
-#include "Component.h"
 #include "Observer.h"
 
 namespace dae
 {
+    class GameObject;
 
-    class CollectibleComponent final : public Component, public Observer
+    class CollectibleComponent final : public Observer
     {
     public:
-        CollectibleComponent(GameObject* owner , int points = 10);
-        void Update(float /*deltaTime*/) override;
-        void OnCollected(GameObject* collector);
-        bool IsCollected() const { return m_IsCollected; }
-        int GetPoints() const { return m_Points; }
-
+        CollectibleComponent(GameObject* owner, Event collectEvent);
         void OnNotify(const GameObject& gameObject, Event event) override;
-
-        void TryCollect(const GameObject* other); 
     private:
+        void OnCollected(GameObject* collector);
+
+        GameObject* m_Owner; 
+        Event m_CollectEvent;
         bool m_IsCollected{ false };
-        int m_Points{ 0 };
     };
 }
-
-
-

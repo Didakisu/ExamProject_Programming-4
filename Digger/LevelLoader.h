@@ -4,6 +4,7 @@
 #include "DirectionComponent.h"
 #include <optional>
 #include <vector>
+#include "Observer.h"
 
 class TileMap;
 
@@ -32,6 +33,8 @@ namespace dae
 
     private:
        static std::vector<SpawnPoint> m_EnemySpawnPositions;
+       static std::vector<std::shared_ptr<Observer>> m_CollectibleObservers;
+
     };
 
 }

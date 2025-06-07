@@ -187,11 +187,11 @@ namespace dae
         if (!transform) return true;
 
         glm::vec3 pos = transform->GetLocalPosition();
-        int tileX = static_cast<int>(pos.x) / TileMap::TILE_WIDTH;
-        int tileY = static_cast<int>(pos.y) / TileMap::TILE_HEIGHT;
+        int tileX = static_cast<int>(round(pos.x) / TileMap::TILE_WIDTH);
+        int tileY = static_cast<int>(round(pos.y) / TileMap::TILE_HEIGHT);
 
         TileType below = m_pTileMap->GetTile(tileX, tileY + 1);
-        return below != TileType::Empty;
+        return below != TileType::Empty && below != TileType::Hole;
     }
 
     void GoldBagComponent::Fall(float deltaTime)

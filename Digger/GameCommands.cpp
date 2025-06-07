@@ -15,7 +15,6 @@
 #include "GameController.h"
 
 
-
 constexpr int DISTANCE_EPSILON = 10;
 
 void MoveCommand::Execute(float deltaTime)
@@ -182,7 +181,7 @@ bool MoveCommand::IsDiggable(TileType tile)
 
 void CollectCommand::Execute(float /*deltaTime*/)
 {
-    if (!m_GameObject) return;
+    /*if (!m_GameObject) return;
 
     for (auto collectibleObj : m_Collectibles)
     {
@@ -200,6 +199,22 @@ void CollectCommand::Execute(float /*deltaTime*/)
                     break;
                 }
             }
+        }
+    }*/
+
+    if (!m_GameObject) return;
+
+    for (auto& collectibleObj : m_Collectibles)
+    {
+        auto playerPos = m_GameObject->GetComponent<dae::Transform>()->GetWorldPosition();
+        auto objPos = collectibleObj->GetComponent<dae::Transform>()->GetWorldPosition();
+
+        float dist = glm::distance(glm::vec2(playerPos.x, playerPos.y), glm::vec2(objPos.x, objPos.y));
+        if (dist < 50.f)
+        {
+            dae::EventManager::GetInstance().FireEvent(EVENT_COLLECTED_GEM, collectibleObj, m_GameObject);
+            collectibleObj->MarkForDestruction();
+            break;
         }
     }
 }

@@ -22,11 +22,17 @@ namespace dae
 
 		void RequestStateChange(const std::string& newState);
 		void BindInput();
+
+		/*void SetEnemiesFrozen(bool frozen) { m_EnemiesFrozen = frozen; }
+		bool AreEnemiesFrozen() const { return m_EnemiesFrozen; }*/
+
 	protected:
 		std::string CheckNextState() override;
 	private:
 		Scene* m_pScene = nullptr;
 		RenderComponent* m_pRenderComponent = nullptr;
 		std::string m_PendingState;
+
+		/*bool m_EnemiesFrozen = false;*/
 	};
 }

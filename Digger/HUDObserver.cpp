@@ -3,26 +3,56 @@
 #include "Data.h"
 #include <string>
 
+#include <iomanip> 
+#include <sstream> 
+
 namespace dae
 {
-    HUDObserver::HUDObserver(GameObject* owner, TextComponent* healthText, TextComponent* scoreText, HealthComponent* health, ScoreComponent* score)
-        : Component(owner), m_pHealthTextComponent(healthText), m_pScoreTextComponent(scoreText), m_pHealthComponent(health), m_pScoreComponent(score)
+    HUDObserver::HUDObserver(GameObject* pOwner, TextComponent* pScoreText, ScoreComponent* pScoreComponent, const std::vector<RenderComponent*>& lifeIcons)
+        : Component(pOwner)
+        , m_pScoreText(pScoreText)
+        , m_pScoreComponent(pScoreComponent)
+        , m_LifeIcons(lifeIcons)
     {
+        m_pHealthComponent = pOwner->GetComponent<HealthComponent>();
 
+
+        int lives = m_pHealthComponent->GetLives();
+
+        for (size_t i = 0; i < m_LifeIcons.size(); ++i)
+        {
+            if (m_LifeIcons[i])
+            {
+                m_LifeIcons[i]->SetEnabled(static_cast<int>(i) < lives);
+            }
+        }
     }
 
-    void HUDObserver::OnNotify(const GameObject& gameObject, Event event)
+    void dae::HUDObserver::OnNotify(const GameObject& /*sender*/, Event event)
     {
-        (void)gameObject;
-        if (event == EVENT_PLAYER_LOSING_LIFE)
+        if (!m_pScoreComponent || !m_pScoreText)
+            return;
+
+        if (event == EVENT_PLAYER_LOSING_LIFE || event == EVENT_PLAYER_GAINED_LIFE)
         {
-            int remainingLives = m_pHealthComponent->GetLives();
-            m_pHealthTextComponent->SetText("#lives: " + std::to_string(remainingLives));
+            int lives = m_pHealthComponent->GetLives(); 
+
+            for (size_t i = 0; i < m_LifeIcons.size(); ++i)
+            {
+                if (m_LifeIcons[i])
+                {
+                    m_LifeIcons[i]->SetEnabled(static_cast<int>(i) < lives);
+                }
+            }
         }
-        if (event == EVENT_PLAYER_COLLECT_ITEM)
+
+        if (event == EVENT_COLLECTED_GOLD || event == EVENT_COLLECTED_GEM)
         {
-            int currentPoints = m_pScoreComponent->GetPoints();
-            m_pScoreTextComponent->SetText("Score: " + std::to_string(currentPoints));
+            int score = m_pScoreComponent->GetPoints();
+            std::ostringstream oss;
+            oss << std::setw(6) << std::setfill('0') << score;
+
+            m_pScoreText->SetText(oss.str());
         }
     }
 }
