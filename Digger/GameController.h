@@ -5,26 +5,30 @@
 #include "GameCommands.h"
 #include "InputManager.h"
 #include "Component.h"
+#include "Observer.h"
 
 namespace dae
 {
 	class GameStates;
 	class StateMachine;
 
-	class GameController final : public StateMachine , public Component
+	class GameController final : public StateMachine , public Component , public Observer
 	{
 	public:
 		explicit GameController(GameObject* owner);
+		~GameController();
 		void Update(float deltaTime) override;
+		void OnNotify(const GameObject&, Event event) override;
 
 		void SetScene(Scene* scene) { m_pScene = scene; }
 		Scene* GetScene() const { return m_pScene; }
 
 		void RequestStateChange(const std::string& newState);
 		void BindInput();
+		int GetScore() const { return m_TotalScore; }
+		int& GetMutableScore() { return m_TotalScore; }
 
-		/*void SetEnemiesFrozen(bool frozen) { m_EnemiesFrozen = frozen; }
-		bool AreEnemiesFrozen() const { return m_EnemiesFrozen; }*/
+		//void RequestInitialChange(int delta);
 
 	protected:
 		std::string CheckNextState() override;
@@ -32,7 +36,6 @@ namespace dae
 		Scene* m_pScene = nullptr;
 		RenderComponent* m_pRenderComponent = nullptr;
 		std::string m_PendingState;
-
-		/*bool m_EnemiesFrozen = false;*/
+		int m_TotalScore{ 0 };
 	};
 }

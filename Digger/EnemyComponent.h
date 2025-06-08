@@ -1,5 +1,4 @@
 #pragma once
-#include "EnemyComponent.h"
 #include "Component.h"
 #include <glm.hpp>
 #include "Scene.h"

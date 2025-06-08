@@ -17,28 +17,6 @@ glm::ivec2 dae::Texture2D::GetSize() const
 	return { dst.w,dst.h };
 }
 
-//int dae::Texture2D::GetWidth() const
-//{
-//    int width, height;
-//    if (SDL_QueryTexture(m_texture, nullptr, nullptr, &width, &height) != 0)
-//    {
-//        std::cerr << "Error querying texture width: " << SDL_GetError() << std::endl;
-//        return 0; // Return 0 if there's an error
-//    }
-//    return width;
-//}
-//
-//int dae::Texture2D::GetHeight() const
-//{
-//    int width, height;
-//    if (SDL_QueryTexture(m_texture, nullptr, nullptr, &width, &height) != 0)
-//    {
-//        std::cerr << "Error querying texture height: " << SDL_GetError() << std::endl;
-//        return 0; // Return 0 if there's an error
-//    }
-//    return height;
-//}
-
 SDL_Texture* dae::Texture2D::GetSDLTexture() const
 {
 	return m_texture;

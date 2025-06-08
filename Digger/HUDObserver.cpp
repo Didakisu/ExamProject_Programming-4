@@ -2,7 +2,6 @@
 #include "HealthComponent.h"
 #include "Data.h"
 #include <string>
-
 #include <iomanip> 
 #include <sstream> 
 
@@ -25,6 +24,14 @@ namespace dae
             {
                 m_LifeIcons[i]->SetEnabled(static_cast<int>(i) < lives);
             }
+        }
+
+        if (m_pScoreComponent && m_pScoreText)
+        {
+            int score = m_pScoreComponent->GetPoints();
+            std::ostringstream oss;
+            oss << std::setw(6) << std::setfill('0') << score;
+            m_pScoreText->SetText(oss.str());
         }
     }
 

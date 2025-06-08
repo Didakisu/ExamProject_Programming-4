@@ -7,6 +7,13 @@ dae::HealthComponent::HealthComponent(GameObject* owner, int initialLives)
     : Component(owner), m_pOwner(owner), m_Lives(initialLives)
 {
     EventManager::GetInstance().AddObserver(this, { EVENT_PLAYER_GAINED_LIFE });
+    //std::cout << "HealthComponent added observer\n";
+}
+
+dae::HealthComponent::~HealthComponent()
+{
+    EventManager::GetInstance().RemoveObserver(this);
+    //std::cout << "HealthComponent destroyed and observer removed\n";
 }
 
 void dae::HealthComponent::LoseLife()

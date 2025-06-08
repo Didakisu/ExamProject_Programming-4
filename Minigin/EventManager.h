@@ -23,7 +23,8 @@ namespace dae
 	public:
 		void FireEvent(Event id , GameObject* sender, GameObject* receiver = nullptr);
 		void AddObserver(Observer* observer, std::vector<Event> events);
-		void RemoveObserver(std::shared_ptr<Observer> observer);
+		//void RemoveObserver(std::shared_ptr<Observer> observer);
+		void RemoveObserver(Observer* observer);
 
 	private:
 		void ProcessEvents();

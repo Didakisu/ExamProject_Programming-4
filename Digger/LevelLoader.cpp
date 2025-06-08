@@ -17,17 +17,22 @@
 #include "EnemySpawner.h"
 #include "Data.h"
 
-
 std::vector<dae::SpawnPoint> dae::LevelLoader::m_EnemySpawnPositions{};
 std::vector<std::shared_ptr<dae::Observer>> dae::LevelLoader::m_CollectibleObservers{};
+int dae::LevelLoader::m_TotalGems = 0;
 
-void dae::LevelLoader::LoadLevel(const std::string& filename, Scene& scene, TileMap& outMap)
+
+void dae::LevelLoader::LoadLevel(const std::string& filename, Scene& scene, TileMap& outMap, const std::string& dirtTexture)
 {
     std::ifstream file(filename);
     if (!file.is_open()) {
         std::cerr << "Failed to open level file: " << filename << "\n";
         return;
     }
+
+    m_EnemySpawnPositions.clear();
+    m_CollectibleObservers.clear();
+    m_TotalGems = 0;
 
     std::vector<std::string> lines;
     std::string line;
@@ -52,20 +57,23 @@ void dae::LevelLoader::LoadLevel(const std::string& filename, Scene& scene, Tile
             switch (type)
             {
             case TileType::Empty:
+                SpawnDirtBackground(scene, fxDirt, fyDirt, zDirt, dirtTexture);
                 SpawnEmpty(scene, fxDirt, fyDirt, zGem, std::nullopt);
                 break;
             case TileType::Dirt:
-                SpawnDirt(scene, fxDirt, fyDirt, zDirt);
+                SpawnDirt(scene, fxDirt, fyDirt, zDirt, dirtTexture);
                 break;
             case TileType::Gem:
-                SpawnDirt(scene, fxDirt, fyDirt, zDirt);
+                SpawnDirt(scene, fxDirt, fyDirt, zDirt, dirtTexture);
                 SpawnGem(scene, fxDirt, fyDirt, zGem);
+                ++m_TotalGems;
                 break;
             case TileType::GoldBag:
-                SpawnDirt(scene, fxDirt, fyDirt, zDirt);
+                SpawnDirt(scene, fxDirt, fyDirt, zDirt, dirtTexture);
                 SpawnGoldBag(scene, fxDirt, fyDirt, zGoldBag, &outMap);
                 break;
             case TileType::Hole:
+                SpawnDirtBackground(scene, fxDirt, fyDirt, zDirt, dirtTexture);
                 SpawnCornerHole(scene, fxDirt, fyDirt, zGem);
                 break;
             case TileType::Enemy:
@@ -83,17 +91,17 @@ void dae::LevelLoader::SpawnEmpty(Scene& scene, float x, float y, float z, std::
 {
     auto go = std::make_shared<GameObject>();
     
-    go->AddComponent<RenderComponent>("reworkedHole.png", TileMap::TILE_WIDTH, TileMap::TILE_HEIGHT);
+    go->AddComponent<RenderComponent>("holeCracks_01.png", TileMap::TILE_WIDTH, TileMap::TILE_HEIGHT);
     go->AddComponent<Transform>()->SetLocalPosition(x, y, z);
     if (dirOpt.has_value())
         go->AddComponent<DirectionComponent>()->SetDirection(dirOpt.value());
     scene.Add(go);
 }
 
-void dae::LevelLoader::SpawnDirt(Scene& scene, float x, float y, float z)
+void dae::LevelLoader::SpawnDirt(Scene& scene, float x, float y, float z, const std::string& texture)
 {
     auto go = std::make_shared<GameObject>();
-    go->AddComponent<RenderComponent>("Backgrounds_1.png", TileMap::TILE_WIDTH, TileMap::TILE_HEIGHT);
+    go->AddComponent<RenderComponent>(texture, TileMap::TILE_WIDTH, TileMap::TILE_HEIGHT);
     go->AddComponent<Transform>()->SetLocalPosition(x, y, z);
     scene.Add(go);
 }
@@ -119,7 +127,7 @@ void dae::LevelLoader::SpawnEnemy(Scene& scene, float x, float y, float z, std::
 void dae::LevelLoader::SpawnCornerHole(Scene& scene, float x, float y, float z)
 {
     auto go = std::make_shared<GameObject>();
-    go->AddComponent<RenderComponent>("hole_with_background.png", TileMap::TILE_WIDTH, TileMap::TILE_HEIGHT);
+    go->AddComponent<RenderComponent>("reworkedHole_02.png", TileMap::TILE_WIDTH, TileMap::TILE_HEIGHT);
     go->AddComponent<Transform>()->SetLocalPosition(x, y, z);
     scene.Add(go);
 }
@@ -155,4 +163,12 @@ void dae::LevelLoader::SpawnGoldBag(Scene& scene, float x, float y, float z, Til
     collision->AddObserver(std::make_shared<GoldBagObserver>(goldBagLogic));
 
     scene.Add(pGoldBag);
+}
+
+void dae::LevelLoader::SpawnDirtBackground(Scene& scene, float x, float y, float z, const std::string& texture)
+{
+    auto go = std::make_shared<GameObject>();
+    go->AddComponent<RenderComponent>(texture, TileMap::TILE_WIDTH, TileMap::TILE_HEIGHT);
+    go->AddComponent<Transform>()->SetLocalPosition(x, y, z);
+    scene.Add(go);
 }

@@ -26,16 +26,18 @@ namespace dae
         }
 
         void OnNotify(const GameObject& gameObject, Event event) override;
+        std::shared_ptr<PlayerObserver> GetPlayerObserver() const { return m_pPlayerObserver; }
 
     private:
         PlayerComponent* m_pPlayer;
+        std::shared_ptr<PlayerObserver> m_pPlayerObserver;
     };
 
     class PlayerComponent final : public Component
     {
     public:
-        PlayerComponent(GameObject* owner, Scene& scene, std::shared_ptr<TileMap> tileMap);
-        ~PlayerComponent() override = default;
+        PlayerComponent(GameObject* owner, Scene& scene, std::shared_ptr<TileMap> tileMap, int& sharedScore);
+        ~PlayerComponent() override;
 
         void Initialize(const glm::vec3& startPosition);
         void BindInput();
@@ -46,7 +48,7 @@ namespace dae
         bool IsDead() const { return m_IsDead; }
         void SetDead(bool isDead);
         void BouncingEffect(float deltaTime);
-
+        void UnbindInput();
         //
         void TryFire();
         void RespawnPlayer();
@@ -60,6 +62,8 @@ namespace dae
         CollisionComponent* m_pCollisionComponent{};
         ScoreComponent* m_pScoreComponent{};
         HealthComponent* m_pHealthComponent{};
+
+        std::shared_ptr<PlayerObserver> m_pPlayerObserver;
 
         bool m_IsDead{ false };
 
@@ -79,5 +83,10 @@ namespace dae
         float m_RespawnTimer = 0.f;
         float m_RespawnDelay = 5.f;
         glm::vec3 m_RespawnPosition{};
+
+
+
+        int& m_SharedScore;
+
     };
 }

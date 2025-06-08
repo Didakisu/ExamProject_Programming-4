@@ -5,10 +5,12 @@
 #include "HealthComponent.h"
 #include "ScoreComponent.h"
 #include "GameObject.h"
-#include <RenderComponent.h>
+#include "RenderComponent.h"
 
 namespace dae
 {
+
+    
     class HUDObserver : public Component, public Observer
     {
     public:

@@ -10,6 +10,7 @@ namespace dae
     {
     public:
         HealthComponent(GameObject* owner, int initialLives);
+        ~HealthComponent() override;
         void Update(float /*deltaTime*/) override {}
         void LoseLife();
 

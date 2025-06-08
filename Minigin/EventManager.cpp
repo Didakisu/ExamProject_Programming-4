@@ -1,4 +1,5 @@
 #include "EventManager.h"
+#include <iostream>
 
 void dae::EventManager::FireEvent(Event id, GameObject* sender, GameObject* receiver)
 {
@@ -44,11 +45,26 @@ void dae::EventManager::ProcessEvents()
 
 void dae::EventManager::AddObserver(Observer* observer , std::vector<Event> events)
 {
+    std::cout << "[EventManager] AddObserver: " << observer << "\n";
     m_Observers.push_back({ events,observer });
 }
 
-void dae::EventManager::RemoveObserver(std::shared_ptr<Observer> observer)
+//void dae::EventManager::RemoveObserver(std::shared_ptr<Observer> observer)
+//{
+//    m_Observers.erase(
+//        std::find_if(m_Observers.begin(), m_Observers.end(), [observer](const ObserverWrapper& o) {return observer.get() == o.observerPtr; }));
+//}
+
+void dae::EventManager::RemoveObserver(Observer* observer)
 {
+    std::cout << "[EventManager] RemoveObserver: " << observer << "\n";
+
     m_Observers.erase(
-        std::find_if(m_Observers.begin(), m_Observers.end(), [observer](const ObserverWrapper& o) {return observer.get() == o.observerPtr; }));
+        std::remove_if(
+            m_Observers.begin(),
+            m_Observers.end(),
+            [observer](const ObserverWrapper& o) { return o.observerPtr == observer; }
+        ),
+        m_Observers.end()
+    );
 }

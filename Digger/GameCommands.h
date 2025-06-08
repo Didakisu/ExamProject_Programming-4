@@ -2,8 +2,11 @@
 #include "Command.h"
 #include "TileMap.h"
 #include "Scene.h"
+#include "GameStates.h"
+
 
 namespace dae { class GameController; }
+//namespace dae { class EndScreenState; }
 
 class MoveCommand final : public dae::Command {
 public:
@@ -89,3 +92,16 @@ private:
     std::string m_TargetState;
     bool m_IsRequested;
 };
+
+
+//class ChangeInitialLetterCommand : public dae::Command
+//{
+//public:
+//    ChangeInitialLetterCommand(dae::GameController* controller, int delta)
+//        : m_Controller(controller), m_Delta(delta) {
+//    }
+//    void Execute(float) override;
+//private:
+//    dae::GameController* m_Controller;
+//    int m_Delta;
+//};
