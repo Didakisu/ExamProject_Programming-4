@@ -27,6 +27,32 @@ namespace dae
 		transform->SetPosition(140.f, 10.f, 0.f);
 
 		scene.Add(m_pTextObject);
+
+		HighscoreManager hsManager("../Data/highscores.txt");
+		hsManager.LoadHighscore(); 
+
+		auto allScores = hsManager.GetAllScores();
+
+		std::sort(allScores.begin(), allScores.end(), [](const auto& a, const auto& b) {
+			return a.score > b.score;
+			});
+
+		int maxEntries = std::min(5, (int)allScores.size());
+		float startY = 100.f;
+		float lineHeight = 30.f;
+
+		for (int i = 0; i < maxEntries; ++i)
+		{
+			std::ostringstream ss;
+			ss << allScores[i].initials << "         " << std::setw(6) << std::setfill('0') << allScores[i].score;
+
+			auto scoreTextObj = std::make_shared<dae::GameObject>();
+			scoreTextObj->AddComponent<dae::TextComponent>(ss.str(), font);
+			auto transformScores = scoreTextObj->AddComponent<dae::Transform>();
+			transformScores->SetLocalPosition(10.f, startY + i * lineHeight, 0.f);
+
+			scene.Add(scoreTextObj);
+		}
 	}
 
 	void MainMenuState::Update(float /*deltaTime*/)
@@ -75,7 +101,17 @@ namespace dae
 
 		auto playerComp = pCharacter->AddComponent<dae::PlayerComponent>(scene, outTileMap , sharedScore);
 		playerComp->Initialize(glm::vec3{ TileMap::TILE_WIDTH * 7.f, TileMap::TILE_HEIGHT * 10.f, 3.f });
-		playerComp->BindInput();
+
+		InputProfile inputP1
+		{
+			SDL_SCANCODE_W,
+			SDL_SCANCODE_S,
+			SDL_SCANCODE_A,
+			SDL_SCANCODE_D,
+			SDL_SCANCODE_SPACE
+		};
+
+		playerComp->BindInput(inputP1);
 		m_pPlayerGameObject = pCharacter;
 		scene.Add(pCharacter);
 
@@ -118,8 +154,12 @@ namespace dae
 
 	void RegularGameplayMode::OnEnter()
 	{
-		auto& scene = dae::SceneManager::GetInstance().CreateScene("Gameplay");
+		m_GameCompletedFired = false;
+		m_Controller->GetMutableScore() = 0;
+		ClearSceneReferences(); 
+		m_CurrentLevel = 1;
 
+		auto& scene = dae::SceneManager::GetInstance().CreateScene("Gameplay");
 		SetupGameplayScene(scene, m_CurrentLevel, m_TileMap);
 	}
 
@@ -157,13 +197,15 @@ namespace dae
 	void RegularGameplayMode::ProcessDeferredReload()
 	{
 		if (!m_ShouldReloadScene)
+		{
 			return;
+		}
 
 		ClearSceneReferences();
+		dae::SceneManager::GetInstance().DeleteScene("Gameplay");
 
 		m_CurrentLevel = m_NextLevel;
 
-		dae::SceneManager::GetInstance().DeleteScene("Gameplay");
 		auto& scene = dae::SceneManager::GetInstance().CreateScene("Gameplay");
 		SetupGameplayScene(scene, m_CurrentLevel, m_TileMap);
 
@@ -192,8 +234,10 @@ namespace dae
 	void RegularGameplayMode::OnExit()
 	{
 		ClearSceneReferences();
+		m_CurrentLevel = 1;
 		dae::SceneManager::GetInstance().DeleteScene("Gameplay");
 	}
+
 
 
 
@@ -203,11 +247,8 @@ namespace dae
 	void EndScreenState::OnEnter()
 	{
 		auto& scene = dae::SceneManager::GetInstance().CreateScene("EndScreen");
-
 		int finalScore = m_Controller->GetScore();
-
 		auto font = dae::ResourceManager::GetInstance().LoadFont("DiggerFont.ttf", 28);
-
 		auto scoreTextObj = std::make_shared<dae::GameObject>();
 
 		std::ostringstream ss;
@@ -215,15 +256,15 @@ namespace dae
 		std::string scoreStr = ss.str();
 
 		scoreTextObj->AddComponent<dae::TextComponent>(scoreStr, font);
-
 		scoreTextObj->AddComponent<dae::Transform>()->SetLocalPosition(10.f, 1.f, 0.f);
-
 		scene.Add(scoreTextObj);
 
+		font = dae::ResourceManager::GetInstance().LoadFont("DiggerFont.ttf", 100);
+
 		//initials
-		float startX = 10.f;        
-		float startY = 50.f;        
-		float spacing = 30.f;       
+		float startX = 110.f;        
+		float startY = 120.f;        
+		float spacing = 90.f;       
 
 		for (int i = 0; i < 3; ++i)
 		{
@@ -236,11 +277,24 @@ namespace dae
 
 			scene.Add(m_InitialTextObjects[i]);
 		}
+
+		m_HighscoreManager = std::make_unique<dae::HighscoreManager>("../Data/highscores.txt");
+
+
+		//indicator
+		m_InitialIndicator = std::make_shared<dae::GameObject>();
+		m_InitialIndicator->AddComponent<dae::TextComponent>("^", font);
+		auto indicatorTransform = m_InitialIndicator->AddComponent<dae::Transform>();
+
+		auto pos = CalculateIndicatorPosition(m_CurrentInitialIndex);
+		indicatorTransform->SetLocalPosition(pos.x, pos.y, pos.z);
+
+		scene.Add(m_InitialIndicator);
 	}
+
 	void EndScreenState::Update(float /*deltaTime*/)
 	{
-		
-
+	
 	}
 
 	void EndScreenState::OnExit()
@@ -248,8 +302,106 @@ namespace dae
 		dae::SceneManager::GetInstance().DeleteScene("EndScreen");
 	}
 
-	//void EndScreenState::ChangeCurrentInitial(int /*delta*/)
-	//{
-	//	
-	//}
+	void EndScreenState::ChangeCurrentInitial(int delta)
+	{
+		std::cout << "ConfirmCurrentInitial called\n";
+
+
+		if (m_InputFinished)
+			return;
+	
+		if (m_CurrentInitialIndex < 0 || m_CurrentInitialIndex >= 3)
+			return;
+
+		char& letter = m_Initials[m_CurrentInitialIndex];
+
+		letter = static_cast<char>('A' + (26 + (letter - 'A') + delta) % 26);
+
+		if (auto textComp = m_InitialTextObjects[m_CurrentInitialIndex]->GetComponent<dae::TextComponent>())
+		{
+			textComp->SetText(std::string(1, letter));
+		}
+	}
+
+	void EndScreenState::ConfirmCurrentInitial()
+	{
+		if (m_CurrentInitialIndex < 2)
+		{
+			++m_CurrentInitialIndex;
+
+			if (auto transform = m_InitialIndicator->GetComponent<dae::Transform>())
+			{
+				auto pos = CalculateIndicatorPosition(m_CurrentInitialIndex);
+				transform->SetLocalPosition(pos.x, pos.y, pos.z);
+			}
+		}
+		else
+		{
+			m_InputFinished = true;
+
+			std::string newInitials(m_Initials, 3);
+			int newScore = m_Controller->GetScore();
+
+			if (!m_HighscoreManager)
+			{
+				return;
+			}
+
+			m_HighscoreManager->LoadHighscore();
+			int currentHighscore = m_HighscoreManager->GetHighscore();
+
+			if (newScore > currentHighscore)
+			{
+				m_HighscoreManager->SaveHighscore(newInitials, newScore);
+			}
+		}
+	}
+
+	void EndScreenState::UndoConfirmInitial()
+	{
+		if (m_InputFinished)
+			return;
+
+		if (m_CurrentInitialIndex > 0)
+		{
+			--m_CurrentInitialIndex;
+
+			if (auto transform = m_InitialIndicator->GetComponent<dae::Transform>())
+			{
+				auto pos = CalculateIndicatorPosition(m_CurrentInitialIndex);
+				transform->SetLocalPosition(pos.x, pos.y, pos.z);
+			}
+		}
+	}
+
+	glm::vec3 EndScreenState::CalculateIndicatorPosition(int index) const
+	{
+		return glm::vec3(m_IndicatorStartX + index * m_IndicatorSpacing, m_IndicatorStartY + m_IndicatorYOffset, 0.f);
+	}
+
+
+
+
+
+
+	void CoopGameplayMode::SetupCoopGameplayScene(dae::Scene& /*scene*/, int /*levelNumber*/, std::shared_ptr<TileMap>& /*outTileMap*/)
+	{
+		
+	}
+
+	void CoopGameplayMode::OnEnter()
+	{
+		
+	}
+
+	void CoopGameplayMode::Update(float /*deltaTime*/)
+	{
+
+	}
+
+	void CoopGameplayMode::OnExit()
+	{
+
+	}
+
 }

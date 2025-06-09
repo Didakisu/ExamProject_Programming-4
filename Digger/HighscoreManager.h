@@ -1,22 +1,29 @@
 #pragma once
 #include <string>
+#include <vector>
 
 namespace dae
 {
+    struct HighscoreEntry
+    {
+        std::string initials;
+        int score;
+    };
+
     class HighscoreManager
     {
     public:
-        HighscoreManager(const std::string& filename);
+        explicit HighscoreManager(const std::string& filename);
 
         void LoadHighscore();
-        void SaveHighscore(const std::string& initials, int score);
+        void SaveHighscore(const std::string& initials, int score); 
 
-        int GetHighscore() const;
-        std::string GetInitials() const;
+        int GetHighscore() const;                    
+        std::string GetBestInitials() const;        
+        const std::vector<HighscoreEntry>& GetAllScores() const; 
 
     private:
         std::string m_FileName;
-        std::string m_Initials;
-        int m_Score;
+        std::vector<HighscoreEntry> m_Entries;
     };
 }

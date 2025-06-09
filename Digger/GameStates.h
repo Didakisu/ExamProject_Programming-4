@@ -62,14 +62,42 @@ namespace dae
 		void OnEnter() override;
 		void Update(float deltaTime) override;
 		void OnExit() override;
-		//void ChangeCurrentInitial(int delta);
+		void ChangeCurrentInitial(int delta);
+		void ConfirmCurrentInitial();
+		bool WantsToExit() const { return m_InputFinished; }
+		void UndoConfirmInitial();
 	private:
 		GameController* m_Controller;
 		
 		int m_CurrentInitialIndex = 0; 
 		char m_Initials[3] = { 'A', 'A', 'A' }; 
 		std::shared_ptr<dae::GameObject> m_InitialTextObjects[3];
+		bool m_InputFinished = false;
+
+		std::unique_ptr<dae::HighscoreManager> m_HighscoreManager;
+		std::shared_ptr<dae::GameObject> m_InitialIndicator{};
+		glm::vec3 CalculateIndicatorPosition(int index) const;
+
+		const float m_IndicatorStartX = 110.f;
+		const float m_IndicatorStartY = 120.f;
+		const float m_IndicatorSpacing = 90.f;
+		const float m_IndicatorYOffset = 90.f;
 	};
+
+
+	class CoopGameplayMode : public State
+	{
+	public:
+		CoopGameplayMode(GameController* controller) : m_Controller(controller) {}
+		void OnEnter() override;
+		void Update(float deltaTime) override;
+		void OnExit() override;
+
+		void SetupCoopGameplayScene(dae::Scene& scene, int levelNumber, std::shared_ptr<TileMap>& outTileMap);
+	private:
+		GameController* m_Controller;
+	}; 
+
 
 	/*class VersusGameplayMode : public State
 	{
@@ -78,14 +106,6 @@ namespace dae
 		void Update(float deltaTime) override;
 		void OnExit() override;
 	private:
-	};
-
-	class CoopGameplayMode : public State
-	{
-	public:
-		void OnEnter() override;
-		void Update(float deltaTime) override;
-		void OnExit() override;
-	private:
 	};*/
+
 }

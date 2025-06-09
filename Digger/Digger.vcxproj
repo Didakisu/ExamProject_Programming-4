@@ -187,6 +187,7 @@
     <ClInclude Include="HealthComponent.h" />
     <ClInclude Include="HighscoreManager.h" />
     <ClInclude Include="HUDObserver.h" />
+    <ClInclude Include="InputProfile.h" />
     <ClInclude Include="LevelLoader.h" />
     <ClInclude Include="PlayerComponent.h" />
     <ClInclude Include="ScoreComponent.h" />

@@ -6,7 +6,6 @@
 
 
 namespace dae { class GameController; }
-//namespace dae { class EndScreenState; }
 
 class MoveCommand final : public dae::Command {
 public:
@@ -33,19 +32,6 @@ private:
     std::shared_ptr<TileMap> m_pTileMap;
     dae::Scene& m_Scene;
 };
-
-//class KillPlayerCommand final: public dae::Command
-//{
-//public:
-//    explicit KillPlayerCommand(dae::GameObject* gameObject)
-//        : m_GameObject(gameObject) 
-//    {
-//    }
-//
-//    void Execute(float deltaTime) override;
-//private:
-//    dae::GameObject* m_GameObject;
-//};
 
 class CollectCommand final : public dae::Command
 {
@@ -94,14 +80,36 @@ private:
 };
 
 
-//class ChangeInitialLetterCommand : public dae::Command
-//{
-//public:
-//    ChangeInitialLetterCommand(dae::GameController* controller, int delta)
-//        : m_Controller(controller), m_Delta(delta) {
-//    }
-//    void Execute(float) override;
-//private:
-//    dae::GameController* m_Controller;
-//    int m_Delta;
-//};
+class ChangeInitialLetterCommand : public dae::Command
+{
+public:
+    ChangeInitialLetterCommand(dae::GameController* controller, int delta)
+        : m_Controller(controller), m_Delta(delta) {
+    }
+    void Execute(float) override;
+private:
+    dae::GameController* m_Controller;
+    int m_Delta;
+};
+
+
+class ConfirmInitialLetterCommand final : public dae::Command
+{
+public:
+    explicit ConfirmInitialLetterCommand(dae::GameController* controller)
+        : m_Controller(controller) {
+    }
+    void Execute(float) override;
+private:
+    dae::GameController* m_Controller;
+};
+
+
+class UndoInitialCommand : public dae::Command
+{
+public:
+    UndoInitialCommand(dae::GameController* controller) : m_Controller(controller) {}
+    void Execute(float) override;
+private:
+    dae::GameController* m_Controller{};
+};

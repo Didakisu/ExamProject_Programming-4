@@ -128,5 +128,8 @@
     <ClInclude Include="HighscoreManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="InputProfile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

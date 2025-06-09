@@ -3,7 +3,6 @@
 #include "EnemyComponent.h"
 #include "FireBallComponent.h"
 
-
 namespace dae 
 {
     void PlayerObserver::OnNotify(const GameObject& gameObject, Event event)
@@ -29,11 +28,9 @@ namespace dae
         if (m_pPlayerObserver)
         {
             m_pCollisionComponent->RemoveObserver(m_pPlayerObserver);
-            //std::cout << "DELETEEEED, REMOVED PLAYER OBSERVER observer" << std::endl;
         }
 
         EventManager::GetInstance().RemoveObserver(m_pScoreComponent);
-        //std::cout << "REMOVED score observer" << std::endl;
     }
 
     void PlayerComponent::Initialize(const glm::vec3& startPosition)
@@ -54,12 +51,9 @@ namespace dae
         m_pScoreComponent->SetTotalGemsInLevel(dae::LevelLoader::GetTotalGemCount());
 
         EventManager::GetInstance().AddObserver(m_pScoreComponent, { EVENT_PLAYER_COLLECT_ITEM });
-        //std::cout << "added SCORE observer" << std::endl;
 
         m_pPlayerObserver = std::make_shared<PlayerObserver>(this);
         m_pCollisionComponent->AddObserver(m_pPlayerObserver);
-        //std::cout << "added PLAYER OBSERVER observer" << std::endl;
-        //m_pCollisionComponent->AddObserver(std::make_shared<PlayerObserver>(this));
 
         m_pHealthComponent = GetOwner()->AddComponent<HealthComponent>(3);
 
@@ -75,31 +69,45 @@ namespace dae
         m_Scene.Add(pHoleBehindCharacter); 
     }
 
-    void PlayerComponent::BindInput()
+   
+    void PlayerComponent::BindInput(const InputProfile& profile)
     {
-        InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_W, InputState::Pressed,
-            std::make_unique<MoveCommand>(GetOwner(), 145.0f, glm::vec2{ 0, -1 }, m_pTileMap, m_Scene)); //45.f
+        m_InputProfile = profile;
+        m_InputsBound = true;
 
-        InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_S, InputState::Pressed,
-            std::make_unique<MoveCommand>(GetOwner(), 145.0f, glm::vec2{ 0, 1 }, m_pTileMap, m_Scene));
+        auto& input = InputManager::GetInstance();
 
-        InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_A, InputState::Pressed,
-            std::make_unique<MoveCommand>(GetOwner(), 145.0f, glm::vec2{ -1, 0 }, m_pTileMap, m_Scene));
+        input.BindKeyboardCommand(m_InputProfile.up, InputState::Pressed,
+            std::make_unique<MoveCommand>(GetOwner(), m_Speed, glm::vec2{ 0, -1 }, m_pTileMap, m_Scene));
 
-        InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_D, InputState::Pressed,
-            std::make_unique<MoveCommand>(GetOwner(), 145.0f, glm::vec2{ 1, 0 }, m_pTileMap, m_Scene));
+        input.BindKeyboardCommand(m_InputProfile.down, InputState::Pressed,
+            std::make_unique<MoveCommand>(GetOwner(), m_Speed, glm::vec2{ 0, 1 }, m_pTileMap, m_Scene));
 
-        InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_SPACE, InputState::Pressed,
-            std::make_unique<FireCommand>(GetOwner() , m_Scene));
+        input.BindKeyboardCommand(m_InputProfile.left, InputState::Pressed,
+            std::make_unique<MoveCommand>(GetOwner(), m_Speed, glm::vec2{ -1, 0 }, m_pTileMap, m_Scene));
+
+        input.BindKeyboardCommand(m_InputProfile.right, InputState::Pressed,
+            std::make_unique<MoveCommand>(GetOwner(), m_Speed, glm::vec2{ 1, 0 }, m_pTileMap, m_Scene));
+
+        input.BindKeyboardCommand(m_InputProfile.fire, InputState::Pressed,
+            std::make_unique<FireCommand>(GetOwner(), m_Scene));
     }
+
 
     void PlayerComponent::UnbindInput()
     {
-        InputManager::GetInstance().UnbindKeyboardCommand(SDL_SCANCODE_W);
-        InputManager::GetInstance().UnbindKeyboardCommand(SDL_SCANCODE_S);
-        InputManager::GetInstance().UnbindKeyboardCommand(SDL_SCANCODE_A);
-        InputManager::GetInstance().UnbindKeyboardCommand(SDL_SCANCODE_D);
-        InputManager::GetInstance().UnbindKeyboardCommand(SDL_SCANCODE_SPACE);
+        if (!m_InputsBound)
+            return;
+
+        auto& input = InputManager::GetInstance();
+
+        input.UnbindKeyboardCommand(m_InputProfile.up);
+        input.UnbindKeyboardCommand(m_InputProfile.down);
+        input.UnbindKeyboardCommand(m_InputProfile.left);
+        input.UnbindKeyboardCommand(m_InputProfile.right);
+        input.UnbindKeyboardCommand(m_InputProfile.fire);
+
+        m_InputsBound = false;
     }
 
     void PlayerComponent::Update(float deltaTime)
@@ -230,7 +238,5 @@ namespace dae
         {
             m_pAnimationComponent->PlayAnimation("Run");
         }
-
-        std::cout << "[DEBUG] Player respawned\n";
     }
 }

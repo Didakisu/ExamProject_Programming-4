@@ -2,6 +2,7 @@
 #include "GameStates.h"
 #include "EventManager.h"
 #include "Data.h"
+#include <iostream>
 
 
 namespace dae
@@ -12,8 +13,10 @@ namespace dae
 		AddState("MainMenu", std::make_unique<MainMenuState>(this));
 		AddState("Gameplay", std::make_unique<RegularGameplayMode>(this));
 		AddState("EndScreen", std::make_unique<EndScreenState>(this));
+		AddState("Coop", std::make_unique<CoopGameplayMode>(this));
 		
 		SetInitialState("MainMenu");
+		//SetInitialState("Coop");
 
 		BindInput();
 
@@ -34,11 +37,18 @@ namespace dae
 		InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_P, InputState::Pressed,
 			std::make_unique<RequestStateChangeCommand>(this, "Gameplay"));
 
-		/*InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_UP, InputState::Pressed,
+		InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_UP, InputState::Down,
 			std::make_unique<ChangeInitialLetterCommand>(this, +1));
 
-		InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_DOWN, InputState::Pressed,
-			std::make_unique<ChangeInitialLetterCommand>(this, -1));*/
+		InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_DOWN, InputState::Down,
+			std::make_unique<ChangeInitialLetterCommand>(this, -1));
+
+		InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_RIGHT, InputState::Down,
+			std::make_unique<ConfirmInitialLetterCommand>(this));
+
+		InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_LEFT, InputState::Down,
+			std::make_unique<UndoInitialCommand>(this));
+
 	}
 
 	void GameController::Update(float deltaTime)
@@ -48,6 +58,14 @@ namespace dae
 		if (auto gameplayState = dynamic_cast<RegularGameplayMode*>(GetCurrentState()))
 		{
 			gameplayState->ProcessDeferredReload();
+		}
+
+		if (auto endState = dynamic_cast<EndScreenState*>(GetCurrentState()))
+		{
+			if (endState->WantsToExit())
+			{
+				RequestStateChange("MainMenu");
+			}
 		}
 	}
 
@@ -65,21 +83,53 @@ namespace dae
 
 	void GameController::OnNotify(const GameObject&, Event event)
 	{
-		std::cout << "[GameController] OnNotify called!!!" << "\n";
+		std::cout << "[GameController] OnNotify called!!!\n";
+
 		if (event == EVENT_GAME_COMPLETED)
 		{
-			std::cout << "[GameController] OnNotify received event: " << static_cast<int>(event) << "\n";
-			std::cout << "[GameController] this = " << this << "\n";
-			RequestStateChange("EndScreen");
+			std::cout << "[GameController] OnNotify received EVENT_GAME_COMPLETED\n";
+
+			int finalScore = GetScore();
+
+			HighscoreManager hsManager("../Data/highscores.txt");
+			hsManager.LoadHighscore();
+
+			if (finalScore > hsManager.GetHighscore())
+			{
+				std::cout << "[GameController] New highscore! Going to EndScreen\n";
+				RequestStateChange("EndScreen");
+			}
+			else
+			{
+				std::cout << "[GameController] No highscore. Returning to MainMenu\n";
+				RequestStateChange("MainMenu");
+			}
 		}
 	}
 
-	/*void GameController::RequestInitialChange(int delta)
+	void GameController::RequestInitialChange(int delta)
 	{
 		auto state = dynamic_cast<EndScreenState*>(GetCurrentState());
 		if (state)
 		{
 			state->ChangeCurrentInitial(delta);
 		}
-	}*/
+	}
+
+	void GameController::RequestInitialConfirm()
+	{
+		if (auto state = dynamic_cast<EndScreenState*>(GetCurrentState()))
+		{
+			state->ConfirmCurrentInitial();
+		}
+	}
+
+	void GameController::UndoConfirmInitial()
+	{
+		if (auto endState = dynamic_cast<EndScreenState*>(GetCurrentState()))
+		{
+			endState->UndoConfirmInitial();
+		}
+	}
+
 }

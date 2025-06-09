@@ -28,8 +28,9 @@ namespace dae
 		int GetScore() const { return m_TotalScore; }
 		int& GetMutableScore() { return m_TotalScore; }
 
-		//void RequestInitialChange(int delta);
-
+		void RequestInitialChange(int delta);
+		void RequestInitialConfirm();
+		void UndoConfirmInitial();
 	protected:
 		std::string CheckNextState() override;
 	private:

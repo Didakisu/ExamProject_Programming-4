@@ -13,6 +13,7 @@
 #include "TileMap.h"
 #include "Observer.h"
 #include "HealthComponent.h"
+#include "InputProfile.h"
 
 namespace dae 
 {
@@ -40,7 +41,7 @@ namespace dae
         ~PlayerComponent() override;
 
         void Initialize(const glm::vec3& startPosition);
-        void BindInput();
+        void BindInput(const InputProfile& profile);
 
         void Update(float deltaTime) override;
 
@@ -49,7 +50,7 @@ namespace dae
         void SetDead(bool isDead);
         void BouncingEffect(float deltaTime);
         void UnbindInput();
-        //
+       
         void TryFire();
         void RespawnPlayer();
     private:
@@ -66,6 +67,8 @@ namespace dae
         std::shared_ptr<PlayerObserver> m_pPlayerObserver;
 
         bool m_IsDead{ false };
+
+        float m_Speed{ 145.f };
 
         float m_BounceTime{ 0.f };
         float m_BounceHeight{ 8.f };
@@ -84,9 +87,9 @@ namespace dae
         float m_RespawnDelay = 5.f;
         glm::vec3 m_RespawnPosition{};
 
-
-
         int& m_SharedScore;
 
+        InputProfile m_InputProfile{};
+        bool m_InputsBound{ false };
     };
 }

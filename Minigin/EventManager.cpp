@@ -49,22 +49,9 @@ void dae::EventManager::AddObserver(Observer* observer , std::vector<Event> even
     m_Observers.push_back({ events,observer });
 }
 
-//void dae::EventManager::RemoveObserver(std::shared_ptr<Observer> observer)
-//{
-//    m_Observers.erase(
-//        std::find_if(m_Observers.begin(), m_Observers.end(), [observer](const ObserverWrapper& o) {return observer.get() == o.observerPtr; }));
-//}
-
 void dae::EventManager::RemoveObserver(Observer* observer)
 {
     std::cout << "[EventManager] RemoveObserver: " << observer << "\n";
 
-    m_Observers.erase(
-        std::remove_if(
-            m_Observers.begin(),
-            m_Observers.end(),
-            [observer](const ObserverWrapper& o) { return o.observerPtr == observer; }
-        ),
-        m_Observers.end()
-    );
+    std::erase_if(m_Observers, [observer](const ObserverWrapper& o) { return o.observerPtr == observer; });
 }

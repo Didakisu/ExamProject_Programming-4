@@ -1,5 +1,7 @@
 #include "HUDObserver.h"
 #include "HealthComponent.h"
+#include "ScoreComponent.h"
+#include "TextComponent.h"
 #include "Data.h"
 #include <string>
 #include <iomanip> 
