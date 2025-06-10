@@ -15,14 +15,9 @@ namespace dae
     {
         if (event == EVENT_COLLECTED_GEM)
         {
-            ++m_ConsecutiveGemsCollected;
-            ++m_TotalGemsCollected;
+            EventManager::GetInstance().FireEvent(EVENT_GAME_GEM_COLLECTED, nullptr, nullptr);
 
-            if (m_TotalGemsCollected >= m_TotalGemsInLevel && m_TotalGemsInLevel > 0)
-            {
-                std::cout << "Collected all gems!" << std::endl;
-                EventManager::GetInstance().FireEvent(EVENT_COLLECTED_ALL_GEMS, nullptr, nullptr);
-            }
+            ++m_ConsecutiveGemsCollected;
 
             if (m_ConsecutiveGemsCollected == 8)
             {
@@ -41,6 +36,8 @@ namespace dae
             m_Points += 500;
         }
         
+        EventManager::GetInstance().FireEvent(EVENT_GAME_SCORE_CHANGED , GetOwner());
+
         if (m_Points / 20000 > m_LiveCounter)
         {
             EventManager::GetInstance().FireEvent(EVENT_PLAYER_GAINED_LIFE, nullptr, GetOwner());

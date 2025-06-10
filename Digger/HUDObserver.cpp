@@ -55,7 +55,7 @@ namespace dae
             }
         }
 
-        if (event == EVENT_COLLECTED_GOLD || event == EVENT_COLLECTED_GEM)
+        if (event== EVENT_GAME_SCORE_CHANGED)
         {
             int score = m_pScoreComponent->GetPoints();
             std::ostringstream oss;

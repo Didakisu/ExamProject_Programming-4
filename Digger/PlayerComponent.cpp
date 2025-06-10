@@ -17,8 +17,8 @@ namespace dae
         }
     }
 
-    PlayerComponent::PlayerComponent(GameObject* owner, Scene& scene, std::shared_ptr<TileMap> tileMap, int& sharedScore)
-        : Component(owner), m_Scene(scene), m_pTileMap(tileMap) , m_SharedScore(sharedScore)
+    PlayerComponent::PlayerComponent(GameObject* owner, Scene& scene, std::shared_ptr<TileMap> tileMap, int& sharedScore, int& sharedLives)
+        : Component(owner), m_Scene(scene), m_pTileMap(tileMap) , m_SharedScore(sharedScore) , m_SharedLives(sharedLives)
     {
    
     }
@@ -48,14 +48,14 @@ namespace dae
         m_pCollisionComponent = GetOwner()->AddComponent<CollisionComponent>(32.f, 32.f, &m_Scene);
 
         m_pScoreComponent = GetOwner()->AddComponent<ScoreComponent>(m_SharedScore);
+        m_pHealthComponent = GetOwner()->AddComponent<HealthComponent>(m_SharedLives);
+
         m_pScoreComponent->SetTotalGemsInLevel(dae::LevelLoader::GetTotalGemCount());
 
-        EventManager::GetInstance().AddObserver(m_pScoreComponent, { EVENT_PLAYER_COLLECT_ITEM });
+        EventManager::GetInstance().AddObserver(m_pScoreComponent, { EVENT_COLLECTED_GEM ,  EVENT_COLLECTED_GOLD });
 
         m_pPlayerObserver = std::make_shared<PlayerObserver>(this);
         m_pCollisionComponent->AddObserver(m_pPlayerObserver);
-
-        m_pHealthComponent = GetOwner()->AddComponent<HealthComponent>(3);
 
         m_RespawnPosition = startPosition;
 

@@ -52,6 +52,8 @@ namespace dae
 		bool m_ShouldReloadScene = false;
 		int m_NextLevel = 0;
 		bool m_GameCompletedFired = false;
+
+		int m_TotalGemsCollected{};
 	};
 
 	class EndScreenState : public State
@@ -85,18 +87,34 @@ namespace dae
 	};
 
 
-	class CoopGameplayMode : public State
+	class CoopGameplayMode final : public State , public Observer
 	{
 	public:
 		CoopGameplayMode(GameController* controller) : m_Controller(controller) {}
 		void OnEnter() override;
-		void Update(float deltaTime) override;
 		void OnExit() override;
-
+		void Update(float deltaTime) override;
+		void ProcessDeferredReload();
+		void ClearSceneReferences();
 		void SetupCoopGameplayScene(dae::Scene& scene, int levelNumber, std::shared_ptr<TileMap>& outTileMap);
+		void DeferReloadScene(int nextLevel);
+		void OnNotify(const dae::GameObject& gameObject, dae::Event event) override;
 	private:
-		GameController* m_Controller;
-	}; 
+		std::shared_ptr<dae::GameObject> m_pPlayer1GameObject{};
+		std::shared_ptr<dae::GameObject> m_pPlayer2GameObject{};
+		std::shared_ptr<TileMap> m_TileMap{};
+
+		int m_CurrentLevel{ 1 };
+		int m_NextLevel{};
+		bool m_ShouldReloadScene{ false };
+		bool m_GameCompletedFired = false;
+
+		HUDObserver* m_HUDObserver = nullptr;
+		HUDObserver* m_HUDObserver1 = nullptr;
+		GameController* m_Controller{}; 
+
+		int m_TotalGemsCollected{};
+	};
 
 
 	/*class VersusGameplayMode : public State

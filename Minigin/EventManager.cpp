@@ -30,7 +30,8 @@ void dae::EventManager::ProcessEvents()
             for (auto& observer : m_Observers)
             {
                 auto pointer = dynamic_cast<Component*>(observer.observerPtr);
-                if (pointer)
+                auto result = std::find(observer.events.begin(), observer.events.end(), e.id);
+                if (result != observer.events.end() && pointer)
                 {
                     if (pointer->GetOwner() == e.receiver)
                     {

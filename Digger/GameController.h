@@ -25,8 +25,12 @@ namespace dae
 
 		void RequestStateChange(const std::string& newState);
 		void BindInput();
+
 		int GetScore() const { return m_TotalScore; }
 		int& GetMutableScore() { return m_TotalScore; }
+
+		int GetLives() const { return m_TotalLives; }
+		int& GetMutableLives() { return m_TotalLives; }
 
 		void RequestInitialChange(int delta);
 		void RequestInitialConfirm();
@@ -38,5 +42,6 @@ namespace dae
 		RenderComponent* m_pRenderComponent = nullptr;
 		std::string m_PendingState;
 		int m_TotalScore{ 0 };
+		int m_TotalLives{ 0 };
 	};
 }

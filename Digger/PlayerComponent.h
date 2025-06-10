@@ -37,7 +37,7 @@ namespace dae
     class PlayerComponent final : public Component
     {
     public:
-        PlayerComponent(GameObject* owner, Scene& scene, std::shared_ptr<TileMap> tileMap, int& sharedScore);
+        PlayerComponent(GameObject* owner, Scene& scene, std::shared_ptr<TileMap> tileMap, int& sharedScore , int& sharedLives);
         ~PlayerComponent() override;
 
         void Initialize(const glm::vec3& startPosition);
@@ -88,6 +88,7 @@ namespace dae
         glm::vec3 m_RespawnPosition{};
 
         int& m_SharedScore;
+        int& m_SharedLives;
 
         InputProfile m_InputProfile{};
         bool m_InputsBound{ false };

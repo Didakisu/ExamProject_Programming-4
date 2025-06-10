@@ -15,8 +15,8 @@ namespace dae
 		AddState("EndScreen", std::make_unique<EndScreenState>(this));
 		AddState("Coop", std::make_unique<CoopGameplayMode>(this));
 		
-		SetInitialState("MainMenu");
-		//SetInitialState("Coop");
+		//SetInitialState("MainMenu");
+		SetInitialState("Coop");
 
 		BindInput();
 
@@ -26,9 +26,7 @@ namespace dae
 
 	GameController::~GameController()
 	{
-		std::cout << "[GameController] Destructor called.\n";
 		EventManager::GetInstance().RemoveObserver(this);
-		std::cout << "GameController destructor called, observer removed.\n";
 	}
 
 
@@ -60,6 +58,11 @@ namespace dae
 			gameplayState->ProcessDeferredReload();
 		}
 
+		if (auto gameplayState = dynamic_cast<CoopGameplayMode*>(GetCurrentState()))
+		{
+			gameplayState->ProcessDeferredReload();
+		}
+
 		if (auto endState = dynamic_cast<EndScreenState*>(GetCurrentState()))
 		{
 			if (endState->WantsToExit())
@@ -83,12 +86,8 @@ namespace dae
 
 	void GameController::OnNotify(const GameObject&, Event event)
 	{
-		std::cout << "[GameController] OnNotify called!!!\n";
-
 		if (event == EVENT_GAME_COMPLETED)
 		{
-			std::cout << "[GameController] OnNotify received EVENT_GAME_COMPLETED\n";
-
 			int finalScore = GetScore();
 
 			HighscoreManager hsManager("../Data/highscores.txt");
@@ -96,12 +95,10 @@ namespace dae
 
 			if (finalScore > hsManager.GetHighscore())
 			{
-				std::cout << "[GameController] New highscore! Going to EndScreen\n";
 				RequestStateChange("EndScreen");
 			}
 			else
 			{
-				std::cout << "[GameController] No highscore. Returning to MainMenu\n";
 				RequestStateChange("MainMenu");
 			}
 		}
