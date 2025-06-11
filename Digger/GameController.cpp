@@ -14,11 +14,9 @@ namespace dae
 		AddState("Gameplay", std::make_unique<RegularGameplayMode>(this));
 		AddState("EndScreen", std::make_unique<EndScreenState>(this));
 		AddState("Coop", std::make_unique<CoopGameplayMode>(this));
+		AddState("Versus", std::make_unique<VersusGameplayMode>(this));
 		
-		//SetInitialState("MainMenu");
-		SetInitialState("Coop");
-
-		BindInput();
+		SetInitialState("MainMenu");
 
 		EventManager::GetInstance().AddObserver(this, { EVENT_GAME_COMPLETED });
 		std::cout << "GAME COMPLETED added as observer at address: " << this << std::endl;
@@ -29,41 +27,27 @@ namespace dae
 		EventManager::GetInstance().RemoveObserver(this);
 	}
 
-
-	void GameController::BindInput()
-	{
-		InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_P, InputState::Pressed,
-			std::make_unique<RequestStateChangeCommand>(this, "Gameplay"));
-
-		InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_UP, InputState::Down,
-			std::make_unique<ChangeInitialLetterCommand>(this, +1));
-
-		InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_DOWN, InputState::Down,
-			std::make_unique<ChangeInitialLetterCommand>(this, -1));
-
-		InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_RIGHT, InputState::Down,
-			std::make_unique<ConfirmInitialLetterCommand>(this));
-
-		InputManager::GetInstance().BindKeyboardCommand(SDL_SCANCODE_LEFT, InputState::Down,
-			std::make_unique<UndoInitialCommand>(this));
-
-	}
-
 	void GameController::Update(float deltaTime)
 	{
+		std::string nextState = CheckNextState();
+		if (!nextState.empty())
+		{
+			SwitchState(nextState);
+		}
+
 		StateMachine::Update(deltaTime);
 
-		if (auto gameplayState = dynamic_cast<RegularGameplayMode*>(GetCurrentState()))
+		auto currentState = GetCurrentState();
+
+		if (auto gameplayState = dynamic_cast<RegularGameplayMode*>(currentState))
 		{
 			gameplayState->ProcessDeferredReload();
 		}
-
-		if (auto gameplayState = dynamic_cast<CoopGameplayMode*>(GetCurrentState()))
+		else if (auto coopState = dynamic_cast<CoopGameplayMode*>(currentState))
 		{
-			gameplayState->ProcessDeferredReload();
+			coopState->ProcessDeferredReload();
 		}
-
-		if (auto endState = dynamic_cast<EndScreenState*>(GetCurrentState()))
+		else if (auto endState = dynamic_cast<EndScreenState*>(currentState))
 		{
 			if (endState->WantsToExit())
 			{
@@ -128,5 +112,4 @@ namespace dae
 			endState->UndoConfirmInitial();
 		}
 	}
-
 }

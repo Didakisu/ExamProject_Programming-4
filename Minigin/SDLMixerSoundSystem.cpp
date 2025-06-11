@@ -225,6 +225,7 @@ namespace dae
                         Mix_FreeChunk(pair.second);
                     }
                     m_Sounds.clear();
+                    m_IsThreadRunning = false;
 
                     Mix_CloseAudio();
 

@@ -124,7 +124,9 @@ namespace dae
     {
         auto it = m_animations.find(m_currentAnimation);
         if (it == m_animations.end())
-            return true; // Default to true if not found
+        {
+            return true;
+        }
 
         return it->second.useDirection;
     }

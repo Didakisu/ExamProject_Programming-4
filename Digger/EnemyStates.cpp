@@ -50,22 +50,6 @@ namespace dae
         }
     }
 
-    //GameObject* EnemyEnragedState::FindPlayer()
-    //{
-    //    // Assuming EnemyComponent has a GetScene() accessor:
-    //    auto& gameObjects = m_Enemy->GetScene().GetGameObjects();
-
-    //    for (const auto& obj : gameObjects)
-    //    {
-    //        if (obj->HasComponent<PlayerComponent>()) // or your player identification logic
-    //        {
-    //            return obj.get();
-    //        }
-    //    }
-    //    return nullptr;
-    //}
-
-
     void EnemyEnragedState::Update(float deltaTime)
     {
         m_Enemy->HandleEnragedBehavior(deltaTime);
@@ -73,8 +57,6 @@ namespace dae
 
     void EnemyDeadState::OnEnter()
     {
-        m_Enemy->Die();
-
         auto* anim = m_Enemy->GetOwner()->GetComponent<AnimationComponent>();
         if (anim)
         {
@@ -88,4 +70,33 @@ namespace dae
         std::cout << "[DEBUG] EnemyDeadState::Update()\n";
         m_Enemy->HandleDeadBehavior(/*deltaTime*/);
     }
+
+
+    void EnemyBonusState::OnEnter()
+    {
+        m_BonusTimer = 15.f;
+        std::cout << "[DEBUG] EnemyBonusState: Entered bonus mode\n";
+
+        auto* anim = m_Enemy->GetOwner()->GetComponent<AnimationComponent>();
+        if (anim)
+        {
+            anim->AddAnimation("Walk", "enemy_sprites.png", 64 / 4, 18, 4, 0.15f);
+            anim->PlayAnimation("Walk");
+        }
+    }
+
+    void EnemyBonusState::Update(float deltaTime)
+    {
+        m_BonusTimer -= deltaTime;
+        std::cout << "[EnemyBonusState] Bonus timer = " << m_BonusTimer << " seconds left\n";
+        if (m_BonusTimer <= 0.f)
+        {
+            std::cout << "[EnemyBonusState] Bonus timer expired, ending bonus state\n";
+            m_Enemy->EndBonusState(); 
+            return;
+        }
+
+        m_Enemy->HandleWalking(deltaTime);
+    }
+
 }

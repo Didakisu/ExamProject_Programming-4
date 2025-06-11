@@ -21,6 +21,7 @@ constexpr dae::Event EVENT_GAME_COMPLETED{ dae::USER_SPACE + 7 };
 constexpr dae::Event EVENT_GAME_SCORE_CHANGED{ dae::USER_SPACE + 8 };
 //
 constexpr dae::Event EVENT_GAME_GEM_COLLECTED{ dae::USER_SPACE + 9 };
+constexpr dae::Event EVENT_CHERRY_COLLECTED{ dae::USER_SPACE + 10 };
 
 
 

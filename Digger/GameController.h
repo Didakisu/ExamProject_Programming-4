@@ -24,7 +24,6 @@ namespace dae
 		Scene* GetScene() const { return m_pScene; }
 
 		void RequestStateChange(const std::string& newState);
-		void BindInput();
 
 		int GetScore() const { return m_TotalScore; }
 		int& GetMutableScore() { return m_TotalScore; }

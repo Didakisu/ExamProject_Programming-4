@@ -36,6 +36,24 @@ namespace //anonymous namespace
 
 namespace dae
 {
+    EnemyBonusObserver::EnemyBonusObserver(EnemyComponent* enemy)
+        : m_pEnemy(enemy)
+    {
+
+    }
+
+    void EnemyBonusObserver::OnNotify(const GameObject& , Event event)
+    {
+        if (event == EVENT_CHERRY_COLLECTED)
+        {
+            m_pEnemy->SetBonusStateActive(true);
+        }
+    }
+
+
+
+
+
     dae::EnemyComponent::EnemyComponent(GameObject* owner, Scene& scene, std::shared_ptr<TileMap> tileMap)
         : Component(owner), m_Scene(scene), m_pTileMap(tileMap)
     {
@@ -52,11 +70,23 @@ namespace dae
         m_pAnimationComponent = GetOwner()->AddComponent<AnimationComponent>();
         m_pCollisionComponent = GetOwner()->AddComponent<CollisionComponent>(32.f, 32.f, &m_Scene);
 
-        AddObserver(std::make_unique<EnemySpawnerObserver>(spawner));
+
+        auto enemyBonusObserver = std::make_shared<EnemyBonusObserver>(this);
+        dae::EventManager::GetInstance().AddObserver(enemyBonusObserver.get(), { EVENT_CHERRY_COLLECTED });
+        m_Observers = enemyBonusObserver;
+
+
+        if (spawner)
+        {
+            AddObserver(std::make_unique<EnemySpawnerObserver>(spawner));
+        }
 
         AddState("Normal", std::make_unique<EnemyNormalState>(this));
         AddState("Enraged", std::make_unique<EnemyEnragedState>(this));
         AddState("Dead", std::make_unique<EnemyDeadState>(this));
+        AddState("Bonus", std::make_unique<EnemyBonusState>(this));
+
+        //m_IsInBonusState = true;
         SetInitialState("Normal");
 
         m_CurrentDirection = EnemyDirection::Down;
@@ -74,6 +104,11 @@ namespace dae
         if (m_IsDead)
         {
             return "Dead";
+        }
+
+        if (m_IsInBonusState)
+        {
+            return "Bonus";
         }
 
         if (m_IsEnraged)
@@ -144,7 +179,67 @@ namespace dae
 
     void EnemyComponent::EvaluateDirectionChange()
     {
-        if(!dynamic_cast<EnemyEnragedState*>(GetCurrentState()))
+        if (dynamic_cast<EnemyBonusState*>(GetCurrentState()))
+        {
+            auto player = FindPlayer();
+            if (player == nullptr)
+            {
+                return;
+            }
+            auto playerPos = player->GetTransform()->GetWorldPosition();
+            auto enemyPos = GetOwner()->GetTransform()->GetWorldPosition();
+
+            auto direction = enemyPos - playerPos;
+            if (abs(direction.x) > abs(direction.y))
+            {
+                m_CurrentDirection = (direction.x > 0) ? EnemyDirection::Right : EnemyDirection::Left;
+            }
+            else
+            {
+                m_CurrentDirection = (direction.y > 0) ? EnemyDirection::Down : EnemyDirection::Up;
+            }
+
+            std::vector<EnemyDirection> options;
+
+            AddMoveOptionIfValid(options, m_TileX, m_TileY - 1, EnemyDirection::Up, EnemyDirection::Down);
+            AddMoveOptionIfValid(options, m_TileX, m_TileY + 1, EnemyDirection::Down, EnemyDirection::Up);
+            AddMoveOptionIfValid(options, m_TileX - 1, m_TileY, EnemyDirection::Left, EnemyDirection::Right);
+            AddMoveOptionIfValid(options, m_TileX + 1, m_TileY, EnemyDirection::Right, EnemyDirection::Left);
+
+            if (options.size() > 1)
+            {
+                EnemyDirection enemyDirection = m_CurrentDirection;
+                bool foundDirection = false;
+
+                for (int i = 0; i < options.size(); i++)
+                {
+                    if (options[i] == m_CurrentDirection)
+                    {
+                        foundDirection = true;
+                        break;
+                    }
+                    else if(options[i] != GetOppositeDirection(m_CurrentDirection))
+                    {
+                        enemyDirection = options[i];
+                    }
+                }
+
+                if (!foundDirection)
+                {
+                    m_CurrentDirection = enemyDirection;
+                }
+            }
+            else if (options.size() == 1)
+            {
+                m_CurrentDirection = options[0];
+            }
+            else
+            {
+                m_CurrentDirection = GetOppositeDirection(m_CurrentDirection);
+            }
+
+        }
+        else if(!dynamic_cast<EnemyEnragedState*>(GetCurrentState()))
         {
             std::vector<EnemyDirection> options;
 
@@ -320,7 +415,7 @@ namespace dae
 
     bool EnemyComponent::ShouldEnterEnragedState() const
     {
-        if (m_IsEnraged)
+        if (m_IsEnraged||m_IsInBonusState)
         {
             return false;
         }
@@ -336,10 +431,9 @@ namespace dae
 
     void EnemyComponent::Die()
     {
-        if (m_pCollisionComponent)
+        if (m_IsDead)
         {
-            m_pCollisionComponent->GetOwner()->RemoveComponent<CollisionComponent>();
-            m_pCollisionComponent = nullptr;
+            return;
         }
         m_IsDead = true;
 
@@ -349,6 +443,7 @@ namespace dae
 
     void EnemyComponent::DieByFallingBag(GameObject* bag)
     {
+        Die();
         m_IsDead = true;
         m_BagToFollow = bag;
         m_FallingWithBag = true;
@@ -412,4 +507,15 @@ namespace dae
        }
        return nullptr;
     }
+
+    void EnemyComponent::EndBonusState()
+    {
+        m_IsInBonusState = false;
+    }
+
+    void EnemyComponent::SetBonusStateActive(bool isActive)
+    {
+        m_IsInBonusState = isActive;
+    }
+ 
 }

@@ -18,25 +18,21 @@ namespace dae {
 
         const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 
-        bool keyBeingProcessed = false;
-
         for (const auto& binding : m_KeyboardBindings)
         {
             bool currentState = keyboardState[binding.key] != 0;
 
-            if (currentState) {
-                if (!keyBeingProcessed) {
-                    keyBeingProcessed = true; 
-                    if (binding.state == InputState::Down && !m_PreviousKeyboardState[binding.key]) {
-                        if (binding.command) binding.command->Execute(deltaTime);
-                    }
-                    else if (binding.state == InputState::Pressed && currentState) {
-                        if (binding.command) binding.command->Execute(deltaTime);
-                    }
-                    else if (binding.state == InputState::Released && !currentState && m_PreviousKeyboardState[binding.key]) {
-                        if (binding.command) binding.command->Execute(deltaTime);
-                    }
-                }
+            if (currentState) 
+            {
+               if (binding.state == InputState::Down && !m_PreviousKeyboardState[binding.key]) {
+                   if (binding.command) binding.command->Execute(deltaTime);
+               }
+               else if (binding.state == InputState::Pressed && currentState) {
+                   if (binding.command) binding.command->Execute(deltaTime);
+               }
+               else if (binding.state == InputState::Released && !currentState && m_PreviousKeyboardState[binding.key]) {
+                   if (binding.command) binding.command->Execute(deltaTime);
+               }
             }
 
             m_PreviousKeyboardState[binding.key] = currentState;

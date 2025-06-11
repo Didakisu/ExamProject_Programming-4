@@ -38,15 +38,13 @@ void Scene::Update(float deltaTime)
 		object->Update(deltaTime);
 	}
 
-	// Iterate through game objects
 	for (auto it = m_objects.begin(); it != m_objects.end();)
 	{
 		auto& gameObject = *it;
 
-		// Remove objects marked for destruction
 		if (gameObject->IsMarkedForDestruction())
 		{
-			it = m_objects.erase(it);  // Remove from the scene
+			it = m_objects.erase(it);
 			std::cout << "GameObject removed from scene.\n";
 		}
 		else

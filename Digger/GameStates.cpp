@@ -9,8 +9,10 @@
 #include "HUDObserver.h"
 #include "Data.h"
 #include "EnemySpawner.h"
-//
 #include <filesystem>
+#include "EnemyComponent.h"
+#include "VersusEnemyComponent.h"
+#include "CherryPowerUp.h"
 
 namespace dae
 {
@@ -18,9 +20,7 @@ namespace dae
 	void MainMenuState::OnEnter()
 	{
 		auto& scene = dae::SceneManager::GetInstance().CreateScene("Main");
-
 		m_pTextObject = std::make_shared<dae::GameObject>();
-
 		auto font = dae::ResourceManager::GetInstance().LoadFont("DiggerFont.ttf", 30);
 		m_pTextObject->AddComponent<dae::TextComponent>("D I G G E R", font);
 
@@ -39,7 +39,7 @@ namespace dae
 			});
 
 		int maxEntries = std::min(5, (int)allScores.size());
-		float startY = 100.f;
+		float startY = 50.f;
 		float lineHeight = 30.f;
 
 		for (int i = 0; i < maxEntries; ++i)
@@ -50,11 +50,71 @@ namespace dae
 			auto scoreTextObj = std::make_shared<dae::GameObject>();
 			scoreTextObj->AddComponent<dae::TextComponent>(ss.str(), font);
 			auto transformScores = scoreTextObj->AddComponent<dae::Transform>();
-			transformScores->SetLocalPosition(10.f, startY + i * lineHeight, 0.f);
+			transformScores->SetLocalPosition(90.f, startY + i * lineHeight, 0.f);
 
 			scene.Add(scoreTextObj);
 		}
+
+		std::vector<std::string> modes{ "Regular", "Coop", "Versus" };
+		float startX = 50.f;
+		startY = m_IndicatorYStart;
+
+		for (int i = 0; i < 3; ++i)
+		{
+			m_ModeTextObjects[i] = std::make_shared<dae::GameObject>();
+			m_ModeTextObjects[i]->AddComponent<dae::TextComponent>(modes[i], font);
+			m_ModeTextObjects[i]->AddComponent<dae::Transform>()->SetLocalPosition(startX, startY + i * m_IndicatorSpacing, 0.f);
+			scene.Add(m_ModeTextObjects[i]);
+		}
+
+		m_SelectionIndicator = std::make_shared<dae::GameObject>();
+		m_SelectionIndicator->AddComponent<dae::TextComponent>(">", font);
+		m_SelectionIndicator->AddComponent<dae::Transform>()->SetLocalPosition(m_IndicatorX, startY + m_SelectedIndex * m_IndicatorSpacing, 0.f);
+		scene.Add(m_SelectionIndicator);
+
+		BindInput();
 	}
+
+	void MainMenuState::ChangeSelectedMode(int delta)
+	{
+		m_SelectedIndex = (3 + m_SelectedIndex + delta) % 3;
+
+		if (auto transform = m_SelectionIndicator->GetComponent<dae::Transform>())
+		{
+			transform->SetLocalPosition(m_IndicatorX, m_IndicatorYStart + m_SelectedIndex * m_IndicatorSpacing, 0.f);
+		}
+	}
+
+	void MainMenuState::ConfirmSelectedMode()
+	{
+		switch (m_SelectedIndex)
+		{
+		case 0: m_Controller->RequestStateChange("Gameplay"); break;
+		case 1: m_Controller->RequestStateChange("Coop"); break;
+		case 2: m_Controller->RequestStateChange("Versus"); break;
+		default: break;
+		}
+	}
+
+	void MainMenuState::BindInput()
+	{
+		auto& input = InputManager::GetInstance();
+		input.BindKeyboardCommand(SDL_SCANCODE_UP, InputState::Down,
+			std::make_unique<MainMenuSelectCommand>(m_Controller, -1));
+		input.BindKeyboardCommand(SDL_SCANCODE_DOWN, InputState::Down,
+			std::make_unique<MainMenuSelectCommand>(m_Controller, +1));
+		input.BindKeyboardCommand(SDL_SCANCODE_RETURN, InputState::Down,
+			std::make_unique<MainMenuConfirmCommand>(m_Controller));
+	}
+
+	void MainMenuState::UnbindInput()
+	{
+		auto& input = InputManager::GetInstance();
+		input.UnbindKeyboardCommand(SDL_SCANCODE_UP);
+		input.UnbindKeyboardCommand(SDL_SCANCODE_DOWN);
+		input.UnbindKeyboardCommand(SDL_SCANCODE_RETURN);
+	}
+
 
 	void MainMenuState::Update(float /*deltaTime*/)
 	{
@@ -64,6 +124,7 @@ namespace dae
 	void MainMenuState::OnExit()
 	{
 		dae::SceneManager::GetInstance().DeleteScene("Main");
+		UnbindInput();
 	}
 
 
@@ -110,12 +171,12 @@ namespace dae
 		m_pPlayerGameObject = pCharacter;
 		scene.Add(pCharacter);
 
-		/*const auto& spawnPoints = loader.GetEnemySpawnPositions();
+		const auto& spawnPoints = loader.GetEnemySpawnPositions();
 		auto enemySpawnerGO = std::make_shared<dae::GameObject>();
-		enemySpawnerGO->AddComponent<dae::EnemySpawner>(scene, outTileMap, spawnPoints, 1, 5.0f);
+		enemySpawnerGO->AddComponent<dae::EnemySpawner>(scene, outTileMap, spawnPoints, 4, 2.0f);
 		enemySpawnerGO->AddComponent<dae::Transform>();
-		scene.Add(enemySpawnerGO);*/
-		
+		scene.Add(enemySpawnerGO);
+
 		auto font = dae::ResourceManager::GetInstance().LoadFont("DiggerFont.ttf", 28);
 
 		auto scoreTextObj = std::make_shared<dae::GameObject>();
@@ -253,17 +314,35 @@ namespace dae
 	//--END SCENE--
 	void EndScreenState::OnEnter()
 	{
+		m_Initials[0] = 'A';
+		m_Initials[1] = 'A';
+		m_Initials[2] = 'A';
+
+		m_CurrentInitialIndex = 0;
+		m_InputFinished = false;
+
 		auto& scene = dae::SceneManager::GetInstance().CreateScene("EndScreen");
 		int finalScore = m_Controller->GetScore();
 		auto font = dae::ResourceManager::GetInstance().LoadFont("DiggerFont.ttf", 28);
 		auto scoreTextObj = std::make_shared<dae::GameObject>();
-
 		std::ostringstream ss;
 		ss << std::setfill('0') << std::setw(6) << finalScore;
 		std::string scoreStr = ss.str();
 
 		scoreTextObj->AddComponent<dae::TextComponent>(scoreStr, font);
 		scoreTextObj->AddComponent<dae::Transform>()->SetLocalPosition(10.f, 1.f, 0.f);
+
+		auto highscoreTextObj = std::make_shared<dae::GameObject>();
+		highscoreTextObj->AddComponent<dae::TextComponent>("NEW HIGH SCORE", font);
+		highscoreTextObj->AddComponent<dae::Transform>()->SetLocalPosition(105.f, 60.f, 0.f);
+
+		auto enterInitialsText = std::make_shared<dae::GameObject>();
+		font = dae::ResourceManager::GetInstance().LoadFont("DiggerFont.ttf", 18);
+		enterInitialsText->AddComponent<dae::TextComponent>("ENTER YOUR INITIALS", font);
+		enterInitialsText->AddComponent<dae::Transform>()->SetLocalPosition(120.f, 110.f, 0.f);
+
+		scene.Add(highscoreTextObj);
+		scene.Add(enterInitialsText);
 		scene.Add(scoreTextObj);
 
 		font = dae::ResourceManager::GetInstance().LoadFont("DiggerFont.ttf", 100);
@@ -287,7 +366,6 @@ namespace dae
 
 		m_HighscoreManager = std::make_unique<dae::HighscoreManager>("../Data/highscores.txt");
 
-
 		//indicator
 		m_InitialIndicator = std::make_shared<dae::GameObject>();
 		m_InitialIndicator->AddComponent<dae::TextComponent>("^", font);
@@ -297,8 +375,33 @@ namespace dae
 		indicatorTransform->SetLocalPosition(pos.x, pos.y, pos.z);
 
 		scene.Add(m_InitialIndicator);
+
+		BindInput();
 	}
 
+	void EndScreenState::BindInput()
+	{
+		auto& input = InputManager::GetInstance();
+		input.BindKeyboardCommand(SDL_SCANCODE_UP, InputState::Down,
+			std::make_unique<ChangeInitialLetterCommand>(m_Controller, +1));
+		input.BindKeyboardCommand(SDL_SCANCODE_DOWN, InputState::Down,
+			std::make_unique<ChangeInitialLetterCommand>(m_Controller, -1));
+		input.BindKeyboardCommand(SDL_SCANCODE_RIGHT, InputState::Down,
+			std::make_unique<ConfirmInitialLetterCommand>(m_Controller));
+		input.BindKeyboardCommand(SDL_SCANCODE_LEFT, InputState::Down,
+			std::make_unique<UndoInitialCommand>(m_Controller));
+	}
+
+	void EndScreenState::UnbindInput()
+	{
+		auto& input = InputManager::GetInstance();
+		input.UnbindKeyboardCommand(SDL_SCANCODE_UP);
+		input.UnbindKeyboardCommand(SDL_SCANCODE_DOWN);
+		input.UnbindKeyboardCommand(SDL_SCANCODE_RIGHT);
+		input.UnbindKeyboardCommand(SDL_SCANCODE_LEFT);
+	}
+
+	
 	void EndScreenState::Update(float /*deltaTime*/)
 	{
 	
@@ -307,6 +410,7 @@ namespace dae
 	void EndScreenState::OnExit()
 	{
 		dae::SceneManager::GetInstance().DeleteScene("EndScreen");
+		UnbindInput();
 	}
 
 	void EndScreenState::ChangeCurrentInitial(int delta)
@@ -315,10 +419,15 @@ namespace dae
 
 
 		if (m_InputFinished)
+		{
+			std::cout << "input has finished!" << std::endl;
 			return;
+		}
 	
 		if (m_CurrentInitialIndex < 0 || m_CurrentInitialIndex >= 3)
+		{
 			return;
+		}
 
 		char& letter = m_Initials[m_CurrentInitialIndex];
 
@@ -367,7 +476,9 @@ namespace dae
 	void EndScreenState::UndoConfirmInitial()
 	{
 		if (m_InputFinished)
+		{
 			return;
+		}
 
 		if (m_CurrentInitialIndex > 0)
 		{
@@ -418,12 +529,6 @@ namespace dae
 		int& sharedScore = m_Controller->GetMutableScore();
 		int& sharedLives = m_Controller->GetMutableLives();
 
-		/*auto hudGO = std::make_shared<dae::GameObject>();
-		auto scoreComponent = hudGO->AddComponent<dae::ScoreComponent>(sharedScore);
-		hudGO->AddComponent<dae::HealthComponent>(sharedLives); 
-		hudGO->AddComponent<dae::Transform>();
-		scene.Add(hudGO);*/
-
 		auto pCharacter_1 = std::make_shared<dae::GameObject>();
 		auto playerComp1 = pCharacter_1->AddComponent<dae::PlayerComponent>(scene, outTileMap, sharedScore , sharedLives);
 		playerComp1->Initialize(glm::vec3{ TileMap::TILE_WIDTH * 7.f, TileMap::TILE_HEIGHT * 10.f, 3.f });
@@ -457,7 +562,6 @@ namespace dae
 			auto renderComp = lifeIconGO->AddComponent<dae::RenderComponent>("Lives.png", 32, 32);
 			lifeIconGO->AddComponent<dae::Transform>()->SetLocalPosition(baseX + spacing * i, baseY, 0.f);
 			scene.Add(lifeIconGO);
-			std::cout << "[COOP] lifeIcon[" << i << "] RenderComponent: " << renderComp << "\n";
 			lifeIcons.push_back(renderComp);
 		}
 
@@ -576,4 +680,200 @@ namespace dae
 		m_CurrentLevel = 1;
 		dae::SceneManager::GetInstance().DeleteScene("Coop");
 	}
+
+
+
+
+
+	//--VERSUS GAME MODE--
+
+	void VersusGameplayMode::SetupVersusGameplayScene(dae::Scene& scene, int levelNumber, std::shared_ptr<TileMap>& outTileMap)
+	{
+		outTileMap = std::make_shared<TileMap>();
+		dae::LevelLoader loader;
+
+		switch (levelNumber)
+		{
+		case 1:
+			loader.LoadLevel("../Data/level.txt", scene, *outTileMap, "../Data/Backgrounds_1.png");
+			std::cout << "first level" << std::endl;
+			break;
+		case 2:
+			loader.LoadLevel("../Data/level1.txt", scene, *outTileMap, "../Data/Backgrounds_2.png");
+			std::cout << "second level" << std::endl;
+			break;
+		case 3:
+			loader.LoadLevel("../Data/level2.txt", scene, *outTileMap, "../Data/Backgrounds_3.png");
+			std::cout << "third level" << std::endl;
+			break;
+		default:
+			std::cout << "No more levels. You win!\n";
+			return;
+		}
+
+		int& sharedScore = m_Controller->GetMutableScore();
+		int& sharedLives = m_Controller->GetMutableLives();
+
+		//player
+		auto pCharacter = std::make_shared<dae::GameObject>();
+
+		auto playerComp = pCharacter->AddComponent<dae::PlayerComponent>(scene, outTileMap, sharedScore, sharedLives);
+		playerComp->Initialize(glm::vec3{ TileMap::TILE_WIDTH * 7.f, TileMap::TILE_HEIGHT * 10.f, 3.f });
+
+		InputProfile inputP1{ SDL_SCANCODE_W,SDL_SCANCODE_S,SDL_SCANCODE_A,SDL_SCANCODE_D,SDL_SCANCODE_SPACE };
+
+		playerComp->BindInput(inputP1);
+		m_pPlayerGameObject = pCharacter;
+		scene.Add(pCharacter);
+
+
+		//enemy
+		auto pEnemy = std::make_shared<dae::GameObject>();
+		auto enemyComponent = pEnemy->AddComponent<dae::VersusEnemyComponent>(scene, outTileMap);
+		pEnemy->AddComponent<dae::Transform>();
+		enemyComponent->Initialize(glm::vec3{ TileMap::TILE_WIDTH * 12.f, TileMap::TILE_HEIGHT * 2.f, 3.f });
+		InputProfile inputP2{
+			SDL_SCANCODE_UP,
+			SDL_SCANCODE_DOWN,
+			SDL_SCANCODE_LEFT,
+			SDL_SCANCODE_RIGHT,
+		};
+		enemyComponent->BindInput(inputP2);
+		m_pEnemyGameObject = pEnemy;
+		scene.Add(pEnemy);
+
+		auto font = dae::ResourceManager::GetInstance().LoadFont("DiggerFont.ttf", 28);
+
+		auto scoreTextObj = std::make_shared<dae::GameObject>();
+		auto scoreText = scoreTextObj->AddComponent<dae::TextComponent>("000000", font);
+		scoreTextObj->AddComponent<dae::Transform>()->SetLocalPosition(10.f, 1.f, 0.f);
+		scene.Add(scoreTextObj);
+
+		std::vector<dae::RenderComponent*> lifeIcons;
+		const float baseX = 150.f;
+		const float baseY = 1.f;
+		const float spacing = 40.f;
+
+		for (int i = 0; i < 6; ++i)
+		{
+			auto lifeIconGO = std::make_shared<dae::GameObject>();
+			auto renderComp = lifeIconGO->AddComponent<dae::RenderComponent>("Lives.png", 32, 32);
+			lifeIconGO->AddComponent<dae::Transform>()->SetLocalPosition(baseX + spacing * i, baseY, 0.f);
+			scene.Add(lifeIconGO);
+			std::cout << "[RegularGameplayMode] lifeIcon[" << i << "] RenderComponent: " << renderComp << "\n";
+			lifeIcons.push_back(renderComp);
+		}
+
+		auto scoreComponent = pCharacter->GetComponent<dae::ScoreComponent>();
+		pCharacter->GetComponent<dae::HealthComponent>();
+
+		m_HUDObserver = pCharacter->AddComponent<dae::HUDObserver>(scoreText, scoreComponent, lifeIcons);
+
+		dae::EventManager::GetInstance().AddObserver(m_HUDObserver, { EVENT_GAME_SCORE_CHANGED, EVENT_PLAYER_LOSING_LIFE });
+		dae::EventManager::GetInstance().AddObserver(this, { EVENT_GAME_GEM_COLLECTED });
+	}
+
+	void VersusGameplayMode::OnEnter()
+	{
+		m_CurrentLevel = 1;
+		m_ShouldReloadScene = false;
+		m_GameCompletedFired = false;
+
+		m_Controller->GetMutableScore() = 0;
+		m_Controller->GetMutableLives() = 3;
+
+		ClearSceneReferences();
+		auto& scene = dae::SceneManager::GetInstance().CreateScene("Versus");
+		SetupVersusGameplayScene(scene, m_CurrentLevel, m_TileMap);
+	}
+
+	void VersusGameplayMode::DeferReloadScene(int nextLevel)
+	{
+		m_NextLevel = nextLevel;
+		m_ShouldReloadScene = true;
+	}
+
+	void VersusGameplayMode::OnNotify(const dae::GameObject& /*gameObject*/, dae::Event event)
+	{
+		if (event != EVENT_GAME_GEM_COLLECTED)
+			return;
+
+		++m_TotalGemsCollected;
+
+		if (m_TotalGemsCollected >= LevelLoader::GetTotalGemCount() && LevelLoader::GetTotalGemCount() > 0)
+		{
+			std::cout << "Collected all gems!" << std::endl;
+
+			if (m_CurrentLevel < 3)
+			{
+				DeferReloadScene(m_CurrentLevel + 1);
+			}
+			else
+			{
+				if (m_pPlayerGameObject && !m_GameCompletedFired)
+				{
+					dae::EventManager::GetInstance().FireEvent({ EVENT_GAME_COMPLETED }, nullptr, nullptr);
+					m_GameCompletedFired = true;
+				}
+			}
+		}
+	}
+
+
+	void VersusGameplayMode::ProcessDeferredReload()
+	{
+		if (!m_ShouldReloadScene)
+		{
+			return;
+		}
+
+		ClearSceneReferences();
+		dae::SceneManager::GetInstance().DeleteScene("Versus");
+
+		m_CurrentLevel = m_NextLevel;
+		auto& scene = dae::SceneManager::GetInstance().CreateScene("Versus");
+		SetupVersusGameplayScene(scene, m_CurrentLevel, m_TileMap);
+
+		m_ShouldReloadScene = false;
+	}
+
+	void VersusGameplayMode::Update(float /*deltaTime*/)
+	{
+
+	}
+
+
+	void VersusGameplayMode::ClearSceneReferences()
+	{
+		m_TotalGemsCollected = 0;
+
+		if (m_pPlayerGameObject)
+		{
+			auto playerComp = m_pPlayerGameObject->GetComponent<PlayerComponent>();
+			if (playerComp)
+			{
+				playerComp->UnbindInput();
+			}
+			m_pPlayerGameObject.reset();
+		}
+
+		if (m_HUDObserver)
+		{
+			dae::EventManager::GetInstance().RemoveObserver(m_HUDObserver);
+			m_HUDObserver = nullptr;
+		}
+
+		dae::EventManager::GetInstance().RemoveObserver(this);
+
+		m_TileMap.reset();
+	}
+
+	void VersusGameplayMode::OnExit()
+	{
+		ClearSceneReferences();
+		m_TotalGemsCollected = 0;
+		m_CurrentLevel = 1;
+		dae::SceneManager::GetInstance().DeleteScene("Versus");
+	}
+	
 }

@@ -65,7 +65,7 @@ void dae::LevelLoader::LoadLevel(const std::string& filename, Scene& scene, Tile
                 break;
             case TileType::Gem:
                 SpawnDirt(scene, fxDirt, fyDirt, zDirt, dirtTexture);
-                SpawnGem(scene, fxDirt, fyDirt, zGem);
+                SpawnGem(scene, fxDirt, fyDirt, 4.f);
                 ++m_TotalGems;
                 break;
             case TileType::GoldBag:

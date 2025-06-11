@@ -1,6 +1,7 @@
 #include "FireBallComponent.h"
 #include "EnemyComponent.h"
 #include <iostream>
+#include "VersusEnemyComponent.h"
 
 namespace dae
 {
@@ -15,9 +16,10 @@ namespace dae
             if (event != EVENT_COLLISION)
                 return;
 
-            if (gameObject.HasComponent<EnemyComponent>())
+            if (gameObject.HasComponent<EnemyComponent>() || gameObject.HasComponent<VersusEnemyComponent>())
             {
                 auto enemy = gameObject.GetComponent<EnemyComponent>();
+                auto playerEnemy = gameObject.GetComponent<VersusEnemyComponent>();
                 if (enemy)
                 {
                     std::cout << "enemy dies from fireball" << std::endl;
@@ -25,6 +27,15 @@ namespace dae
                     m_pFireBallComponent->GetOwner()->MarkForDestruction();
                     return;
                 }
+
+                if (playerEnemy)
+                {
+                    std::cout << "player enemy dies from fireball" << std::endl;
+                    playerEnemy->Die();
+                    m_pFireBallComponent->GetOwner()->MarkForDestruction();
+                    return;
+                }
+
             }
         }
 

@@ -2,6 +2,7 @@
 #include "Data.h"
 #include "EnemyComponent.h"
 #include "FireBallComponent.h"
+#include "VersusEnemyComponent.h"
 
 namespace dae 
 {
@@ -10,10 +11,15 @@ namespace dae
         if (event != EVENT_COLLISION)
             return;
 
-        if (gameObject.HasComponent<EnemyComponent>())
+        if (gameObject.HasComponent<EnemyComponent>() || gameObject.HasComponent<VersusEnemyComponent>())
         {
             m_pPlayer->SetDead(true);
+        }
 
+        if (gameObject.HasComponent<EnemyComponent>())
+        {
+            //check if enemy is in the bonus state
+            gameObject.GetComponent<EnemyComponent>()->Die();
         }
     }
 
@@ -134,7 +140,6 @@ namespace dae
     {
         if (m_IsDead == false && isDead)
         {
-            std::cout << "[DEBUG] Player just died\n";
             m_IsDead = true;
             m_ShouldRespawn = true;
             m_RespawnTimer = 0.f;

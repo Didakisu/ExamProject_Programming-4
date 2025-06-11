@@ -33,7 +33,6 @@ void dae::SceneManager::Render()
 
 dae::Scene& dae::SceneManager::CreateScene(const std::string& name)
 {
-	std::cout << "[SceneManager] Creating scene: " << name << "\n"; 
 	const auto& scene = std::shared_ptr<Scene>(new Scene(name));
 	m_scenes.push_back(scene);
 	return *scene;
@@ -52,6 +51,10 @@ void dae::SceneManager::GetCurrentScene()
 
 void dae::SceneManager::DeleteScene(const std::string& name)
 {
-	std::cout << "[SceneManager] Deleting scene: " << name << "\n"; 
 	std::erase_if(m_scenes, [name](std::shared_ptr<Scene>& ptr) {return ptr->GetName() == name;});
+}
+
+void dae::SceneManager::DeleteScenes()
+{
+	m_scenes.clear();
 }

@@ -40,14 +40,14 @@ void MoveCommand::Execute(float deltaTime)
 
     TileType tile = m_pTileMap->GetTile(tx, ty);
 
+    int desiredXPos = tx * TileMap::TILE_WIDTH;
+    int desiredYPos = ty * TileMap::TILE_HEIGHT;
+
+    int distanceX = abs(desiredXPos - static_cast<int>(pos.x));
+    int distanceY = abs(desiredYPos - static_cast<int>(pos.y));
+
     if (oldDir != dir)
     {
-        int desiredXPos = tx * TileMap::TILE_WIDTH;
-        int desiredYPos = ty * TileMap::TILE_HEIGHT;
-
-        int distanceX = abs(desiredXPos - static_cast<int>(pos.x));
-        int distanceY = abs(desiredYPos - static_cast<int>(pos.y));
-
         bool snapped = false;
 
         switch (oldDirEnum)
@@ -91,6 +91,18 @@ void MoveCommand::Execute(float deltaTime)
         }
     }
 
+    if (m_RestrictedMovement && distanceX < DISTANCE_EPSILON && distanceY < DISTANCE_EPSILON)
+    {
+        int nextX = tx + static_cast<int>(dir.x);
+        int nextY = ty + static_cast<int>(dir.y);
+
+        TileType nextTile = m_pTileMap->GetTile(nextX, nextY);
+        if (nextTile != TileType::Empty && nextTile != TileType::Hole)
+        {
+            return;
+        }
+    }
+
     //check for crossing paths , horizontal and vertical
     bool up = m_pTileMap->GetTile(tx, ty - 1) == TileType::Empty;
     bool down = m_pTileMap->GetTile(tx, ty + 1) == TileType::Empty;
@@ -130,22 +142,23 @@ void MoveCommand::Execute(float deltaTime)
     {
         return;
     }
+
     transform->SetLocalPosition(nextPos.x, nextPos.y, pos.z);
 
-    //update facing direction
-    if (auto dc = m_pGameObject->GetComponent<dae::DirectionComponent>())
-    {
-        if (dir.x > 0) dc->SetDirection(dae::Direction::Right);
-        else if (dir.x < 0) dc->SetDirection(dae::Direction::Left);
-        else if (dir.y < 0) dc->SetDirection(dae::Direction::Up);
-        else if (dir.y > 0) dc->SetDirection(dae::Direction::Down);
-    }
+        //update facing direction
+        if (auto dc = m_pGameObject->GetComponent<dae::DirectionComponent>())
+        {
+            if (dir.x > 0) dc->SetDirection(dae::Direction::Right);
+            else if (dir.x < 0) dc->SetDirection(dae::Direction::Left);
+            else if (dir.y < 0) dc->SetDirection(dae::Direction::Up);
+            else if (dir.y > 0) dc->SetDirection(dae::Direction::Down);
+        }
 
-    int desiredXPos = tx * TileMap::TILE_WIDTH;
-    int desiredYPos = ty * TileMap::TILE_HEIGHT;
+    desiredXPos = tx * TileMap::TILE_WIDTH;
+    desiredYPos = ty * TileMap::TILE_HEIGHT;
 
-    int distanceX = abs(desiredXPos - static_cast<int>(pos.x));
-    int distanceY = abs(desiredYPos - static_cast<int>(pos.y));
+    distanceX = abs(desiredXPos - static_cast<int>(pos.x));
+    distanceY = abs(desiredYPos - static_cast<int>(pos.y));
 
     if (distanceX < TileMap::TILE_WIDTH * 0.15 && distanceY < TileMap::TILE_HEIGHT * 0.15)
     {
@@ -226,5 +239,21 @@ void UndoInitialCommand::Execute(float)
     if (m_Controller)
     {
         m_Controller->UndoConfirmInitial();
+    }
+}
+
+void MainMenuSelectCommand::Execute(float)
+{
+    if (auto state = dynamic_cast<dae::MainMenuState*>(m_Controller->GetCurrentState()))
+    {
+        state->ChangeSelectedMode(m_Delta);
+    }
+}
+
+void MainMenuConfirmCommand::Execute(float)
+{
+    if (auto state = dynamic_cast<dae::MainMenuState*>(m_Controller->GetCurrentState()))
+    {
+        state->ConfirmSelectedMode();
     }
 }

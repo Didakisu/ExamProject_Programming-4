@@ -2,6 +2,7 @@
 #include "LevelLoader.h"
 #include <iostream>
 #include "EnemyComponent.h"
+#include "CherryPowerUp.h"
 
 namespace dae
 {
@@ -87,6 +88,19 @@ namespace dae
         m_AliveEnemies++;
 
         LevelLoader::SpawnEnemy(m_Scene, pos.x, pos.y, pos.z, m_pTileMap, this);
+
+        if (m_SpawnedEnemies >= m_TotalEnemies)
+        {
+            //spawn cherries here(when spawned enemies are actually the number of the total enemies)
+
+            /*auto cherry = std::make_shared<GameObject>();
+            cherry->AddComponent<RenderComponent>("cherries.png", 32, 32);
+            cherry->AddComponent<Transform>()->SetLocalPosition(TileMap::TILE_WIDTH * 14.f, TileMap::TILE_HEIGHT * 2.f, 3.f);
+            auto collision = cherry->AddComponent<CollisionComponent>(32.f, 32.f, &scene);
+            auto cherryObserver = std::make_shared<CherryPowerUp>(cherry.get());
+            collision->AddObserver(cherryObserver);
+            scene.Add(cherry);*/
+        }
     }
 
     void EnemySpawner::OnEnemyDied()

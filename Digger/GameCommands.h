@@ -25,12 +25,15 @@ public:
     void Execute(float deltaTime) override;
     bool IsDiggable(TileType tile);
 
+    void SetRestrictMovement(bool enabled) { m_RestrictedMovement = enabled; }
 private:
     dae::GameObject* m_pGameObject;
     float m_Speed;
     glm::vec2 m_Direction;
     std::shared_ptr<TileMap> m_pTileMap;
     dae::Scene& m_Scene;
+
+    bool m_RestrictedMovement{false};
 };
 
 class CollectCommand final : public dae::Command
@@ -112,4 +115,24 @@ public:
     void Execute(float) override;
 private:
     dae::GameController* m_Controller{};
+};
+
+
+class MainMenuSelectCommand : public dae::Command
+{
+public:
+    MainMenuSelectCommand(dae::GameController* controller, int delta) : m_Controller(controller), m_Delta(delta) {}
+    void Execute(float) override;
+private:
+    dae::GameController* m_Controller;
+    int m_Delta;
+};
+
+class MainMenuConfirmCommand : public dae::Command
+{
+public:
+    MainMenuConfirmCommand(dae::GameController* controller) : m_Controller(controller) {}
+    void Execute(float) override;
+private:
+    dae::GameController* m_Controller;
 };

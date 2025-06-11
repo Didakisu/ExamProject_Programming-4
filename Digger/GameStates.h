@@ -8,6 +8,8 @@
 #include "Scene.h"
 #include "HUDObserver.h"
 #include "HighscoreManager.h"
+#include <array>
+
 
 namespace dae
 {
@@ -19,12 +21,25 @@ namespace dae
 		MainMenuState(GameController* controller) : m_Controller(controller) {}
 
 		void OnEnter() override;
+		void ChangeSelectedMode(int delta);
+		void ConfirmSelectedMode();
+		void BindInput();
+		void UnbindInput();
 		void Update(float deltaTime) override;
 		void OnExit() override;
 	private:
 		GameController* m_Controller;
 		std::shared_ptr<dae::GameObject> m_pTextObject{};
+
+		int m_SelectedIndex{ 0 };
+		std::array<std::shared_ptr<dae::GameObject>, 3> m_ModeTextObjects{};
+		std::shared_ptr<dae::GameObject> m_SelectionIndicator{};
+		float m_IndicatorX{ 20.f };
+		float m_IndicatorYStart{ 220.f };
+		float m_IndicatorSpacing{ 40.f };
 	};
+
+
 
 	class RegularGameplayMode : public State ,public Observer
 	{
@@ -35,10 +50,7 @@ namespace dae
 		void OnEnter() override;
 		void Update(float deltaTime) override;
 		void OnExit() override;
-
 		void OnNotify(const dae::GameObject& gameObject, dae::Event event) override;
-
-
 		void DeferReloadScene(int nextLevel);
 		void ProcessDeferredReload();
 		void ClearSceneReferences();
@@ -49,12 +61,14 @@ namespace dae
 		int m_CurrentLevel{1};
 		std::shared_ptr<dae::GameObject> m_pPlayerGameObject;
 		HUDObserver* m_HUDObserver = nullptr;
-		bool m_ShouldReloadScene = false;
+		bool m_ShouldReloadScene{ false };
 		int m_NextLevel = 0;
-		bool m_GameCompletedFired = false;
+		bool m_GameCompletedFired{ false };
 
 		int m_TotalGemsCollected{};
 	};
+
+
 
 	class EndScreenState : public State
 	{
@@ -62,6 +76,8 @@ namespace dae
 		EndScreenState(GameController* controller) : m_Controller(controller) {}
 
 		void OnEnter() override;
+		void BindInput();
+		void UnbindInput();
 		void Update(float deltaTime) override;
 		void OnExit() override;
 		void ChangeCurrentInitial(int delta);
@@ -87,6 +103,7 @@ namespace dae
 	};
 
 
+
 	class CoopGameplayMode final : public State , public Observer
 	{
 	public:
@@ -107,23 +124,40 @@ namespace dae
 		int m_CurrentLevel{ 1 };
 		int m_NextLevel{};
 		bool m_ShouldReloadScene{ false };
-		bool m_GameCompletedFired = false;
+		bool m_GameCompletedFired{ false };
 
 		HUDObserver* m_HUDObserver = nullptr;
-		HUDObserver* m_HUDObserver1 = nullptr;
 		GameController* m_Controller{}; 
 
 		int m_TotalGemsCollected{};
 	};
 
 
-	/*class VersusGameplayMode : public State
+
+	class VersusGameplayMode : public State, public Observer
 	{
 	public:
+		VersusGameplayMode(GameController* controller) : m_Controller(controller) {}
 		void OnEnter() override;
 		void Update(float deltaTime) override;
 		void OnExit() override;
+		void SetupVersusGameplayScene(dae::Scene& scene, int levelNumber, std::shared_ptr<TileMap>& outTileMap);
+		void ClearSceneReferences();
+		void ProcessDeferredReload();
+		void DeferReloadScene(int nextLevel);
+		void OnNotify(const dae::GameObject& gameObject, dae::Event event) override;
 	private:
-	};*/
+		std::shared_ptr<dae::GameObject> m_pPlayerGameObject;
+		std::shared_ptr<dae::GameObject> m_pEnemyGameObject;
+		HUDObserver* m_HUDObserver = nullptr;
+		GameController* m_Controller{};
+		std::shared_ptr<TileMap> m_TileMap{};
 
+		int m_CurrentLevel{ 1 };
+		int m_NextLevel{};
+		bool m_ShouldReloadScene{ false };
+		bool m_GameCompletedFired{ false };
+
+		int m_TotalGemsCollected{};
+	};
 }
