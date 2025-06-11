@@ -437,7 +437,6 @@ namespace dae
         }
         m_IsDead = true;
 
-        std::cout << "Enemy died, notifying observers...\n";
         NotifyObservers(*GetOwner(), EVENT_ENEMY_DIED);
     }
 
@@ -517,5 +516,9 @@ namespace dae
     {
         m_IsInBonusState = isActive;
     }
- 
+
+    bool EnemyComponent::IsInBonusState() const
+    {
+        return m_IsInBonusState;
+    }
 }

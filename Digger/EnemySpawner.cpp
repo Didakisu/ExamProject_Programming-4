@@ -3,6 +3,8 @@
 #include <iostream>
 #include "EnemyComponent.h"
 #include "CherryPowerUp.h"
+#include "EventManager.h"
+#include "Data.h"
 
 namespace dae
 {
@@ -50,10 +52,14 @@ namespace dae
         }
     }
 
+
+
     void EnemySpawner::Update(float deltaTime)
     {
-        if (m_SpawnedEnemies >= m_TotalEnemies)
+        if (m_SpawnedEnemies >= m_TotalEnemies || m_AliveEnemies >= m_MaxEnemiesAlive)
+        {
             return;
+        }
 
         m_Timer += deltaTime;
 
@@ -68,22 +74,27 @@ namespace dae
     {
         if (m_SpawnPoints.empty())
         {
-            std::cerr << "Spawn points empty, cannot spawn enemy." << std::endl;
             return;
         }
 
-        if (m_AliveEnemies >= m_TotalEnemies)
+        if (m_AliveEnemies >= m_MaxEnemiesAlive)
+        {
             return;
+        }
 
         if (countSpawned && m_SpawnedEnemies >= m_TotalEnemies)
+        {
             return;
+        }
 
         const auto& pos = m_SpawnPoints[m_NextSpawnIndex % m_SpawnPoints.size()];
 
         m_NextSpawnIndex++;
 
         if (countSpawned)
+        {
             m_SpawnedEnemies++;
+        }
 
         m_AliveEnemies++;
 
@@ -91,25 +102,32 @@ namespace dae
 
         if (m_SpawnedEnemies >= m_TotalEnemies)
         {
-            //spawn cherries here(when spawned enemies are actually the number of the total enemies)
-
-            /*auto cherry = std::make_shared<GameObject>();
+            auto cherry = std::make_shared<GameObject>();
             cherry->AddComponent<RenderComponent>("cherries.png", 32, 32);
             cherry->AddComponent<Transform>()->SetLocalPosition(TileMap::TILE_WIDTH * 14.f, TileMap::TILE_HEIGHT * 2.f, 3.f);
-            auto collision = cherry->AddComponent<CollisionComponent>(32.f, 32.f, &scene);
+            auto collision = cherry->AddComponent<CollisionComponent>(32.f, 32.f, &m_Scene);
             auto cherryObserver = std::make_shared<CherryPowerUp>(cherry.get());
             collision->AddObserver(cherryObserver);
-            scene.Add(cherry);*/
+            m_Scene.Add(cherry);
         }
     }
 
     void EnemySpawner::OnEnemyDied()
     {
-        std::cout << "EnemySpawner notified of enemy death." << std::endl;
 
         if (m_AliveEnemies > 0)
+        {
             --m_AliveEnemies;
+        }
 
-        SpawnNextEnemy(false);
+        if (m_AliveEnemies < m_MaxEnemiesAlive && m_SpawnedEnemies < m_TotalEnemies)
+        {
+            SpawnNextEnemy(true);
+        }
+
+        if (m_SpawnedEnemies >= m_TotalEnemies && m_AliveEnemies == 0)
+        {
+            dae::EventManager::GetInstance().FireEvent({ EVENT_ALL_ENEMIES_KILLED }, nullptr, nullptr);
+        }
     }
 }

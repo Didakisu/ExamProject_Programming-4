@@ -47,5 +47,7 @@ namespace dae
         float m_Timer = 0.f;
 
         int m_AliveEnemies = 0;
+
+        const int m_MaxEnemiesAlive{4};
     };
 }

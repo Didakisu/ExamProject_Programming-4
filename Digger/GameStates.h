@@ -66,6 +66,8 @@ namespace dae
 		bool m_GameCompletedFired{ false };
 
 		int m_TotalGemsCollected{};
+		int m_TotalNumberOfEnemies{ 7 };
+		float m_TimeBetweenEnemySpawn{ 7.0 };
 	};
 
 
@@ -130,6 +132,9 @@ namespace dae
 		GameController* m_Controller{}; 
 
 		int m_TotalGemsCollected{};
+
+		int m_TotalNumberOfEnemies{ 7 };
+		float m_TimeBetweenEnemySpawn{ 7.0 };
 	};
 
 

@@ -19,9 +19,12 @@ constexpr dae::Event EVENT_COLLECTED_ALL_GEMS{ dae::USER_SPACE + 6 };
 constexpr dae::Event EVENT_GAME_COMPLETED{ dae::USER_SPACE + 7 };
 
 constexpr dae::Event EVENT_GAME_SCORE_CHANGED{ dae::USER_SPACE + 8 };
-//
+
 constexpr dae::Event EVENT_GAME_GEM_COLLECTED{ dae::USER_SPACE + 9 };
 constexpr dae::Event EVENT_CHERRY_COLLECTED{ dae::USER_SPACE + 10 };
+constexpr dae::Event EVENT_ALL_ENEMIES_KILLED{ dae::USER_SPACE + 11 };
+constexpr dae::Event EVENT_ENEMY_KILLED_BY_FIREBALL{ dae::USER_SPACE + 12 };
+
 
 
 

@@ -18,8 +18,11 @@ namespace dae
 
         if (gameObject.HasComponent<EnemyComponent>())
         {
-            //check if enemy is in the bonus state
-            gameObject.GetComponent<EnemyComponent>()->Die();
+            auto enemyComp = gameObject.GetComponent<EnemyComponent>();
+            if (enemyComp->IsInBonusState()) 
+            {
+                enemyComp->Die();
+            }
         }
     }
 

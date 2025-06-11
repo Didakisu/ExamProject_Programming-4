@@ -35,7 +35,13 @@ namespace dae
 
             m_Points += 500;
         }
-        
+
+       /* if (event == EVENT_ENEMY_KILLED_BY_FIREBALL)
+        {
+            m_Points += 250;
+            EventManager::GetInstance().FireEvent(EVENT_GAME_SCORE_CHANGED, GetOwner());
+        }*/
+
         EventManager::GetInstance().FireEvent(EVENT_GAME_SCORE_CHANGED , GetOwner());
 
         if (m_Points / 20000 > m_LiveCounter)

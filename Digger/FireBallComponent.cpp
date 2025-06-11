@@ -2,6 +2,8 @@
 #include "EnemyComponent.h"
 #include <iostream>
 #include "VersusEnemyComponent.h"
+#include "EventManager.h"
+#include "Data.h"
 
 namespace dae
 {
@@ -24,6 +26,7 @@ namespace dae
                 {
                     std::cout << "enemy dies from fireball" << std::endl;
                     enemy->Die();
+                    EventManager::GetInstance().FireEvent(EVENT_ENEMY_KILLED_BY_FIREBALL, nullptr);
                     m_pFireBallComponent->GetOwner()->MarkForDestruction();
                     return;
                 }
@@ -32,10 +35,10 @@ namespace dae
                 {
                     std::cout << "player enemy dies from fireball" << std::endl;
                     playerEnemy->Die();
+                   //EventManager::GetInstance().FireEvent(EVENT_ENEMY_KILLED_BY_FIREBALL, nullptr);
                     m_pFireBallComponent->GetOwner()->MarkForDestruction();
                     return;
                 }
-
             }
         }
 

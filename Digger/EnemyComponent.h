@@ -81,7 +81,7 @@ namespace dae
         void EndBonusState();
 
         void SetBonusStateActive(bool isActive);
-
+        bool IsInBonusState() const;
     protected:
         std::string CheckNextState() override;
     private:

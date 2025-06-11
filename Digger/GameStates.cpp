@@ -173,7 +173,7 @@ namespace dae
 
 		const auto& spawnPoints = loader.GetEnemySpawnPositions();
 		auto enemySpawnerGO = std::make_shared<dae::GameObject>();
-		enemySpawnerGO->AddComponent<dae::EnemySpawner>(scene, outTileMap, spawnPoints, 4, 2.0f);
+		enemySpawnerGO->AddComponent<dae::EnemySpawner>(scene, outTileMap, spawnPoints, m_TotalNumberOfEnemies, m_TimeBetweenEnemySpawn);
 		enemySpawnerGO->AddComponent<dae::Transform>();
 		scene.Add(enemySpawnerGO);
 
@@ -206,6 +206,7 @@ namespace dae
 
 		dae::EventManager::GetInstance().AddObserver(m_HUDObserver, { EVENT_GAME_SCORE_CHANGED, EVENT_PLAYER_LOSING_LIFE });
 		dae::EventManager::GetInstance().AddObserver(this, { EVENT_GAME_GEM_COLLECTED });
+		dae::EventManager::GetInstance().AddObserver(this, { EVENT_ALL_ENEMIES_KILLED });
 	}
 
 	void RegularGameplayMode::OnEnter()
@@ -227,26 +228,40 @@ namespace dae
 
 	void RegularGameplayMode::OnNotify(const dae::GameObject&, dae::Event event)
 	{
-		if (event != EVENT_GAME_GEM_COLLECTED)
-			return;
-
-		++m_TotalGemsCollected;
-
-		if (m_TotalGemsCollected >= LevelLoader::GetTotalGemCount() && LevelLoader::GetTotalGemCount() > 0)
+		if (event == EVENT_GAME_GEM_COLLECTED)
 		{
-			std::cout << "Collected all gems!" << std::endl;
+			++m_TotalGemsCollected;
+
+			if (m_TotalGemsCollected >= LevelLoader::GetTotalGemCount() && LevelLoader::GetTotalGemCount() > 0)
+			{
+				std::cout << "Collected all gems!" << std::endl;
+
+				if (m_CurrentLevel < 3)
+				{
+					DeferReloadScene(m_CurrentLevel + 1);
+				}
+				else
+				{
+					if (m_pPlayerGameObject && !m_GameCompletedFired)
+					{
+						dae::EventManager::GetInstance().FireEvent({ EVENT_GAME_COMPLETED }, nullptr, nullptr);
+						m_GameCompletedFired = true;
+					}
+				}
+			}
+		}
+		else if (event == EVENT_ALL_ENEMIES_KILLED)
+		{
+			std::cout << "All enemies killed this round!" << std::endl;
 
 			if (m_CurrentLevel < 3)
 			{
 				DeferReloadScene(m_CurrentLevel + 1);
 			}
-			else
+			else if (!m_GameCompletedFired)
 			{
-				if (m_pPlayerGameObject && !m_GameCompletedFired)
-				{
-					dae::EventManager::GetInstance().FireEvent({ EVENT_GAME_COMPLETED }, nullptr, nullptr);
-					m_GameCompletedFired = true;
-				}
+				dae::EventManager::GetInstance().FireEvent({ EVENT_GAME_COMPLETED }, nullptr, nullptr);
+				m_GameCompletedFired = true;
 			}
 		}
 	}
@@ -294,7 +309,6 @@ namespace dae
 		}
 
 		dae::EventManager::GetInstance().RemoveObserver(this);
-
 		m_TileMap.reset();
 	}
 
@@ -545,6 +559,12 @@ namespace dae
 		m_pPlayer2GameObject = pCharacter_2;
 		scene.Add(pCharacter_2);
 
+		const auto& spawnPoints = loader.GetEnemySpawnPositions();
+		auto enemySpawnerGO = std::make_shared<dae::GameObject>();
+		enemySpawnerGO->AddComponent<dae::EnemySpawner>(scene, outTileMap, spawnPoints, m_TotalNumberOfEnemies, m_TimeBetweenEnemySpawn);
+		enemySpawnerGO->AddComponent<dae::Transform>();
+		scene.Add(enemySpawnerGO);
+
 		auto font = dae::ResourceManager::GetInstance().LoadFont("DiggerFont.ttf", 28);
 		auto scoreTextObj = std::make_shared<dae::GameObject>();
 		auto scoreText = scoreTextObj->AddComponent<dae::TextComponent>("000000", font);
@@ -570,6 +590,7 @@ namespace dae
 		
 		dae::EventManager::GetInstance().AddObserver(m_HUDObserver, { EVENT_GAME_SCORE_CHANGED, EVENT_PLAYER_LOSING_LIFE });
 		dae::EventManager::GetInstance().AddObserver(this, { EVENT_GAME_GEM_COLLECTED });
+		dae::EventManager::GetInstance().AddObserver(this, { EVENT_ALL_ENEMIES_KILLED });
 	}
 
 	void CoopGameplayMode::OnEnter()
@@ -594,26 +615,40 @@ namespace dae
 
 	void CoopGameplayMode::OnNotify(const dae::GameObject& /*gameObject*/, dae::Event event)
 	{
-		if (event != EVENT_GAME_GEM_COLLECTED)
-			return;
-
-		++m_TotalGemsCollected;
-
-		if (m_TotalGemsCollected >= LevelLoader::GetTotalGemCount() && LevelLoader::GetTotalGemCount() > 0)
+		if (event == EVENT_GAME_GEM_COLLECTED)
 		{
-			std::cout << "Collected all gems!" << std::endl;
-			
+			++m_TotalGemsCollected;
+
+			if (m_TotalGemsCollected >= LevelLoader::GetTotalGemCount() && LevelLoader::GetTotalGemCount() > 0)
+			{
+				std::cout << "Collected all gems!" << std::endl;
+
+				if (m_CurrentLevel < 3)
+				{
+					DeferReloadScene(m_CurrentLevel + 1);
+				}
+				else
+				{
+					if ((m_pPlayer1GameObject && m_pPlayer2GameObject) && !m_GameCompletedFired)
+					{
+						dae::EventManager::GetInstance().FireEvent({ EVENT_GAME_COMPLETED }, nullptr, nullptr);
+						m_GameCompletedFired = true;
+					}
+				}
+			}
+		}
+		else if (event == EVENT_ALL_ENEMIES_KILLED)
+		{
+			std::cout << "All enemies killed this round!" << std::endl;
+
 			if (m_CurrentLevel < 3)
 			{
 				DeferReloadScene(m_CurrentLevel + 1);
 			}
-			else
+			else if (!m_GameCompletedFired)
 			{
-				if ((m_pPlayer1GameObject && m_pPlayer2GameObject) && !m_GameCompletedFired)
-				{
-					dae::EventManager::GetInstance().FireEvent({ EVENT_GAME_COMPLETED }, nullptr, nullptr);
-					m_GameCompletedFired = true;
-				}
+				dae::EventManager::GetInstance().FireEvent({ EVENT_GAME_COMPLETED }, nullptr, nullptr);
+				m_GameCompletedFired = true;
 			}
 		}
 	}
