@@ -46,7 +46,7 @@ namespace dae
     {
     public:
         EnemyComponent(GameObject* owner, Scene& scene, std::shared_ptr<TileMap> tileMap);
-        ~EnemyComponent() override = default;
+        ~EnemyComponent() override;
         void Initialize(const glm::vec3& startPosition, EnemySpawner* spawner = nullptr);
         void Update(float deltaTime) override;
 

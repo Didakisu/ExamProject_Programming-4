@@ -41,6 +41,7 @@ namespace dae
         {
             for (auto& component : m_components)
             {
+ 
                 if (auto found = dynamic_cast<T*>(component))
                 {
                     return found;

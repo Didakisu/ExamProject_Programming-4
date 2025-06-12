@@ -32,6 +32,14 @@ namespace dae
         m_pAnimationComponent->AddAnimation("Enraged", "EnragedEnemies.png", 64 / 4, 15, 4, 0.15f);
         m_pAnimationComponent->PlayAnimation("Walk");
 		m_pCollisionComponent = GetOwner()->AddComponent<CollisionComponent>(32.f, 32.f, &m_Scene);
+
+        auto pHoleBehindCharacter = std::make_shared<dae::GameObject>();
+        pHoleBehindCharacter->AddComponent<dae::RenderComponent>("tile.png", 35, 28);
+        pHoleBehindCharacter->AddComponent<dae::Transform>();
+        pHoleBehindCharacter->GetTransform()->SetLocalPosition(0.f, 0.f, -2.f);//fix z
+        pHoleBehindCharacter->SetParent(GetOwner(), false);
+
+        m_Scene.Add(pHoleBehindCharacter);
 	}
 
     void VersusEnemyComponent::Update(float deltaTime)

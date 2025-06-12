@@ -33,9 +33,9 @@ void Scene::RemoveAll()
 
 void Scene::Update(float deltaTime)
 {
-	for(auto& object : m_objects)
+	for (int i = 0; i < m_objects.size(); i++)
 	{
-		object->Update(deltaTime);
+		m_objects[i]->Update(deltaTime);
 	}
 
 	for (auto it = m_objects.begin(); it != m_objects.end();)

@@ -10,7 +10,6 @@ namespace dae
     public:
         CherryPowerUp(GameObject* owner);
         void OnNotify(const GameObject& gameObject, Event event) override;
-
     private:
         GameObject* m_Owner;
         EnemyComponent* m_pEnemyComponent;

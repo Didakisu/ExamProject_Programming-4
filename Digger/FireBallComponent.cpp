@@ -4,6 +4,7 @@
 #include "VersusEnemyComponent.h"
 #include "EventManager.h"
 #include "Data.h"
+#include <ServiceLocator.h>
 
 namespace dae
 {
@@ -27,6 +28,8 @@ namespace dae
                     std::cout << "enemy dies from fireball" << std::endl;
                     enemy->Die();
                     EventManager::GetInstance().FireEvent(EVENT_ENEMY_KILLED_BY_FIREBALL, nullptr);
+                    auto soundSystem = dae::ServiceLocator::GetSoundSystem();
+                    soundSystem->Play(SHOOTING_HIT_ENEMY_SOUND_ID, 10);
                     m_pFireBallComponent->GetOwner()->MarkForDestruction();
                     return;
                 }
@@ -35,7 +38,7 @@ namespace dae
                 {
                     std::cout << "player enemy dies from fireball" << std::endl;
                     playerEnemy->Die();
-                   //EventManager::GetInstance().FireEvent(EVENT_ENEMY_KILLED_BY_FIREBALL, nullptr);
+                    EventManager::GetInstance().FireEvent(EVENT_ENEMY_KILLED_BY_FIREBALL, nullptr);
                     m_pFireBallComponent->GetOwner()->MarkForDestruction();
                     return;
                 }
@@ -59,6 +62,9 @@ namespace dae
 
         m_pCollisionComponent = owner->AddComponent<CollisionComponent>(16.f, 16.f, &scene);
         m_pCollisionComponent->AddObserver(std::make_shared<FireBallObserver>(this , tileMap));
+
+        auto soundSystem = dae::ServiceLocator::GetSoundSystem();
+        soundSystem->Play(SHOOTING_FIREBALL_SOUND_ID, 50);
     }
 
     void FireBallComponent::Update(float deltaTime)

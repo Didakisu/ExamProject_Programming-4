@@ -42,17 +42,19 @@ namespace dae {
             bool gamepadButtonBeingProcessed = false;
 
             for (const auto& binding : m_GamepadBindings) {
-                bool currentButtonState = m_Gamepad.IsButtonDown(static_cast<Gamepad::GamePadButton>(binding.button));
-
-                if (currentButtonState && !gamepadButtonBeingProcessed) {
-                    gamepadButtonBeingProcessed = true; 
-                    if (binding.state == InputState::Down && currentButtonState) {
+             
+                if (!gamepadButtonBeingProcessed) 
+                {
+                    if (binding.state == InputState::Down && m_Gamepad.IsButtonDown(static_cast<Gamepad::GamePadButton>(binding.button))) {
+                        gamepadButtonBeingProcessed = true;
                         if (binding.command) binding.command->Execute(deltaTime);
                     }
-                    else if (binding.state == InputState::Released && !currentButtonState) {
+                    else if (binding.state == InputState::Released && m_Gamepad.IsButtonUp(static_cast<Gamepad::GamePadButton>(binding.button))) {
+                        gamepadButtonBeingProcessed = true;
                         if (binding.command) binding.command->Execute(deltaTime);
                     }
-                    else if (binding.state == InputState::Pressed && currentButtonState) {
+                    else if (binding.state == InputState::Pressed && m_Gamepad.IsButtonPressed(static_cast<Gamepad::GamePadButton>(binding.button))) {
+                        gamepadButtonBeingProcessed = true;
                         if (binding.command) binding.command->Execute(deltaTime);
                     }
                 }

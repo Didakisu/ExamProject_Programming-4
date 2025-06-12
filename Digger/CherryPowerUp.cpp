@@ -1,6 +1,9 @@
 #include "CherryPowerUp.h"
 #include "PlayerComponent.h"
 #include "Data.h"
+#include "LevelLoader.h"
+#include <ServiceLocator.h>
+
 
 namespace dae
 {
@@ -22,8 +25,13 @@ namespace dae
         if (gameObject.HasComponent<PlayerComponent>())
         {
             m_IsCollected = true;
+
+            auto soundSystem = dae::ServiceLocator::GetSoundSystem();
+            soundSystem->Play(CHERRY_PICKUP_SOUND_ID, 30);
+
             dae::EventManager::GetInstance().FireEvent(EVENT_CHERRY_COLLECTED, m_Owner);
             m_Owner->MarkForDestruction();
         }
     }
+
 }

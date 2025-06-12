@@ -21,6 +21,9 @@ std::vector<dae::SpawnPoint> dae::LevelLoader::m_EnemySpawnPositions{};
 std::vector<std::shared_ptr<dae::Observer>> dae::LevelLoader::m_CollectibleObservers{};
 int dae::LevelLoader::m_TotalGems = 0;
 
+std::vector<dae::GameObject*> dae::LevelLoader::m_DirtTiles{};
+std::string dae::LevelLoader::m_CurrentDirtTexture{};
+std::string dae::LevelLoader::m_OriginalDirtTexture{};
 
 void dae::LevelLoader::LoadLevel(const std::string& filename, Scene& scene, TileMap& outMap, const std::string& dirtTexture)
 {
@@ -34,6 +37,18 @@ void dae::LevelLoader::LoadLevel(const std::string& filename, Scene& scene, Tile
     m_CollectibleObservers.clear();
     m_TotalGems = 0;
 
+    //
+    m_DirtTiles.clear();
+    m_OriginalDirtTexture.clear();
+
+    //
+    m_CurrentDirtTexture = dirtTexture;
+    if (m_OriginalDirtTexture.empty())
+    {
+        m_OriginalDirtTexture = dirtTexture;
+    }
+
+    //
     std::vector<std::string> lines;
     std::string line;
     while (std::getline(file, line))
@@ -104,6 +119,7 @@ void dae::LevelLoader::SpawnDirt(Scene& scene, float x, float y, float z, const 
     go->AddComponent<RenderComponent>(texture, TileMap::TILE_WIDTH, TileMap::TILE_HEIGHT);
     go->AddComponent<Transform>()->SetLocalPosition(x, y, z);
     scene.Add(go);
+    m_DirtTiles.push_back(go.get());
 }
 
 void dae::LevelLoader::SpawnUI(Scene& scene, float x, float y, float z)
@@ -171,4 +187,32 @@ void dae::LevelLoader::SpawnDirtBackground(Scene& scene, float x, float y, float
     go->AddComponent<RenderComponent>(texture, TileMap::TILE_WIDTH, TileMap::TILE_HEIGHT);
     go->AddComponent<Transform>()->SetLocalPosition(x, y, z);
     scene.Add(go);
+    m_DirtTiles.push_back(go.get());
 }
+
+const std::string& dae::LevelLoader::GetCurrentDirtTexture()
+{
+    return m_CurrentDirtTexture;
+}
+
+void dae::LevelLoader::SetDirtTileTextures(const std::string& texturePath)
+{
+    for (auto* go : m_DirtTiles)
+    {
+        if (go)
+        {
+            auto render = go->GetComponent<RenderComponent>();
+            if (render)
+                render->SetTexture(texturePath);
+        }
+    }
+    m_CurrentDirtTexture = texturePath;
+}
+
+const std::string& dae::LevelLoader::GetOriginalDirtTexture()
+{
+    return m_OriginalDirtTexture;
+}
+
+
+

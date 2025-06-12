@@ -42,4 +42,10 @@ namespace dae
         std::cout << "Stopping all sounds\n";
         m_RealSoundSystem->StopAll();
     }
+
+    void LoggingSoundSystem::ToggleMute()
+    {
+        std::cout << "Mute all sounds\n";
+        m_RealSoundSystem->ToggleMute();
+    }
 }

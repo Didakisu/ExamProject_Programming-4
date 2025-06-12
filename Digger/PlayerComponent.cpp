@@ -11,18 +11,23 @@ namespace dae
         if (event != EVENT_COLLISION)
             return;
 
-        if (gameObject.HasComponent<EnemyComponent>() || gameObject.HasComponent<VersusEnemyComponent>())
-        {
-            m_pPlayer->SetDead(true);
-        }
-
         if (gameObject.HasComponent<EnemyComponent>())
         {
             auto enemyComp = gameObject.GetComponent<EnemyComponent>();
             if (enemyComp->IsInBonusState()) 
             {
                 enemyComp->Die();
+                EventManager::GetInstance().FireEvent(EVENT_ENEMY_KILLED_BY_PLAYER_IN_BONUS_STATE, nullptr);
             }
+            else
+            {
+                m_pPlayer->SetDead(true);
+            }
+        }
+        else if (gameObject.HasComponent<VersusEnemyComponent>())
+        {
+            gameObject.GetComponent<VersusEnemyComponent>();
+            m_pPlayer->SetDead(true);
         }
     }
 
@@ -61,7 +66,7 @@ namespace dae
 
         m_pScoreComponent->SetTotalGemsInLevel(dae::LevelLoader::GetTotalGemCount());
 
-        EventManager::GetInstance().AddObserver(m_pScoreComponent, { EVENT_COLLECTED_GEM ,  EVENT_COLLECTED_GOLD });
+        EventManager::GetInstance().AddObserver(m_pScoreComponent, { EVENT_COLLECTED_GEM ,  EVENT_COLLECTED_GOLD , EVENT_ENEMY_KILLED_BY_FIREBALL , EVENT_ENEMY_KILLED_BY_PLAYER_IN_BONUS_STATE });
 
         m_pPlayerObserver = std::make_shared<PlayerObserver>(this);
         m_pCollisionComponent->AddObserver(m_pPlayerObserver);
@@ -78,8 +83,41 @@ namespace dae
         m_Scene.Add(pHoleBehindCharacter); 
     }
 
+    void PlayerComponent::BindInput(const InputProfile& kbProfile, const GamepadProfile& gpProfile)
+    {
+        m_InputProfile = kbProfile;
+        m_GamepadProfile = gpProfile;
+        m_InputsBound = true;
+
+        auto& input = InputManager::GetInstance();
+
+        input.BindKeyboardCommand(kbProfile.up, InputState::Pressed,
+            std::make_unique<MoveCommand>(GetOwner(), m_Speed, glm::vec2{ 0, -1 }, m_pTileMap, m_Scene));
+        input.BindKeyboardCommand(kbProfile.down, InputState::Pressed,
+            std::make_unique<MoveCommand>(GetOwner(), m_Speed, glm::vec2{ 0, 1 }, m_pTileMap, m_Scene));
+        input.BindKeyboardCommand(kbProfile.left, InputState::Pressed,
+            std::make_unique<MoveCommand>(GetOwner(), m_Speed, glm::vec2{ -1, 0 }, m_pTileMap, m_Scene));
+        input.BindKeyboardCommand(kbProfile.right, InputState::Pressed,
+            std::make_unique<MoveCommand>(GetOwner(), m_Speed, glm::vec2{ 1, 0 }, m_pTileMap, m_Scene));
+        input.BindKeyboardCommand(kbProfile.fire, InputState::Pressed,
+            std::make_unique<FireCommand>(GetOwner(), m_Scene));
+
+        using GPB = Gamepad::GamePadButton;
+
+        input.BindGamepadCommand(gpProfile.up, InputState::Pressed,
+            std::make_unique<MoveCommand>(GetOwner(), m_Speed, glm::vec2{ 0, -1 }, m_pTileMap, m_Scene));
+        input.BindGamepadCommand(gpProfile.down, InputState::Pressed,
+            std::make_unique<MoveCommand>(GetOwner(), m_Speed, glm::vec2{ 0, 1 }, m_pTileMap, m_Scene));
+        input.BindGamepadCommand(gpProfile.left, InputState::Pressed,
+            std::make_unique<MoveCommand>(GetOwner(), m_Speed, glm::vec2{ -1, 0 }, m_pTileMap, m_Scene));
+        input.BindGamepadCommand(gpProfile.right, InputState::Pressed,
+            std::make_unique<MoveCommand>(GetOwner(), m_Speed, glm::vec2{ 1, 0 }, m_pTileMap, m_Scene));
+        input.BindGamepadCommand(gpProfile.fire, InputState::Down,
+            std::make_unique<FireCommand>(GetOwner(), m_Scene));
+    }
+
    
-    void PlayerComponent::BindInput(const InputProfile& profile)
+    /*void PlayerComponent::BindInput(const InputProfile& profile)
     {
         m_InputProfile = profile;
         m_InputsBound = true;
@@ -100,7 +138,7 @@ namespace dae
 
         input.BindKeyboardCommand(m_InputProfile.fire, InputState::Pressed,
             std::make_unique<FireCommand>(GetOwner(), m_Scene));
-    }
+    }*/
 
 
     void PlayerComponent::UnbindInput()
@@ -115,6 +153,13 @@ namespace dae
         input.UnbindKeyboardCommand(m_InputProfile.left);
         input.UnbindKeyboardCommand(m_InputProfile.right);
         input.UnbindKeyboardCommand(m_InputProfile.fire);
+
+        using GPB = Gamepad::GamePadButton;
+        input.UnbindGamepadCommand(m_GamepadProfile.up);
+        input.UnbindGamepadCommand(m_GamepadProfile.down);
+        input.UnbindGamepadCommand(m_GamepadProfile.left);
+        input.UnbindGamepadCommand(m_GamepadProfile.right);
+        input.UnbindGamepadCommand(m_GamepadProfile.fire);
 
         m_InputsBound = false;
     }

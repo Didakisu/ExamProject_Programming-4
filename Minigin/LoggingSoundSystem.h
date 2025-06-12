@@ -17,6 +17,7 @@ namespace dae
         void Resume(sound_id id) override;
         void Stop(sound_id id) override;
         void StopAll() override;
+        void ToggleMute() override;
 
     private:
         std::unique_ptr<SoundSystem> m_RealSoundSystem;

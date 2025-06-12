@@ -13,6 +13,7 @@
 #include "EnemyComponent.h"
 #include "VersusEnemyComponent.h"
 #include "CherryPowerUp.h"
+#include <ServiceLocator.h>
 
 namespace dae
 {
@@ -83,6 +84,9 @@ namespace dae
 		{
 			transform->SetLocalPosition(m_IndicatorX, m_IndicatorYStart + m_SelectedIndex * m_IndicatorSpacing, 0.f);
 		}
+
+		auto soundSystem = dae::ServiceLocator::GetSoundSystem();
+		soundSystem->Play(UI_CHOOSE_SOUND_ID, 30);
 	}
 
 	void MainMenuState::ConfirmSelectedMode()
@@ -94,6 +98,9 @@ namespace dae
 		case 2: m_Controller->RequestStateChange("Versus"); break;
 		default: break;
 		}
+
+		auto soundSystem = dae::ServiceLocator::GetSoundSystem();
+		soundSystem->Play(UI_SELECT_SOUND_ID, 30);
 	}
 
 	void MainMenuState::BindInput()
@@ -105,6 +112,14 @@ namespace dae
 			std::make_unique<MainMenuSelectCommand>(m_Controller, +1));
 		input.BindKeyboardCommand(SDL_SCANCODE_RETURN, InputState::Down,
 			std::make_unique<MainMenuConfirmCommand>(m_Controller));
+
+		using GPB = Gamepad::GamePadButton;
+		input.BindGamepadCommand(GPB::DPadUp, InputState::Down,
+			std::make_unique<MainMenuSelectCommand>(m_Controller, -1));
+		input.BindGamepadCommand(GPB::DPadDown, InputState::Down,
+			std::make_unique<MainMenuSelectCommand>(m_Controller, +1));
+		input.BindGamepadCommand(GPB::A, InputState::Down,
+			std::make_unique<MainMenuConfirmCommand>(m_Controller));
 	}
 
 	void MainMenuState::UnbindInput()
@@ -113,6 +128,11 @@ namespace dae
 		input.UnbindKeyboardCommand(SDL_SCANCODE_UP);
 		input.UnbindKeyboardCommand(SDL_SCANCODE_DOWN);
 		input.UnbindKeyboardCommand(SDL_SCANCODE_RETURN);
+
+		using GPB = Gamepad::GamePadButton;
+		input.UnbindGamepadCommand(GPB::DPadUp);
+		input.UnbindGamepadCommand(GPB::DPadDown);
+		input.UnbindGamepadCommand(GPB::A);
 	}
 
 
@@ -166,8 +186,9 @@ namespace dae
 		playerComp->Initialize(glm::vec3{ TileMap::TILE_WIDTH * 7.f, TileMap::TILE_HEIGHT * 10.f, 3.f });
 
 		InputProfile inputP1{SDL_SCANCODE_W,SDL_SCANCODE_S,SDL_SCANCODE_A,SDL_SCANCODE_D,SDL_SCANCODE_SPACE};
+		GamepadProfile gamepadP1{ Gamepad::GamePadButton::DPadUp,Gamepad::GamePadButton::DPadDown,Gamepad::GamePadButton::DPadLeft,Gamepad::GamePadButton::DPadRight,Gamepad::GamePadButton::A };
 
-		playerComp->BindInput(inputP1);
+		playerComp->BindInput(inputP1, gamepadP1);
 		m_pPlayerGameObject = pCharacter;
 		scene.Add(pCharacter);
 
@@ -213,9 +234,12 @@ namespace dae
 	{
 		m_GameCompletedFired = false;
 		m_Controller->GetMutableScore() = 0;
-		m_Controller->GetMutableLives() = 3;
+		m_Controller->GetMutableLives() = 4;
 		ClearSceneReferences(); 
 		m_CurrentLevel = 1;
+
+		auto soundSystem = dae::ServiceLocator::GetSoundSystem();
+		soundSystem->Play(GAMEPLAY_MUSIC_SOUND_ID, 5);
 
 		auto& scene = dae::SceneManager::GetInstance().CreateScene("Gameplay");
 		SetupGameplayScene(scene, m_CurrentLevel, m_TileMap);
@@ -317,6 +341,10 @@ namespace dae
 		ClearSceneReferences();
 		m_TotalGemsCollected = 0;
 		m_CurrentLevel = 1;
+
+		auto soundSystem = dae::ServiceLocator::GetSoundSystem();
+		soundSystem->Stop(GAMEPLAY_MUSIC_SOUND_ID);
+
 		dae::SceneManager::GetInstance().DeleteScene("Gameplay");
 	}
 
@@ -464,6 +492,9 @@ namespace dae
 				auto pos = CalculateIndicatorPosition(m_CurrentInitialIndex);
 				transform->SetLocalPosition(pos.x, pos.y, pos.z);
 			}
+
+			auto soundSystem = dae::ServiceLocator::GetSoundSystem();
+			soundSystem->Play(UI_CHOOSE_SOUND_ID, 30);
 		}
 		else
 		{
@@ -547,7 +578,8 @@ namespace dae
 		auto playerComp1 = pCharacter_1->AddComponent<dae::PlayerComponent>(scene, outTileMap, sharedScore , sharedLives);
 		playerComp1->Initialize(glm::vec3{ TileMap::TILE_WIDTH * 7.f, TileMap::TILE_HEIGHT * 10.f, 3.f });
 		InputProfile inputP1{ SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D, SDL_SCANCODE_SPACE };
-		playerComp1->BindInput(inputP1);
+		GamepadProfile gamepadP1{ Gamepad::GamePadButton::DPadUp,Gamepad::GamePadButton::DPadDown,Gamepad::GamePadButton::DPadLeft,Gamepad::GamePadButton::DPadRight,Gamepad::GamePadButton::A };
+		playerComp1->BindInput(inputP1, gamepadP1);
 		m_pPlayer1GameObject = pCharacter_1;
 		scene.Add(pCharacter_1);
 
@@ -555,7 +587,8 @@ namespace dae
 		auto playerComp2 = pCharacter_2->AddComponent<dae::PlayerComponent>(scene, outTileMap, sharedScore , sharedLives);
 		playerComp2->Initialize(glm::vec3{ TileMap::TILE_WIDTH * 7.f, TileMap::TILE_HEIGHT * 10.f, 3.f });
 		InputProfile inputP2{ SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT, SDL_SCANCODE_RIGHT, SDL_SCANCODE_F };
-		playerComp2->BindInput(inputP2);
+		GamepadProfile gamepadP2{ Gamepad::GamePadButton::DPadUp,Gamepad::GamePadButton::DPadDown,Gamepad::GamePadButton::DPadLeft,Gamepad::GamePadButton::DPadRight,Gamepad::GamePadButton::A };
+		playerComp2->BindInput(inputP2 , gamepadP2);
 		m_pPlayer2GameObject = pCharacter_2;
 		scene.Add(pCharacter_2);
 
@@ -600,7 +633,7 @@ namespace dae
 		m_GameCompletedFired = false;
 
 		m_Controller->GetMutableScore() = 0;
-		m_Controller->GetMutableLives() = 3;
+		m_Controller->GetMutableLives() = 4;
 
 		ClearSceneReferences();
 		auto& scene = dae::SceneManager::GetInstance().CreateScene("Coop");
@@ -756,8 +789,9 @@ namespace dae
 		playerComp->Initialize(glm::vec3{ TileMap::TILE_WIDTH * 7.f, TileMap::TILE_HEIGHT * 10.f, 3.f });
 
 		InputProfile inputP1{ SDL_SCANCODE_W,SDL_SCANCODE_S,SDL_SCANCODE_A,SDL_SCANCODE_D,SDL_SCANCODE_SPACE };
+		GamepadProfile gamepadP1{Gamepad::GamePadButton::DPadUp,Gamepad::GamePadButton::DPadDown,Gamepad::GamePadButton::DPadLeft,Gamepad::GamePadButton::DPadRight,Gamepad::GamePadButton::A};
 
-		playerComp->BindInput(inputP1);
+		playerComp->BindInput(inputP1 , gamepadP1);
 		m_pPlayerGameObject = pCharacter;
 		scene.Add(pCharacter);
 
@@ -815,7 +849,7 @@ namespace dae
 		m_GameCompletedFired = false;
 
 		m_Controller->GetMutableScore() = 0;
-		m_Controller->GetMutableLives() = 3;
+		m_Controller->GetMutableLives() = 4;
 
 		ClearSceneReferences();
 		auto& scene = dae::SceneManager::GetInstance().CreateScene("Versus");

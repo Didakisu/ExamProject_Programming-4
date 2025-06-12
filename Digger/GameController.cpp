@@ -18,7 +18,7 @@ namespace dae
 		
 		SetInitialState("MainMenu");
 
-		EventManager::GetInstance().AddObserver(this, { EVENT_GAME_COMPLETED });
+		EventManager::GetInstance().AddObserver(this, { EVENT_GAME_COMPLETED , EVENT_PLAYER_OUT_OF_LIVES });
 		std::cout << "GAME COMPLETED added as observer at address: " << this << std::endl;
 	}
 
@@ -86,7 +86,14 @@ namespace dae
 				RequestStateChange("MainMenu");
 			}
 		}
+
+		if (event == EVENT_PLAYER_OUT_OF_LIVES)
+		{
+			std::cout << "PLAYER IS OUT OF LIVES!" << std::endl;
+			RequestStateChange("MainMenu");
+		}
 	}
+
 
 	void GameController::RequestInitialChange(int delta)
 	{

@@ -17,6 +17,7 @@ namespace dae
         void Pause(sound_id id) override;
         void Resume(sound_id id) override;
         void StopAll() override;
+        void ToggleMute() override;
 
     private:
         class SDLMixerSoundSystemImpl; 

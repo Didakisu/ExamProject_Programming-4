@@ -9,6 +9,7 @@
 #include <iostream>
 #include <memory>
 #include "Data.h"
+#include <ServiceLocator.h>
 
 namespace dae
 {
@@ -93,6 +94,9 @@ namespace dae
         {
             collider->SetIsTrigger(true);
         }
+
+        auto soundSystem = dae::ServiceLocator::GetSoundSystem();
+        soundSystem->Play(BAG_BREAK_SOUND_ID, 50);
     }
 
     void GoldBagBreakingState::Update(float deltaTime)

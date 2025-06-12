@@ -53,7 +53,8 @@ namespace dae
 
 	private:
 		EnemyComponent* m_Enemy{};
-		float m_BonusTimer{ 15.f };
+		float m_BonusTimer{ 15.f }; 
+		std::string m_OriginalDirtTexture;
 	};
 
 }

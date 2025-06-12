@@ -24,7 +24,8 @@ namespace dae
 
     void EnemyNormalState::Update(float deltaTime)
     {
-        m_Enemy->HandleWalking(deltaTime);
+        //m_Enemy->HandleWalking(deltaTime);
+        m_Enemy->HandleEnragedBehavior(deltaTime);
     }
 
     void EnemyNormalState::OnExit()
@@ -74,7 +75,6 @@ namespace dae
 
     void EnemyBonusState::OnEnter()
     {
-        m_BonusTimer = 15.f;
         std::cout << "[DEBUG] EnemyBonusState: Entered bonus mode\n";
 
         auto* anim = m_Enemy->GetOwner()->GetComponent<AnimationComponent>();
@@ -83,6 +83,8 @@ namespace dae
             anim->AddAnimation("Walk", "enemy_sprites.png", 64 / 4, 18, 4, 0.15f);
             anim->PlayAnimation("Walk");
         }
+
+        LevelLoader::SetDirtTileTextures("BonusStateBg.png");
     }
 
     void EnemyBonusState::Update(float deltaTime)
@@ -92,11 +94,14 @@ namespace dae
         if (m_BonusTimer <= 0.f)
         {
             std::cout << "[EnemyBonusState] Bonus timer expired, ending bonus state\n";
+            LevelLoader::SetDirtTileTextures(LevelLoader::GetOriginalDirtTexture());
             m_Enemy->EndBonusState(); 
+            
             return;
         }
 
-        m_Enemy->HandleWalking(deltaTime);
+        //m_Enemy->HandleWalking(deltaTime);
+        m_Enemy->HandleEnragedBehavior(deltaTime);
     }
 
 }

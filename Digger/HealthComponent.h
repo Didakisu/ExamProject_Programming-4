@@ -11,7 +11,7 @@ namespace dae
     public:
         HealthComponent(GameObject* owner ,int& m_Lives);
         ~HealthComponent() override;
-        void Update(float /*deltaTime*/) override {}
+        void Update(float /*deltaTime*/) override;
         void LoseLife();
 
         int GetLives() const { return m_Lives; }
@@ -19,5 +19,7 @@ namespace dae
     private:
         GameObject* m_pOwner;
         int& m_Lives;
+        float m_RemainingTime{};
+        bool m_TimerCounting{false};
     };
 }

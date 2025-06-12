@@ -64,6 +64,7 @@ namespace dae
         pause,
         resume,
         stopAll,
+        toggleMute,
         quit
     };
 
@@ -120,6 +121,11 @@ namespace dae
         void StopAll()
         {
             m_SoundQueue.enqueue({ SoundEvent::stopAll , {} });
+        }
+
+        void ToggleMute()
+        {
+            m_SoundQueue.enqueue({ SoundEvent::toggleMute , {} });
         }
 
     private:
@@ -231,6 +237,10 @@ namespace dae
 
                     break;
                 }
+                case SoundEvent::toggleMute:
+                    auto masterVolume = Mix_MasterVolume(-1);
+                    Mix_MasterVolume(MIX_MAX_VOLUME - masterVolume);
+                    break;
                 }
             }
         }
@@ -271,5 +281,10 @@ namespace dae
     void SDLMixerSoundSystem::StopAll()
     {
         m_pImpl->StopAll();
+    }
+
+    void SDLMixerSoundSystem::ToggleMute()
+    {
+        m_pImpl->ToggleMute();
     }
 }

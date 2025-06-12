@@ -54,7 +54,7 @@ namespace dae
             {
                 m_worldPosition = m_localPosition;
             }
-            else
+            else if(m_pOwner->GetParent()->GetTransform())
             {
                 m_worldPosition = m_pOwner->GetParent()->GetTransform()->GetWorldPosition() + m_localPosition;
             }

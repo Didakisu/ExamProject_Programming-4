@@ -29,14 +29,25 @@ namespace dae
         static void SpawnUI(Scene& scene, float x, float y, float z);
         static void SpawnEnemy(Scene& scene, float x, float y, float z, std::shared_ptr<TileMap> pTileMap, EnemySpawner* pSpawner);
         static void SpawnDirtBackground(Scene& scene, float x, float y, float z, const std::string& texture);
-        //
+
         const std::vector<SpawnPoint>& GetEnemySpawnPositions() const { return m_EnemySpawnPositions; }
         static int GetTotalGemCount() { return m_TotalGems; }
+        //
+        static const std::string& GetCurrentDirtTexture();
+        static void SetDirtTileTextures(const std::string& texturePath);
+
+        static const std::string& GetOriginalDirtTexture();
+
     private:
        static std::vector<SpawnPoint> m_EnemySpawnPositions;
        static std::vector<std::shared_ptr<Observer>> m_CollectibleObservers;
 
        static int m_TotalGems;
+       //
+       static std::vector<GameObject*> m_DirtTiles;
+       static std::string m_CurrentDirtTexture;
+       static std::string m_OriginalDirtTexture;
+
     };
 
 }

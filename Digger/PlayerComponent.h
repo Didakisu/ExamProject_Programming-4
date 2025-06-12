@@ -41,7 +41,9 @@ namespace dae
         ~PlayerComponent() override;
 
         void Initialize(const glm::vec3& startPosition);
-        void BindInput(const InputProfile& profile);
+        //void BindInput(const InputProfile& profile);
+        void BindInput(const InputProfile& kbProfile, const GamepadProfile& gpProfile);
+
 
         void Update(float deltaTime) override;
 
@@ -91,6 +93,7 @@ namespace dae
         int& m_SharedLives;
 
         InputProfile m_InputProfile{};
+        GamepadProfile m_GamepadProfile{};
         bool m_InputsBound{ false };
     };
 }

@@ -16,5 +16,6 @@ namespace dae
         virtual void Resume(sound_id id) = 0;
         virtual void Stop(sound_id id) = 0;
         virtual void StopAll() = 0;
+        virtual void ToggleMute() = 0;
     };
 }

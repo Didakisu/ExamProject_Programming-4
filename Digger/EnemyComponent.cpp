@@ -59,6 +59,11 @@ namespace dae
     {
     }
 
+    EnemyComponent::~EnemyComponent()
+    {
+        EventManager::GetInstance().RemoveObserver(m_Observers.get());
+    }
+
     void dae::EnemyComponent::Initialize(const glm::vec3& startPosition ,EnemySpawner* spawner)
     {
         m_pTransform = GetOwner()->GetComponent<Transform>();
@@ -74,6 +79,15 @@ namespace dae
         auto enemyBonusObserver = std::make_shared<EnemyBonusObserver>(this);
         dae::EventManager::GetInstance().AddObserver(enemyBonusObserver.get(), { EVENT_CHERRY_COLLECTED });
         m_Observers = enemyBonusObserver;
+
+        //hole behind character
+        auto pHoleBehindCharacter = std::make_shared<dae::GameObject>();
+        pHoleBehindCharacter->AddComponent<dae::RenderComponent>("tile.png", 35, 28);
+        pHoleBehindCharacter->AddComponent<dae::Transform>();
+        pHoleBehindCharacter->GetTransform()->SetLocalPosition(0.f, 0.f, -2.f);//fix z
+        pHoleBehindCharacter->SetParent(GetOwner(), false);
+
+        m_Scene.Add(pHoleBehindCharacter);
 
 
         if (spawner)
@@ -297,6 +311,45 @@ namespace dae
                     m_CurrentDirection = EnemyDirection::Up;
                 }
             }
+
+            std::vector<EnemyDirection> options;
+
+            AddMoveOptionIfValid(options, m_TileX, m_TileY - 1, EnemyDirection::Up, EnemyDirection::Down);
+            AddMoveOptionIfValid(options, m_TileX, m_TileY + 1, EnemyDirection::Down, EnemyDirection::Up);
+            AddMoveOptionIfValid(options, m_TileX - 1, m_TileY, EnemyDirection::Left, EnemyDirection::Right);
+            AddMoveOptionIfValid(options, m_TileX + 1, m_TileY, EnemyDirection::Right, EnemyDirection::Left);
+
+            if (options.size() > 1)
+            {
+                EnemyDirection enemyDirection = m_CurrentDirection;
+                bool foundDirection = false;
+
+                for (int i = 0; i < options.size(); i++)
+                {
+                    if (options[i] == m_CurrentDirection)
+                    {
+                        foundDirection = true;
+                        break;
+                    }
+                    else if (options[i] != GetOppositeDirection(m_CurrentDirection))
+                    {
+                        enemyDirection = options[i];
+                    }
+                }
+
+                if (!foundDirection)
+                {
+                    m_CurrentDirection = enemyDirection;
+                }
+            }
+            else if (options.size() == 1)
+            {
+                m_CurrentDirection = options[0];
+            }
+            else
+            {
+                m_CurrentDirection = GetOppositeDirection(m_CurrentDirection);
+            }
           
         }
     }
@@ -437,6 +490,7 @@ namespace dae
         }
         m_IsDead = true;
 
+        EventManager::GetInstance().RemoveObserver(m_Observers.get());
         NotifyObservers(*GetOwner(), EVENT_ENEMY_DIED);
     }
 

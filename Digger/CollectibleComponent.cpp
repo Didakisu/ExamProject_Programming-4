@@ -4,6 +4,7 @@
 #include <iostream>
 #include "PlayerComponent.h"
 #include "EnemyComponent.h"
+#include <ServiceLocator.h>
 
 namespace dae
 {
@@ -22,6 +23,9 @@ namespace dae
 
             if (!other->HasComponent<PlayerComponent>() && !other->HasComponent<EnemyComponent>())
                 return;
+
+            auto soundSystem = dae::ServiceLocator::GetSoundSystem();
+            soundSystem->Play(COLLECT_SOUND_ID, 50);
 
             OnCollected(const_cast<GameObject*>(other));
         }
