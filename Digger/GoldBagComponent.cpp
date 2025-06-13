@@ -39,7 +39,7 @@ namespace dae
         float verticalDifference = std::abs(playerPos.y - bagPos.y);
         float maxVerticalOffset = 4.0f; 
 
-        if (m_pGoldBagComponent->IsInFallingState() && verticalDifference > 30.f)
+        if (m_pGoldBagComponent->IsInFallingState() && verticalDifference > maxVerticalOffset)
         {
             if (gameObject.HasComponent<EnemyComponent>())
             {

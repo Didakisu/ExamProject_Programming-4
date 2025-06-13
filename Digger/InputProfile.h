@@ -15,6 +15,7 @@ namespace dae
 
     struct GamepadProfile
     {
+        int controllerId{};
         Gamepad::GamePadButton up{};
         Gamepad::GamePadButton down{};
         Gamepad::GamePadButton left{};

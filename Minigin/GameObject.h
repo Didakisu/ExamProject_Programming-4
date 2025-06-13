@@ -76,7 +76,7 @@ namespace dae
         }
 
         bool IsMarkedForDestruction() const { return m_MarkedForDestruction; }
-        void MarkForDestruction() { m_MarkedForDestruction = true; }
+        void MarkForDestruction();
 
     private:
         std::vector<Component*> m_components;

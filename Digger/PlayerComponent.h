@@ -41,7 +41,6 @@ namespace dae
         ~PlayerComponent() override;
 
         void Initialize(const glm::vec3& startPosition);
-        //void BindInput(const InputProfile& profile);
         void BindInput(const InputProfile& kbProfile, const GamepadProfile& gpProfile);
 
 
@@ -70,7 +69,7 @@ namespace dae
 
         bool m_IsDead{ false };
 
-        float m_Speed{ 145.f };
+        float m_Speed{ 55.f };
 
         float m_BounceTime{ 0.f };
         float m_BounceHeight{ 8.f };
@@ -81,7 +80,7 @@ namespace dae
         bool m_HasPlayedRipAnimation{ false };
 
         float m_FireCooldown{ 0.f };
-        const float m_FireCooldownDuration{ 1.f }; 
+        const float m_FireCooldownDuration{ 7.f }; 
         dae::GameObject* m_pFireball{ nullptr };
 
         bool m_ShouldRespawn = false;

@@ -247,11 +247,6 @@ namespace dae
             {
                 m_CurrentDirection = options[0];
             }
-            else
-            {
-                m_CurrentDirection = GetOppositeDirection(m_CurrentDirection);
-            }
-
         }
         else if(!dynamic_cast<EnemyEnragedState*>(GetCurrentState()))
         {
@@ -266,16 +261,11 @@ namespace dae
             {
                 std::uniform_int_distribution<size_t> dist(0, options.size() - 1);
                 size_t idx = dist(rng);
-                //std::cout << "random direction chosen" << idx << " out of " << options.size() << std::endl;
                 m_CurrentDirection = options[idx];
             }
             else if (options.size() == 1)
             {
                 m_CurrentDirection = options[0];
-            }
-            else
-            {
-                m_CurrentDirection = GetOppositeDirection(m_CurrentDirection);
             }
         }
         else
@@ -346,11 +336,6 @@ namespace dae
             {
                 m_CurrentDirection = options[0];
             }
-            else
-            {
-                m_CurrentDirection = GetOppositeDirection(m_CurrentDirection);
-            }
-          
         }
     }
 

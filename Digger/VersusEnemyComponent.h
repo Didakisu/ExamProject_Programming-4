@@ -23,7 +23,7 @@ namespace dae
 		void Update(float deltaTime) override;
 		void Die();
 
-		void BindInput(const InputProfile& profile);
+		void BindInput(const InputProfile& profile, const GamepadProfile& gpProfile);
 		void UnbindInput();
 		void Respawn();
 
@@ -39,6 +39,8 @@ namespace dae
 		CollisionComponent* m_pCollisionComponent{};
 
 		InputProfile m_InputProfile{};
+		GamepadProfile m_GamepadProfile;
+
 		bool m_InputsBound{ false };
 
 		float m_Speed{ 50.f };

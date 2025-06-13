@@ -24,7 +24,6 @@ namespace dae
 
     void EnemyNormalState::Update(float deltaTime)
     {
-        //m_Enemy->HandleWalking(deltaTime);
         m_Enemy->HandleEnragedBehavior(deltaTime);
     }
 
@@ -90,18 +89,13 @@ namespace dae
     void EnemyBonusState::Update(float deltaTime)
     {
         m_BonusTimer -= deltaTime;
-        std::cout << "[EnemyBonusState] Bonus timer = " << m_BonusTimer << " seconds left\n";
         if (m_BonusTimer <= 0.f)
         {
-            std::cout << "[EnemyBonusState] Bonus timer expired, ending bonus state\n";
             LevelLoader::SetDirtTileTextures(LevelLoader::GetOriginalDirtTexture());
             m_Enemy->EndBonusState(); 
             
             return;
         }
-
-        //m_Enemy->HandleWalking(deltaTime);
         m_Enemy->HandleEnragedBehavior(deltaTime);
     }
-
 }

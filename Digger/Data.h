@@ -12,7 +12,6 @@ constexpr sound_id SHOOTING_HIT_ENEMY_SOUND_ID = 4;
 constexpr sound_id GAMEPLAY_MUSIC_SOUND_ID = 5;
 constexpr sound_id CHERRY_PICKUP_SOUND_ID = 6;
 constexpr sound_id UI_CHOOSE_SOUND_ID = 7;
-constexpr sound_id UI_SELECT_SOUND_ID = 8;
 //events
 constexpr dae::Event EVENT_PLAYER_LOSING_LIFE{dae::USER_SPACE + 0 };
 //constexpr dae::Event EVENT_PLAYER_COLLECT_ITEM{dae::USER_SPACE + 1 };

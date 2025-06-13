@@ -2,10 +2,13 @@
 #include "Command.h"
 #include "TileMap.h"
 #include "Scene.h"
-#include "GameStates.h"
-
+#include <SDLMixerSoundSystem.h>
+#include <StateMachine.h>
+#include <StateMachine.h>
 
 namespace dae { class GameController; }
+namespace dae { class RegularGameplayMode; }
+
 
 class MoveCommand final : public dae::Command {
 public:
@@ -128,10 +131,31 @@ private:
     int m_Delta;
 };
 
+
 class MainMenuConfirmCommand : public dae::Command
 {
 public:
     MainMenuConfirmCommand(dae::GameController* controller) : m_Controller(controller) {}
+    void Execute(float) override;
+private:
+    dae::GameController* m_Controller;
+};
+
+
+class ToggleMuteCommand : public dae::Command 
+{
+public:
+    ToggleMuteCommand(dae::SoundSystem& soundSystem) : m_SoundSystem(soundSystem) {}
+    void Execute(float) override;
+private:
+    dae::SoundSystem& m_SoundSystem;
+};
+
+
+class SkipLevelCommand final : public dae::Command
+{
+public:
+    explicit SkipLevelCommand(dae::GameController* controller) : m_Controller(controller) {}
     void Execute(float) override;
 private:
     dae::GameController* m_Controller;

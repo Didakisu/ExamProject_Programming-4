@@ -35,16 +35,15 @@ namespace dae
     public:
         bool ProcessInput(float deltaTime);
 
-        void BindGamepadCommand(Gamepad::GamePadButton button, InputState state, std::unique_ptr<Command> command);
+        void BindGamepadCommand( int gamepadId,Gamepad::GamePadButton button, InputState state, std::unique_ptr<Command> command);
         void BindKeyboardCommand(SDL_Scancode key, InputState state, std::unique_ptr<Command> command);
 
-        void UnbindGamepadCommand(Gamepad::GamePadButton button);
+        void UnbindGamepadCommand(int gamepadId,Gamepad::GamePadButton button);
         void UnbindKeyboardCommand(SDL_Scancode key);
     private:
         std::vector<KeyboardBinding> m_KeyboardBindings;
         std::unordered_map<SDL_Scancode, bool> m_PreviousKeyboardState;
 
-        std::vector<GamepadBinding> m_GamepadBindings;
-        Gamepad m_Gamepad{ 0 };
+        std::vector<std::pair<std::unique_ptr<Gamepad>,std::vector<GamepadBinding>>> m_GamepadBindings;
     };
 }

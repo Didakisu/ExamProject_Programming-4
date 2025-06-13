@@ -54,6 +54,7 @@ namespace dae
 		void DeferReloadScene(int nextLevel);
 		void ProcessDeferredReload();
 		void ClearSceneReferences();
+		int GetCurrentLevel() const { return m_CurrentLevel; }
 	private:
 		GameController* m_Controller;
 		std::shared_ptr<TileMap> m_TileMap;
@@ -118,6 +119,7 @@ namespace dae
 		void SetupCoopGameplayScene(dae::Scene& scene, int levelNumber, std::shared_ptr<TileMap>& outTileMap);
 		void DeferReloadScene(int nextLevel);
 		void OnNotify(const dae::GameObject& gameObject, dae::Event event) override;
+		int GetCurrentLevel() const { return m_CurrentLevel; }
 	private:
 		std::shared_ptr<dae::GameObject> m_pPlayer1GameObject{};
 		std::shared_ptr<dae::GameObject> m_pPlayer2GameObject{};
@@ -151,6 +153,7 @@ namespace dae
 		void ProcessDeferredReload();
 		void DeferReloadScene(int nextLevel);
 		void OnNotify(const dae::GameObject& gameObject, dae::Event event) override;
+		int GetCurrentLevel() const { return m_CurrentLevel; }
 	private:
 		std::shared_ptr<dae::GameObject> m_pPlayerGameObject;
 		std::shared_ptr<dae::GameObject> m_pEnemyGameObject;
@@ -164,5 +167,8 @@ namespace dae
 		bool m_GameCompletedFired{ false };
 
 		int m_TotalGemsCollected{};
+
+		int m_TotalNumberOfEnemies{ 6 };
+		float m_TimeBetweenEnemySpawn{ 7.0 };
 	};
 }

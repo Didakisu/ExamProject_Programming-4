@@ -15,6 +15,7 @@
 #include "CherryPowerUp.h"
 #include <ServiceLocator.h>
 
+
 namespace dae
 {
 	//--MAIN MENU SCENE--
@@ -98,9 +99,6 @@ namespace dae
 		case 2: m_Controller->RequestStateChange("Versus"); break;
 		default: break;
 		}
-
-		auto soundSystem = dae::ServiceLocator::GetSoundSystem();
-		soundSystem->Play(UI_SELECT_SOUND_ID, 30);
 	}
 
 	void MainMenuState::BindInput()
@@ -114,11 +112,11 @@ namespace dae
 			std::make_unique<MainMenuConfirmCommand>(m_Controller));
 
 		using GPB = Gamepad::GamePadButton;
-		input.BindGamepadCommand(GPB::DPadUp, InputState::Down,
+		input.BindGamepadCommand(0,GPB::DPadUp, InputState::Down,
 			std::make_unique<MainMenuSelectCommand>(m_Controller, -1));
-		input.BindGamepadCommand(GPB::DPadDown, InputState::Down,
+		input.BindGamepadCommand(0 ,GPB::DPadDown, InputState::Down,
 			std::make_unique<MainMenuSelectCommand>(m_Controller, +1));
-		input.BindGamepadCommand(GPB::A, InputState::Down,
+		input.BindGamepadCommand(0 ,GPB::A, InputState::Down,
 			std::make_unique<MainMenuConfirmCommand>(m_Controller));
 	}
 
@@ -130,9 +128,9 @@ namespace dae
 		input.UnbindKeyboardCommand(SDL_SCANCODE_RETURN);
 
 		using GPB = Gamepad::GamePadButton;
-		input.UnbindGamepadCommand(GPB::DPadUp);
-		input.UnbindGamepadCommand(GPB::DPadDown);
-		input.UnbindGamepadCommand(GPB::A);
+		input.UnbindGamepadCommand(0 ,GPB::DPadUp);
+		input.UnbindGamepadCommand(0 ,GPB::DPadDown);
+		input.UnbindGamepadCommand(0, GPB::A);
 	}
 
 
@@ -172,6 +170,8 @@ namespace dae
 			std::cout << "third level" << std::endl;
 			break;
 		default:
+			dae::EventManager::GetInstance().FireEvent({ EVENT_GAME_COMPLETED }, nullptr, nullptr);
+			m_GameCompletedFired = true;
 			std::cout << "No more levels. You win!\n";
 			return;
 		}
@@ -186,7 +186,7 @@ namespace dae
 		playerComp->Initialize(glm::vec3{ TileMap::TILE_WIDTH * 7.f, TileMap::TILE_HEIGHT * 10.f, 3.f });
 
 		InputProfile inputP1{SDL_SCANCODE_W,SDL_SCANCODE_S,SDL_SCANCODE_A,SDL_SCANCODE_D,SDL_SCANCODE_SPACE};
-		GamepadProfile gamepadP1{ Gamepad::GamePadButton::DPadUp,Gamepad::GamePadButton::DPadDown,Gamepad::GamePadButton::DPadLeft,Gamepad::GamePadButton::DPadRight,Gamepad::GamePadButton::A };
+		GamepadProfile gamepadP1{0 ,Gamepad::GamePadButton::DPadUp,Gamepad::GamePadButton::DPadDown,Gamepad::GamePadButton::DPadLeft,Gamepad::GamePadButton::DPadRight,Gamepad::GamePadButton::A };
 
 		playerComp->BindInput(inputP1, gamepadP1);
 		m_pPlayerGameObject = pCharacter;
@@ -237,6 +237,10 @@ namespace dae
 		m_Controller->GetMutableLives() = 4;
 		ClearSceneReferences(); 
 		m_CurrentLevel = 1;
+
+		//skip levels
+		auto& input = InputManager::GetInstance();
+		input.BindKeyboardCommand(SDL_SCANCODE_F1, InputState::Down, std::make_unique<SkipLevelCommand>(m_Controller));
 
 		auto soundSystem = dae::ServiceLocator::GetSoundSystem();
 		soundSystem->Play(GAMEPLAY_MUSIC_SOUND_ID, 5);
@@ -347,9 +351,6 @@ namespace dae
 
 		dae::SceneManager::GetInstance().DeleteScene("Gameplay");
 	}
-
-
-
 
 
 
@@ -567,6 +568,8 @@ namespace dae
 			std::cout << "third level" << std::endl;
 			break;
 		default:
+			dae::EventManager::GetInstance().FireEvent({ EVENT_GAME_COMPLETED }, nullptr, nullptr);
+			m_GameCompletedFired = true;
 			std::cout << "No more levels. You win!\n";
 			return;
 		}
@@ -578,7 +581,7 @@ namespace dae
 		auto playerComp1 = pCharacter_1->AddComponent<dae::PlayerComponent>(scene, outTileMap, sharedScore , sharedLives);
 		playerComp1->Initialize(glm::vec3{ TileMap::TILE_WIDTH * 7.f, TileMap::TILE_HEIGHT * 10.f, 3.f });
 		InputProfile inputP1{ SDL_SCANCODE_W, SDL_SCANCODE_S, SDL_SCANCODE_A, SDL_SCANCODE_D, SDL_SCANCODE_SPACE };
-		GamepadProfile gamepadP1{ Gamepad::GamePadButton::DPadUp,Gamepad::GamePadButton::DPadDown,Gamepad::GamePadButton::DPadLeft,Gamepad::GamePadButton::DPadRight,Gamepad::GamePadButton::A };
+		GamepadProfile gamepadP1{1, Gamepad::GamePadButton::DPadUp,Gamepad::GamePadButton::DPadDown,Gamepad::GamePadButton::DPadLeft,Gamepad::GamePadButton::DPadRight,Gamepad::GamePadButton::A };
 		playerComp1->BindInput(inputP1, gamepadP1);
 		m_pPlayer1GameObject = pCharacter_1;
 		scene.Add(pCharacter_1);
@@ -587,7 +590,7 @@ namespace dae
 		auto playerComp2 = pCharacter_2->AddComponent<dae::PlayerComponent>(scene, outTileMap, sharedScore , sharedLives);
 		playerComp2->Initialize(glm::vec3{ TileMap::TILE_WIDTH * 7.f, TileMap::TILE_HEIGHT * 10.f, 3.f });
 		InputProfile inputP2{ SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT, SDL_SCANCODE_RIGHT, SDL_SCANCODE_F };
-		GamepadProfile gamepadP2{ Gamepad::GamePadButton::DPadUp,Gamepad::GamePadButton::DPadDown,Gamepad::GamePadButton::DPadLeft,Gamepad::GamePadButton::DPadRight,Gamepad::GamePadButton::A };
+		GamepadProfile gamepadP2{0, Gamepad::GamePadButton::DPadUp,Gamepad::GamePadButton::DPadDown,Gamepad::GamePadButton::DPadLeft,Gamepad::GamePadButton::DPadRight,Gamepad::GamePadButton::A };
 		playerComp2->BindInput(inputP2 , gamepadP2);
 		m_pPlayer2GameObject = pCharacter_2;
 		scene.Add(pCharacter_2);
@@ -634,6 +637,13 @@ namespace dae
 
 		m_Controller->GetMutableScore() = 0;
 		m_Controller->GetMutableLives() = 4;
+
+		//skip levels
+		auto& input = InputManager::GetInstance();
+		input.BindKeyboardCommand(SDL_SCANCODE_F1, InputState::Down, std::make_unique<SkipLevelCommand>(m_Controller));
+
+		auto soundSystem = dae::ServiceLocator::GetSoundSystem();
+		soundSystem->Play(GAMEPLAY_MUSIC_SOUND_ID, 5);
 
 		ClearSceneReferences();
 		auto& scene = dae::SceneManager::GetInstance().CreateScene("Coop");
@@ -775,6 +785,8 @@ namespace dae
 			std::cout << "third level" << std::endl;
 			break;
 		default:
+			dae::EventManager::GetInstance().FireEvent({ EVENT_GAME_COMPLETED }, nullptr, nullptr);
+			m_GameCompletedFired = true;
 			std::cout << "No more levels. You win!\n";
 			return;
 		}
@@ -789,25 +801,27 @@ namespace dae
 		playerComp->Initialize(glm::vec3{ TileMap::TILE_WIDTH * 7.f, TileMap::TILE_HEIGHT * 10.f, 3.f });
 
 		InputProfile inputP1{ SDL_SCANCODE_W,SDL_SCANCODE_S,SDL_SCANCODE_A,SDL_SCANCODE_D,SDL_SCANCODE_SPACE };
-		GamepadProfile gamepadP1{Gamepad::GamePadButton::DPadUp,Gamepad::GamePadButton::DPadDown,Gamepad::GamePadButton::DPadLeft,Gamepad::GamePadButton::DPadRight,Gamepad::GamePadButton::A};
+		GamepadProfile gamepadP1{1, Gamepad::GamePadButton::DPadUp,Gamepad::GamePadButton::DPadDown,Gamepad::GamePadButton::DPadLeft,Gamepad::GamePadButton::DPadRight,Gamepad::GamePadButton::A};
 
 		playerComp->BindInput(inputP1 , gamepadP1);
 		m_pPlayerGameObject = pCharacter;
 		scene.Add(pCharacter);
 
+		//enemies
+		const auto& spawnPoints = loader.GetEnemySpawnPositions();
+		auto enemySpawnerGO = std::make_shared<dae::GameObject>();
+		enemySpawnerGO->AddComponent<dae::EnemySpawner>(scene, outTileMap, spawnPoints, m_TotalNumberOfEnemies, m_TimeBetweenEnemySpawn);
+		enemySpawnerGO->AddComponent<dae::Transform>();
+		scene.Add(enemySpawnerGO);
 
 		//enemy
 		auto pEnemy = std::make_shared<dae::GameObject>();
 		auto enemyComponent = pEnemy->AddComponent<dae::VersusEnemyComponent>(scene, outTileMap);
 		pEnemy->AddComponent<dae::Transform>();
 		enemyComponent->Initialize(glm::vec3{ TileMap::TILE_WIDTH * 12.f, TileMap::TILE_HEIGHT * 2.f, 3.f });
-		InputProfile inputP2{
-			SDL_SCANCODE_UP,
-			SDL_SCANCODE_DOWN,
-			SDL_SCANCODE_LEFT,
-			SDL_SCANCODE_RIGHT,
-		};
-		enemyComponent->BindInput(inputP2);
+		InputProfile inputP2{SDL_SCANCODE_UP,SDL_SCANCODE_DOWN,SDL_SCANCODE_LEFT,SDL_SCANCODE_RIGHT,};
+		GamepadProfile gamepadP2{ 0 ,Gamepad::GamePadButton::DPadUp,Gamepad::GamePadButton::DPadDown,Gamepad::GamePadButton::DPadLeft,Gamepad::GamePadButton::DPadRight,Gamepad::GamePadButton::A };
+		enemyComponent->BindInput(inputP2 , gamepadP2);
 		m_pEnemyGameObject = pEnemy;
 		scene.Add(pEnemy);
 
@@ -851,6 +865,13 @@ namespace dae
 		m_Controller->GetMutableScore() = 0;
 		m_Controller->GetMutableLives() = 4;
 
+		//skip levels
+		auto& input = InputManager::GetInstance();
+		input.BindKeyboardCommand(SDL_SCANCODE_F1, InputState::Down, std::make_unique<SkipLevelCommand>(m_Controller));
+
+		auto soundSystem = dae::ServiceLocator::GetSoundSystem();
+		soundSystem->Play(GAMEPLAY_MUSIC_SOUND_ID, 5);
+
 		ClearSceneReferences();
 		auto& scene = dae::SceneManager::GetInstance().CreateScene("Versus");
 		SetupVersusGameplayScene(scene, m_CurrentLevel, m_TileMap);
@@ -864,26 +885,40 @@ namespace dae
 
 	void VersusGameplayMode::OnNotify(const dae::GameObject& /*gameObject*/, dae::Event event)
 	{
-		if (event != EVENT_GAME_GEM_COLLECTED)
-			return;
-
-		++m_TotalGemsCollected;
-
-		if (m_TotalGemsCollected >= LevelLoader::GetTotalGemCount() && LevelLoader::GetTotalGemCount() > 0)
+		if (event == EVENT_GAME_GEM_COLLECTED)
 		{
-			std::cout << "Collected all gems!" << std::endl;
+			++m_TotalGemsCollected;
+
+			if (m_TotalGemsCollected >= LevelLoader::GetTotalGemCount() && LevelLoader::GetTotalGemCount() > 0)
+			{
+				std::cout << "Collected all gems!" << std::endl;
+
+				if (m_CurrentLevel < 3)
+				{
+					DeferReloadScene(m_CurrentLevel + 1);
+				}
+				else
+				{
+					if (m_pPlayerGameObject && !m_GameCompletedFired)
+					{
+						dae::EventManager::GetInstance().FireEvent({ EVENT_GAME_COMPLETED }, nullptr, nullptr);
+						m_GameCompletedFired = true;
+					}
+				}
+			}
+		}
+		else if (event == EVENT_ALL_ENEMIES_KILLED)
+		{
+			std::cout << "All enemies killed this round!" << std::endl;
 
 			if (m_CurrentLevel < 3)
 			{
 				DeferReloadScene(m_CurrentLevel + 1);
 			}
-			else
+			else if (!m_GameCompletedFired)
 			{
-				if (m_pPlayerGameObject && !m_GameCompletedFired)
-				{
-					dae::EventManager::GetInstance().FireEvent({ EVENT_GAME_COMPLETED }, nullptr, nullptr);
-					m_GameCompletedFired = true;
-				}
+				dae::EventManager::GetInstance().FireEvent({ EVENT_GAME_COMPLETED }, nullptr, nullptr);
+				m_GameCompletedFired = true;
 			}
 		}
 	}
@@ -944,5 +979,4 @@ namespace dae
 		m_CurrentLevel = 1;
 		dae::SceneManager::GetInstance().DeleteScene("Versus");
 	}
-	
 }

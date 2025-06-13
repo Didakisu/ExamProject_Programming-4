@@ -60,9 +60,9 @@ void dae::LevelLoader::LoadLevel(const std::string& filename, Scene& scene, Tile
     const float zGem = 1.f;
     const float zGoldBag = 3.f;
 
-    for (size_t y = 0; y < lines.size(); ++y)
+    for (int y = 0; y < lines.size(); ++y)
     {
-        for (size_t x = 0; x < lines[y].length(); ++x)
+        for (int x = 0; x < lines[y].length(); ++x)
         {
             float fxDirt = static_cast<float>(x * TileMap::TILE_WIDTH);
             float fyDirt = static_cast<float>(y * TileMap::TILE_HEIGHT);
@@ -80,11 +80,13 @@ void dae::LevelLoader::LoadLevel(const std::string& filename, Scene& scene, Tile
                 break;
             case TileType::Gem:
                 SpawnDirt(scene, fxDirt, fyDirt, zDirt, dirtTexture);
+                outMap.SetTile(x, y, TileType::Dirt);
                 SpawnGem(scene, fxDirt, fyDirt, 4.f);
                 ++m_TotalGems;
                 break;
             case TileType::GoldBag:
                 SpawnDirt(scene, fxDirt, fyDirt, zDirt, dirtTexture);
+                outMap.SetTile(x, y, TileType::Dirt);
                 SpawnGoldBag(scene, fxDirt, fyDirt, zGoldBag, &outMap);
                 break;
             case TileType::Hole:
@@ -93,6 +95,7 @@ void dae::LevelLoader::LoadLevel(const std::string& filename, Scene& scene, Tile
                 break;
             case TileType::Enemy:
                 SpawnEmpty(scene, fxDirt, fyDirt, zGem, std::nullopt);
+                outMap.SetTile(x, y, TileType::Empty);
                 m_EnemySpawnPositions.push_back({ fxDirt, fyDirt, zGoldBag });
                 break;
             default:

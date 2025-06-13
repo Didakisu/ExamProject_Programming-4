@@ -85,9 +85,10 @@ namespace dae
         m_RespawnTimer = 0.f;
     }
 
-    void VersusEnemyComponent::BindInput(const InputProfile& profile)
+    void VersusEnemyComponent::BindInput(const InputProfile& profile , const GamepadProfile& gpProfile)
     {
         m_InputProfile = profile;
+        m_GamepadProfile = gpProfile;
         m_InputsBound = true;
 
         auto& input = InputManager::GetInstance();
@@ -115,6 +116,34 @@ namespace dae
             cmd->SetRestrictMovement(!m_IsEnraged);
             input.BindKeyboardCommand(m_InputProfile.right, InputState::Pressed, std::move(cmd));
         }
+
+
+
+        using GPB = Gamepad::GamePadButton;
+
+        {
+            auto cmd = std::make_unique<MoveCommand>(GetOwner(), m_Speed, glm::vec2{ 0, -1 }, m_pTileMap, m_Scene);
+            cmd->SetRestrictMovement(!m_IsEnraged);
+            input.BindGamepadCommand(gpProfile.controllerId, gpProfile.up, InputState::Pressed, std::move(cmd)); 
+        }
+
+        {
+            auto cmd = std::make_unique<MoveCommand>(GetOwner(), m_Speed, glm::vec2{ 0, 1 }, m_pTileMap, m_Scene);
+            cmd->SetRestrictMovement(!m_IsEnraged);
+            input.BindGamepadCommand(gpProfile.controllerId, gpProfile.down, InputState::Pressed, std::move(cmd));
+        }
+
+        {
+            auto cmd = std::make_unique<MoveCommand>(GetOwner(), m_Speed, glm::vec2{ -1, 0 }, m_pTileMap, m_Scene);
+            cmd->SetRestrictMovement(!m_IsEnraged);
+            input.BindGamepadCommand(gpProfile.controllerId, gpProfile.left, InputState::Pressed, std::move(cmd));
+        }
+
+        {
+            auto cmd = std::make_unique<MoveCommand>(GetOwner(), m_Speed, glm::vec2{ 1, 0 }, m_pTileMap, m_Scene);
+            cmd->SetRestrictMovement(!m_IsEnraged);
+            input.BindGamepadCommand(gpProfile.controllerId, gpProfile.right, InputState::Pressed, std::move(cmd));
+        }
     }
 
     void VersusEnemyComponent::UnbindInput()
@@ -129,6 +158,11 @@ namespace dae
         input.UnbindKeyboardCommand(m_InputProfile.left);
         input.UnbindKeyboardCommand(m_InputProfile.right);
 
+        input.UnbindGamepadCommand(m_GamepadProfile.controllerId,m_GamepadProfile.up);
+        input.UnbindGamepadCommand(m_GamepadProfile.controllerId, m_GamepadProfile.down);
+        input.UnbindGamepadCommand(m_GamepadProfile.controllerId, m_GamepadProfile.left);
+        input.UnbindGamepadCommand(m_GamepadProfile.controllerId, m_GamepadProfile.right);
+        
         m_InputsBound = false;
     }
 
@@ -144,7 +178,7 @@ namespace dae
 
         m_pAnimationComponent->PlayAnimation("Walk");
 
-        BindInput(m_InputProfile);
+        BindInput(m_InputProfile , m_GamepadProfile);
 
         m_ShouldRespawn = false;
     }
@@ -154,7 +188,7 @@ namespace dae
         m_IsEnraged = isEnraged;
 
         UnbindInput();
-        BindInput(m_InputProfile);
+        BindInput(m_InputProfile, m_GamepadProfile);
 
         if (m_pAnimationComponent)
         {

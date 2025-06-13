@@ -34,12 +34,11 @@ namespace dae {
 
         //
         unsigned int GetIndex() const;
+        void SetIndex(unsigned int index);
         //
 
     private:
         class GamepadImpl; 
         std::unique_ptr<GamepadImpl> pImpl;
-
-        unsigned int m_Index;
     };
 }

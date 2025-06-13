@@ -70,10 +70,12 @@ namespace dae {
     bool Gamepad::IsButtonUp(GamePadButton button) const {
         return pImpl->IsButtonUp(button);
     }
-    //
+
     unsigned int Gamepad::GetIndex() const {
         return pImpl->m_Index; 
     }
-    //
-
+    void Gamepad::SetIndex(unsigned int index)
+    {
+        pImpl->m_Index = index;
+    }
 }

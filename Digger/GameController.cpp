@@ -47,6 +47,10 @@ namespace dae
 		{
 			coopState->ProcessDeferredReload();
 		}
+		else if (auto versusState = dynamic_cast<VersusGameplayMode*>(currentState))
+		{
+			versusState->ProcessDeferredReload();
+		}
 		else if (auto endState = dynamic_cast<EndScreenState*>(currentState))
 		{
 			if (endState->WantsToExit())
@@ -70,7 +74,7 @@ namespace dae
 
 	void GameController::OnNotify(const GameObject&, Event event)
 	{
-		if (event == EVENT_GAME_COMPLETED)
+		if (event == EVENT_GAME_COMPLETED || event == EVENT_PLAYER_OUT_OF_LIVES)
 		{
 			int finalScore = GetScore();
 
@@ -85,12 +89,6 @@ namespace dae
 			{
 				RequestStateChange("MainMenu");
 			}
-		}
-
-		if (event == EVENT_PLAYER_OUT_OF_LIVES)
-		{
-			std::cout << "PLAYER IS OUT OF LIVES!" << std::endl;
-			RequestStateChange("MainMenu");
 		}
 	}
 

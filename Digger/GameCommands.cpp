@@ -13,6 +13,7 @@
 #include <Physics.h>
 #include "PlayerComponent.h"
 #include "GameController.h"
+#include "GameStates.h"
 
 
 constexpr int DISTANCE_EPSILON = 10;
@@ -255,5 +256,33 @@ void MainMenuConfirmCommand::Execute(float)
     if (auto state = dynamic_cast<dae::MainMenuState*>(m_Controller->GetCurrentState()))
     {
         state->ConfirmSelectedMode();
+    }
+}
+
+void ToggleMuteCommand::Execute(float)
+{
+    m_SoundSystem.ToggleMute();
+}
+
+void SkipLevelCommand::Execute(float)
+{
+    if (!m_Controller) return;
+
+    auto state = m_Controller->GetCurrentState();
+
+    if (auto gameplay = dynamic_cast<dae::RegularGameplayMode*>(state))
+    {
+        int nextLevel = gameplay->GetCurrentLevel() + 1;
+        gameplay->DeferReloadScene(nextLevel);
+    }
+    else if (auto coop = dynamic_cast<dae::CoopGameplayMode*>(state))
+    {
+        int nextLevel = coop->GetCurrentLevel() + 1;
+        coop->DeferReloadScene(nextLevel);
+    }
+    else if (auto versus = dynamic_cast<dae::VersusGameplayMode*>(state))
+    {
+        int nextLevel = versus->GetCurrentLevel() + 1;
+        versus->DeferReloadScene(nextLevel);
     }
 }

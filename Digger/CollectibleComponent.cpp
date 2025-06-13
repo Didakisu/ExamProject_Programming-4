@@ -21,11 +21,11 @@ namespace dae
 
             if (m_IsCollected) return;
 
-            if (!other->HasComponent<PlayerComponent>() && !other->HasComponent<EnemyComponent>())
+            if (!other->HasComponent<PlayerComponent>() && (m_CollectEvent == EVENT_COLLECTED_GEM || !other->HasComponent<EnemyComponent>()))
                 return;
 
             auto soundSystem = dae::ServiceLocator::GetSoundSystem();
-            soundSystem->Play(COLLECT_SOUND_ID, 50);
+            soundSystem->Play(COLLECT_SOUND_ID, 20);
 
             OnCollected(const_cast<GameObject*>(other));
         }

@@ -28,7 +28,10 @@ void load()
 	soundSystem.LoadSound(GAMEPLAY_MUSIC_SOUND_ID, "../Data/Data_Sounds_DiggerMusic.mp3");
 	soundSystem.LoadSound(CHERRY_PICKUP_SOUND_ID, "../Data/pickup_cherry.wav");
 	soundSystem.LoadSound(UI_CHOOSE_SOUND_ID, "../Data/ui_choose.mp3");
-	soundSystem.LoadSound(UI_SELECT_SOUND_ID, "../Data/ui_select.mp3");
+
+	//mute
+	auto& input = dae::InputManager::GetInstance();
+	input.BindKeyboardCommand(SDL_SCANCODE_F2, dae::InputState::Down, std::make_unique<ToggleMuteCommand>(soundSystem));
 
 	auto& rootScene = dae::SceneManager::GetInstance().CreateScene("RootScene");
 

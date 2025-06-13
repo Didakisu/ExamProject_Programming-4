@@ -68,6 +68,16 @@ dae::GameObject* dae::GameObject::GetParent() const
     return m_parent;  
 }
 
+void dae::GameObject::MarkForDestruction()
+{
+    m_MarkedForDestruction = true;
+
+    for (GameObject* child : m_children)
+    {
+        child->MarkForDestruction();
+    }
+}
+
 void dae::GameObject::RemoveChild(GameObject* child) {
     if (!child) return;
 
